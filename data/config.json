@@ -5,7 +5,7 @@
     "ip_address": "192.168.1.2",
     "subnet": "255.255.255.0",
     "dns_Server": "192.168.1.1",
-    "hostname": "iotbutton.lan",
+    "hostname": "iotbutton.lan"
   },
 
 
@@ -35,10 +35,10 @@
 
 
   "device": {
-    "last_state": "17:41 16:06:2019"
+    "last_state": "1560701988"
     "counter": 24,
     "track_last": true
   }
-  
+
 
 }
