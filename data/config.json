@@ -1,0 +1,44 @@
+{
+  "network": {
+    "ssid_name": "ssid",
+    "ssid_password": "password",
+    "ip_address": "192.168.1.2",
+    "subnet": "255.255.255.0",
+    "dns_Server": "192.168.1.1",
+    "hostname": "iotbutton.lan",
+  },
+
+
+  "mqtt": {
+    "server": "broker.ddns.net",
+    "port": 8883,
+    "id_name": "iotbutton",
+    "user_name": "user_name",
+    "user_password": "user_password",
+    "ca_file": "certs/ca.crt",
+    "cert_file": "certs/client.crt",
+    "key_file": "certs/client.key",
+    "pub_topic": "/iot_button/feed",
+    "sub_topic": [
+      "/iot_button/topi1",
+      "/iot_button/topi2",
+      "/iot_button/topi3"
+    ]
+  },
+
+
+  "services": {
+    "ftp": true,
+    "ota": true,
+    "sleep_mode": true
+  },
+
+
+  "device": {
+    "last_state": "17:41 16:06:2019"
+    "counter": 24,
+    "track_last": true
+  }
+  
+
+}
