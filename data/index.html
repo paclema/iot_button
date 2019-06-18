@@ -81,6 +81,7 @@
 
           <button type="button" id="LoadConfig" value="LoadConfig" class="btn btn-warning">Load configs</button>
           <button type="button" id="Factory" value="Factory" class="btn btn-danger">Factory defaults</button>
+          <button type="button" id="gpio_test" value="gpio_test" class="btn btn-info">GPIO test</button>
         </div>
       </div>
 
@@ -124,6 +125,61 @@
     var config;
 
     $(loadConfig());
+
+
+
+    // Button functions:
+
+    $('#gpio_test').click(function(){
+       setGPIO('D8',true);
+     });
+
+
+    document.getElementById("SaveConfig").onclick = function SaveConfig() {
+      //submitForms(config);
+      console.log("SaveConfig");
+      console.log(config);
+
+      var config_reloaded = formToConfig(config);
+      console.log(config_reloaded);
+      storeJson(config_reloaded);
+    };
+    document.getElementById("Restart").onclick = function Restart() {
+      console.log("Restart");
+      var config_reloaded = formToConfig(config);
+      console.log(config_reloaded);
+      storeJson(config_reloaded);
+
+      //Restart esp8266
+
+    };
+    document.getElementById("LoadConfig").onclick = function LoadConfig() {
+      console.log("LoadConfig");
+      //Load config.json
+      //loadConfig();
+      window.location.reload();
+    };
+    document.getElementById("Factory").onclick = function Factory() {
+      console.log("Factory");
+
+      //Remove current config.json Move config.json.bak to config.json:
+      restoreBackup();
+
+      //Load config.json
+      //loadConfig();
+      window.location.reload();
+
+    };
+
+    // // To save a file
+    // // var textToSave = 'this is a test';
+    // var hiddenElement = document.createElement('a');
+    // hiddenElement.href = 'data:attachment/text,' + encodeURI(config);
+    // hiddenElement.target = '_blank';
+    // hiddenElement.download = 'myFile.txt';
+    // hiddenElement.click();
+
+
 
     function loadConfig() {
        //var config = [];
@@ -256,56 +312,6 @@
        });
     };
 
-
-
-    // // To save a file
-    // // var textToSave = 'this is a test';
-    // var hiddenElement = document.createElement('a');
-    // hiddenElement.href = 'data:attachment/text,' + encodeURI(config);
-    // hiddenElement.target = '_blank';
-    // hiddenElement.download = 'myFile.txt';
-    // hiddenElement.click();
-
-
-
-    // Button functions:
-    document.getElementById("SaveConfig").onclick = function SaveConfig() {
-
-      //submitForms(config);
-      console.log("SaveConfig");
-      console.log(config);
-
-      var config_reloaded = formToConfig(config);
-      console.log(config_reloaded);
-      storeJson(config_reloaded);
-    };
-    document.getElementById("Restart").onclick = function Restart() {
-      console.log("Restart");
-      var config_reloaded = formToConfig(config);
-      console.log(config_reloaded);
-      storeJson(config_reloaded);
-
-      //Restart esp8266
-
-    };
-    document.getElementById("LoadConfig").onclick = function LoadConfig() {
-      console.log("LoadConfig");
-      //Load config.json
-      //loadConfig();
-      window.location.reload();
-    };
-    document.getElementById("Factory").onclick = function Factory() {
-      console.log("Factory");
-
-      //Remove current config.json Move config.json.bak to config.json:
-      restoreBackup();
-
-      //Load config.json
-      //loadConfig();
-      window.location.reload();
-
-    };
-
     function restoreBackup(){
       $.ajax({
           type: "GET",
@@ -354,6 +360,30 @@
       console.log("config reloaded");
       return config_reloaded;
     };
+
+
+    function setGPIO(id, val) {
+
+      //setBouton('D8','0');
+      $.post("gpio?id=" + id + "&val=" + val).done(function(data){
+        console.log("Returned POST req: " + JSON.stringify(data));
+        var id_gpio = "#" + id + "_val";
+        //console.log(id_gpio);
+        // if ( data.success === "1" ) {
+        //   if ( data.val === "1" ) {
+        //     $(id_gpio).html("ON");
+        //   } else {
+        //     $(id_gpio).html("OFF");
+        //   }
+        // } else {
+        //   $(id_gpio).html('!');
+        // }
+      }).fail(function(err){
+        console.log("Error POST REQ: " + JSON.stringify(err));
+      });
+
+    }
+
 
 
   </script>
