@@ -1,7 +1,13 @@
 #include <Arduino.h>
 
+#ifdef ESP8266
 #include <ESP8266WiFi.h>
+#elif defined ESP32
+#include <WiFi.h>
+#include "SPIFFS.h"
+#endif
 #include <ESP8266WebServer.h>
+#include "ESP8266FtpServer.h"
 #include <FS.h>
 
 #define ARDUINOJSON_ENABLE_ALIGNMENT 1
@@ -30,6 +36,7 @@ struct Config {
 
 Config config;   // <- global configuration object
 
+FtpServer ftpSrv;
 ESP8266WebServer server(80);
 
 
@@ -200,6 +207,18 @@ void setup() {
 
   }
 
+  /////FTP Setup, ensure SPIFFS is started before ftp;  /////////
+  #ifdef ESP32       //esp32 we send true to format spiffs if cannot mount
+    if (SPIFFS.begin(true)) {
+  #elif defined ESP8266
+    if (SPIFFS.begin()) {
+  #endif
+        Serial.println("SPIFFS opened!");
+        ftpSrv.begin("paclema","paclema",true);    //username, password for ftp.  set ports in ESP8266FtpServer.h  (default 21, 50009 for PASV)
+    }
+
+
+
   Serial.println((String)"Connected?: " + config.network.connection);
 
 
@@ -223,18 +242,15 @@ void setup() {
   //SERVER INIT
   //list directory
   // server.on("/", HTTP_GET, handleFileList);
-  // server.serveStatic("/js", SPIFFS, "/js");
-  // server.serveStatic("/css", SPIFFS, "/css");
   // server.serveStatic("/img", SPIFFS, "/img");
-  server.serveStatic("/certs", SPIFFS, "/certs");
-  server.serveStatic("/php", SPIFFS, "/php");
-  // server.serveStatic("/save_config.php", SPIFFS, "/save_config.php");
-  // server.serveStatic("/restore_backup.php", SPIFFS, "/restore_backup.php");
+  server.serveStatic("/", SPIFFS, "/index.html");
   server.serveStatic("/css", SPIFFS, "/css");
   server.serveStatic("/js", SPIFFS, "/js");
+  server.serveStatic("/certs", SPIFFS, "/certs");
   server.serveStatic("/config.json", SPIFFS, "/config.json");
-  server.serveStatic("/", SPIFFS, "/index.html");
+
   server.on("/gpio", updateGpio);
+
 
   //called when the url is not defined here
   //use it to load content from SPIFFS
@@ -252,6 +268,6 @@ void setup() {
 }
 
 void loop() {
-  // put your main code here, to run repeatedly:
+  ftpSrv.handleFTP();
   server.handleClient();
 }
