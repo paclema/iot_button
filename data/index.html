@@ -92,14 +92,26 @@
         </div>
       </form> -->
 
-      <div class="custom-file">
+      <!-- <div class="custom-file">
         <input type="file" class="custom-file-input" id="customFile">
         <label class="custom-file-label" for="customFile">Choose file</label>
-      </div>
+      </div> -->
 
-      <div class="float-right">
-        <a href="http://www.github.com/paclema/iot_button" target="_blank"  class="stretched-link float-right">github.com/paclema/iot_button</a>
-      </div>
+
+
+
+
+      <!-- <div class="row" style="position:relative-right; bottom:0; width:100%">
+       <div class="col-xs-2 col-md-2"><img src="img/logo.png" width="30" height="30"></div>
+       <div class="stretched-link float-right">
+         <p><a href="http://www.github.com/paclema/iot_button" class="stretched-link float-right">github.com/paclema/iot_button</a></p>
+       </div>
+     </div> -->
+
+     <div class="container-fluid">
+        <div class="row">
+        </div>
+     </div>
 
     </div>
   </body>
@@ -178,10 +190,38 @@
 
             // The rest input forms are text type:
             else {
+
+              // If the object its a password, we hide the value:
               if (key.includes("password")){
                 formimput.innerHTML += "<input id=\""+key+"\" name=\""+key+"\" type=\"password\" placeholder=\"Password\" class=\"form-control input-md\" value=" + val + "required>"
                 // formimput.innerHTML += "<div class=\"invalid-tooltip\">Please choose a unique and valid username.</div>"
               }
+
+              // If the object contains a file path, we include a file input:
+              else if (key.includes("file")){
+                formimput.innerHTML += "<input id=\""+key+"\" name=\""+key+"\" type=\"text\" placeholder=\""+key+"\" class=\"form-control input-md\" value=" + val + ">"
+
+                // formimput.innerHTML += `<div class="custom-file">
+                //                          <input type="file" class="custom-file-input" id="customFile">
+                //                          <label class="custom-file-label" for="customFile">Choose file</label>
+                //                        </div>`
+
+
+
+                // formimput.innerHTML += `<form class="md-form">
+                //             <div class="file-field">
+                //               <div class="btn btn-primary btn-sm float-left">
+                //                 <span>Choose file</span>
+                //                 <input type="file">
+                //               </div>
+                //               <div class="file-path-wrapper">
+                //                 <input class="file-path validate" type="text" placeholder="Upload your file">
+                //               </div>
+                //             </div>
+                //           </form>`
+              }
+
+              // The rest objects:
               else {
                 formimput.innerHTML += "<input id=\""+key+"\" name=\""+key+"\" type=\"text\" placeholder=\""+key+"\" class=\"form-control input-md\" value=" + val + ">"
               }
@@ -195,10 +235,22 @@
            formpanel.innerHTML +="</div>"
            formpanel.innerHTML +="</div>"
            form.innerHTML +="</div>"
+
+
+
+
          }
 
 
-
+         // form.innerHTML += `<div class="row" style="position:relative; bottom:0; width:100%">
+         //  <!-- <div class="col-xs-2 col-md-2"><img src="img/logo.png" width="30" height="30"></div> -->
+         //  <div class="col-xs-5 col-md-5">
+         //    <p><a href="http://www.projetsdiy.fr">Version francaise : www.projetsdiy.fr</a></p>
+         //  </div>
+         //  <div class="col-xs-5 col-md-5">
+         //    <p><a href="http://www.diyprojects.io">English version : www.diyprojects.io</a></p>
+         //  </div>
+         // </div>`
 
 
        });
