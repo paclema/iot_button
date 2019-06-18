@@ -13,8 +13,7 @@
 #define ARDUINOJSON_ENABLE_ALIGNMENT 1
 #include <ArduinoJson.h>
 
-
-
+#define JSON_CONFIG_BUFF_SIZZE 2048
 #define CONFIG_FILE "/config.json"
 
 struct Network {
@@ -61,7 +60,7 @@ void loadConfiguration(const char *filename, Config &config) {
   // Allocate a temporary JsonDocument
   // Don't forget to change the capacity to match your requirements.
   // Use arduinojson.org/v6/assistant to compute the capacity.
-  StaticJsonDocument<2048> doc;
+  StaticJsonDocument<JSON_CONFIG_BUFF_SIZZE> doc;
 
   // Deserialize the JSON document
   DeserializationError error = deserializeJson(doc, file);
@@ -99,7 +98,7 @@ void saveConfiguration(const char *filename, const Config &config) {
   // Allocate a temporary JsonDocument
   // Don't forget to change the capacity to match your requirements.
   // Use arduinojson.org/assistant to compute the capacity.
-  StaticJsonDocument<2048> doc;
+  StaticJsonDocument<JSON_CONFIG_BUFF_SIZZE> doc;
 
   // Network object:
   doc["network"]["ssid_name"] = config.network.ssid_name;
@@ -214,7 +213,7 @@ void setup() {
     if (SPIFFS.begin()) {
   #endif
         Serial.println("SPIFFS opened!");
-        ftpSrv.begin("paclema","paclema",true);    //username, password for ftp.  set ports in ESP8266FtpServer.h  (default 21, 50009 for PASV)
+        ftpSrv.begin("paclema","paclema");    //username, password for ftp.  set ports in ESP8266FtpServer.h  (default 21, 50009 for PASV)
     }
 
 
@@ -250,7 +249,26 @@ void setup() {
   server.serveStatic("/config.json", SPIFFS, "/config.json");
 
   server.on("/gpio", updateGpio);
+  server.on("/save_config", HTTP_POST, [](){
+    // StaticJsonBuffer<200> newBuffer;
+    // JsonObject& newjson = newBuffer.parseObject(server.arg("plain"));
+    //
+    // server.send ( 200, "text/json", "{success:true}" );
 
+    // DynamicJsonDocument doc(JSON_CONFIG_BUFF_SIZZE);
+    StaticJsonDocument<JSON_CONFIG_BUFF_SIZZE> doc;
+
+    deserializeJson(doc, server.arg("plain"));
+
+    // JsonObject network = doc["network"];
+
+    Serial.print("JSON POST: ");
+    serializeJsonPretty(doc, Serial);
+    Serial.println("");
+
+    server.send ( 200, "text/json", "{success:true}" );
+
+  });
 
   //called when the url is not defined here
   //use it to load content from SPIFFS
