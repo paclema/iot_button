@@ -1,6 +1,7 @@
 #include <Arduino.h>
 
 #include <ESP8266WiFi.h>
+#include <ESP8266WebServer.h>
 #include <FS.h>
 
 #define ARDUINOJSON_ENABLE_ALIGNMENT 1
@@ -29,6 +30,21 @@ struct Config {
 
 Config config;   // <- global configuration object
 
+ESP8266WebServer server(80);
+
+
+//format bytes
+String formatBytes(size_t bytes) {
+  if (bytes < 1024) {
+    return String(bytes) + " B";
+  } else if (bytes < (1024 * 1024)) {
+    return String(bytes / 1024.0) + " KB";
+  } else if (bytes < (1024 * 1024 * 1024)) {
+    return String(bytes / 1024.0 / 1024.0) + " MB";
+  } else {
+    return String(bytes / 1024.0 / 1024.0 / 1024.0) + " GB";
+  }
+}
 
 // Loads the configuration from a file
 void loadConfiguration(const char *filename, Config &config) {
@@ -38,7 +54,7 @@ void loadConfiguration(const char *filename, Config &config) {
   // Allocate a temporary JsonDocument
   // Don't forget to change the capacity to match your requirements.
   // Use arduinojson.org/v6/assistant to compute the capacity.
-  StaticJsonDocument<1024> doc;
+  StaticJsonDocument<2048> doc;
 
   // Deserialize the JSON document
   DeserializationError error = deserializeJson(doc, file);
@@ -76,7 +92,7 @@ void saveConfiguration(const char *filename, const Config &config) {
   // Allocate a temporary JsonDocument
   // Don't forget to change the capacity to match your requirements.
   // Use arduinojson.org/assistant to compute the capacity.
-  StaticJsonDocument<1024> doc;
+  StaticJsonDocument<2048> doc;
 
   // Network object:
   doc["network"]["ssid_name"] = config.network.ssid_name;
@@ -118,14 +134,66 @@ void printFile(const char *filename) {
 }
 
 
+void updateGpio(){
+  String gpio = server.arg("id");
+  String val = server.arg("val");
+  String success = "1";
+
+  int pin = D5;
+  if ( gpio == "D5" ) {
+    pin = D5;
+  } else if ( gpio == "D7" ) {
+     pin = D7;
+   } else if ( gpio == "D8" ) {
+     pin = D8;
+   } else {
+     // Built-in nodemcu GPI16, pin 16 led
+     // esp12 led is 2 or D4
+      pin = LED_BUILTIN;
+
+    }
+
+  // Reverse current LED status:
+  pinMode(pin, OUTPUT);
+  // digitalWrite(pin, LOW);
+  Serial.println(pin);
+  Serial.print("Current status:");
+  Serial.println(digitalRead(pin));
+  digitalWrite(pin, !digitalRead(pin));
+
+
+  // if ( val == "true" ) {
+  //   digitalWrite(pin, HIGH);
+  // } else if ( val == "false" ) {
+  //   digitalWrite(pin, LOW);
+  // } else {
+  //   success = "true";
+  //   Serial.println("Err parsing GPIO Value");
+  // }
+
+  String json = "{\"gpio\":\"" + String(gpio) + "\",";
+  json += "\"val\":\"" + String(val) + "\",";
+  json += "\"success\":\"" + String(success) + "\"}";
+
+  server.send(200, "application/json", json);
+  Serial.println("GPIO updated!");
+}
+
+
 void setup() {
   Serial.begin(115200);
-
 
   if (!SPIFFS.begin()) {
     Serial.println("SPIFFS Mount failed");
   } else {
     Serial.println("SPIFFS Mount succesfull");
+    Dir dir = SPIFFS.openDir("/");
+    while (dir.next()) {
+      String fileName = dir.fileName();
+      size_t fileSize = dir.fileSize();
+      Serial.printf("FS File: %s, size: %s\n", fileName.c_str(), formatBytes(fileSize).c_str());
+    }
+    Serial.printf("\n");
 
     loadConfiguration(CONFIG_FILE, config);
     printFile(CONFIG_FILE);
@@ -147,12 +215,43 @@ void setup() {
   config.network.connection=true;
 
   // Create configuration file
-  saveConfiguration(CONFIG_FILE, config);
-  printFile(CONFIG_FILE);
+  //saveConfiguration(CONFIG_FILE, config);
+  //printFile(CONFIG_FILE);
+
+
+
+  //SERVER INIT
+  //list directory
+  // server.on("/", HTTP_GET, handleFileList);
+  // server.serveStatic("/js", SPIFFS, "/js");
+  // server.serveStatic("/css", SPIFFS, "/css");
+  // server.serveStatic("/img", SPIFFS, "/img");
+  server.serveStatic("/certs", SPIFFS, "/certs");
+  server.serveStatic("/php", SPIFFS, "/php");
+  // server.serveStatic("/save_config.php", SPIFFS, "/save_config.php");
+  // server.serveStatic("/restore_backup.php", SPIFFS, "/restore_backup.php");
+  server.serveStatic("/css", SPIFFS, "/css");
+  server.serveStatic("/js", SPIFFS, "/js");
+  server.serveStatic("/config.json", SPIFFS, "/config.json");
+  server.serveStatic("/", SPIFFS, "/index.html");
+  server.on("/gpio", updateGpio);
+
+  //called when the url is not defined here
+  //use it to load content from SPIFFS
+  server.onNotFound([]() {
+    // if (!handleFileRead(server.uri())) {
+      server.send(404, "text/plain", "FileNotFound");
+    // }
+  });
+
+  server.begin();
+  Serial.println ( "HTTP server started" );
+
 
 
 }
 
 void loop() {
   // put your main code here, to run repeatedly:
+  server.handleClient();
 }
