@@ -52,9 +52,34 @@ String formatBytes(size_t bytes) {
   }
 }
 
+// Saves the web configuration from a POST req to a file
+void saveWebConfigurationFile (const char *filename, const JsonDocument& doc) {
+
+  // Delete existing file, otherwise the configuration is appended to the file
+  SPIFFS.remove(filename);
+
+  // Open file for writing
+  // File file = SD.open(filename, FILE_WRITE);
+  File file = SPIFFS.open(filename, "w");
+  if (!file) {
+    Serial.println(F("Failed to create file"));
+    return;
+  }
+
+
+  // Serialize JSON to file
+  if (serializeJson(doc, file) == 0) {
+    Serial.println(F("Failed to write to file"));
+  }
+
+  // Close the file
+  file.close();
+
+}
+
 void parseConfig(const JsonDocument& doc, Config& config) {
 
-  serializeJsonPretty(doc, Serial);
+  // serializeJsonPretty(doc, Serial);
 
   // Network object:
   strlcpy(config.network.ssid_name, doc["network"]["ssid_name"] | "SSID_name", sizeof(config.network.ssid_name));
@@ -64,6 +89,9 @@ void parseConfig(const JsonDocument& doc, Config& config) {
   // MQTT object:
   strlcpy(config.mqtt.server, doc["mqtt"]["server"] | "server_address", sizeof(config.mqtt.server));
   config.mqtt.port = doc["mqtt"]["port"] | 8888;
+
+  // Save the config file with new configuration:
+  saveWebConfigurationFile(CONFIG_FILE,doc);
 
 }
 
@@ -89,7 +117,7 @@ void loadConfigurationFile(const char *filename, Config& config) {
   file.close();
 }
 
-// Saves the configuration to a file
+// Saves the Config struct configuration to a file
 void saveConfigurationFile(const char *filename, const Config &config) {
   // Delete existing file, otherwise the configuration is appended to the file
   SPIFFS.remove(filename);
@@ -128,7 +156,8 @@ void saveConfigurationFile(const char *filename, const Config &config) {
 }
 
 // Prints the content of a file to the Serial
-void printFile(const char *filename) {
+// void printFile(const char *filename) {
+void printFile(String filename) {
   // Open file for reading
   File file = SPIFFS.open(filename, "r");
   if (!file) {
@@ -146,6 +175,46 @@ void printFile(const char *filename) {
   file.close();
 }
 
+// Restore the backup of a file:
+// void restoreBackupFile(const char *filenamechar) {
+void restoreBackupFile(String filenamechar) {
+
+    String filename = filenamechar;
+    if(!filename.startsWith("/")) filename = "/"+filename;
+    String filename_bak =  "/.bak"+filename;
+    Serial.print("Restoring backup for: "); Serial.println(filename);
+    // Delete existing file, otherwise the configuration is appended to the file
+    SPIFFS.remove(filename);
+
+    File file = SPIFFS.open(filename, "w+");
+    if (!file) {
+      Serial.print(F("Failed to read file: "));Serial.println(filename);
+      return;
+    }
+
+    //Serial.print("Opened: "); Serial.println(filename);
+    File file_bak = SPIFFS.open(filename_bak, "r");
+    if (!file) {
+      Serial.print(F("Failed to read backup file: "));Serial.println(filename_bak);
+      return;
+    }
+
+    //Serial.print("Opened: "); Serial.println(filename_bak);
+
+    size_t n;
+    uint8_t buf[64];
+    while ((n = file_bak.read(buf, sizeof(buf))) > 0) {
+      file.write(buf, n);
+    }
+    Serial.println("Backup restored");
+    file_bak.close();
+    file.close();
+
+    // Serial.println("New config:");
+    //printFile(filename);
+
+
+}
 
 void updateGpio(){
   String gpio = server.arg("id");
@@ -210,8 +279,11 @@ void setup() {
     }
     Serial.printf("\n");
 
-    loadConfigurationFile(CONFIG_FILE, config);
+    if (SPIFFS.exists(CONFIG_FILE)) {
+      Serial.print(CONFIG_FILE); Serial.println(" exists!");
+      loadConfigurationFile(CONFIG_FILE, config);
     //printFile(CONFIG_FILE);
+    }
 
   }
 
@@ -259,14 +331,8 @@ void setup() {
 
   server.on("/gpio", updateGpio);
   server.on("/save_config", HTTP_POST, [](){
-    // StaticJsonBuffer<200> newBuffer;
-    // JsonObject& newjson = newBuffer.parseObject(server.arg("plain"));
-    //
-    // server.send ( 200, "text/json", "{success:true}" );
 
-    // DynamicJsonDocument doc(JSON_CONFIG_BUFF_SIZZE);
     StaticJsonDocument<JSON_CONFIG_BUFF_SIZZE> doc;
-
     deserializeJson(doc, server.arg("plain"));
 
     // JsonObject network = doc["network"];
@@ -275,10 +341,54 @@ void setup() {
     serializeJsonPretty(doc, Serial);
     Serial.println("");
 
-    // Parse file to Config struct object:
+    // Parse file to Config struct object to update internal config:
     parseConfig(doc,config);
 
     server.send ( 200, "text/json", "{success:true}" );
+
+  });
+  server.on("/restore_config", HTTP_POST, [](){
+    // StaticJsonBuffer<200> newBuffer;
+    // JsonObject& newjson = newBuffer.parseObject(server.arg("plain"));
+    //
+    // server.send ( 200, "text/json", "{success:true}" );
+/*
+    // DynamicJsonDocument doc(JSON_CONFIG_BUFF_SIZZE);
+    StaticJsonDocument<JSON_CONFIG_BUFF_SIZZE> doc;
+    deserializeJson(doc, server.arg("plain"));
+
+    // JsonObject network = doc["network"];
+
+    Serial.print("JSON POST: ");
+    serializeJsonPretty(doc, Serial);
+    Serial.println("");
+
+    // Restore the filename requested:
+    restoreBackupFile(doc["filename"]);
+
+    // server.send ( 200, "text/json", "{success:true}" );
+*/
+
+    Serial.print("JSON POST: "); Serial.println(server.arg("plain"));
+    Serial.print("JSON POST argName: "); Serial.println(server.argName(0));
+    Serial.print("JSON POST args: "); Serial.println(server.args());
+
+      if (server.args() > 0){
+         for (int i = 0; i < server.args(); i++ ) {
+             // Serial.print("POST Arguments: " ); Serial.println(server.args(i));
+             Serial.print("Name: "); Serial.println(server.argName(i));
+             Serial.print("Value: "); Serial.println(server.arg(i));
+        }
+     }
+
+    if( ! server.hasArg("filename") || server.arg("filename") == NULL){
+      server.send(400, "text/plain", "400: Invalid Request");
+    } else{
+      Serial.print("File to restore: "); Serial.println(server.arg("filename"));
+      restoreBackupFile(server.arg("filename"));
+      server.send ( 200, "text/json", "{success:true}" );
+    }
+
 
   });
 

@@ -171,7 +171,6 @@
 
       //Load config.json
       //loadConfig();
-      window.location.reload();
 
     };
 
@@ -319,16 +318,38 @@
     };
 
     function restoreBackup(){
-      $.ajax({
-          type: "GET",
-          dataType : 'json',
-          async: false,
-          url: '/php/restore_backup.php',
-          //data: { data: JSON.stringify(config) },
-          data: {},
-          success: function () {alert("Thanks!"); },
-          failure: function() {alert("Error!");}
-      });
+      // $.ajax({
+      //     type: "GET",
+      //     dataType : 'json',
+      //     async: false,
+      //     url: '/php/restore_backup.php',
+      //     //data: { data: JSON.stringify(config) },
+      //     data: {},
+      //     success: function () {alert("Thanks!"); },
+      //     failure: function() {alert("Error!");}
+      // });
+
+      var xhr = new XMLHttpRequest();
+      xhr.open("POST", "/restore_config", true);
+      xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8");
+
+
+      // xhr.send('key1=value1&key2=value2');
+      // Can be read from firmware as:
+      // String val1 = server.arg("key1");
+      // String val2 = server.arg("key2");
+
+      // xhr.send("filename=config.json");
+
+      xhr.send("filename=config.json");
+      xhr.onreadystatechange = (e) => {
+        console.log(xhr.responseText);
+        window.location.reload();
+      }
+
+
+
+
     };
 
     function storeJson(config){
