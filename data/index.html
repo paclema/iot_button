@@ -7,6 +7,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
     <title>IoT Button configuration</title>
+    <link rel="shorcut icon" type="img/ico "href="/img/favicon.ico">
 
     <meta name="description" content="web server for IoT button configuration">
     <meta name="author" content="paclema">
@@ -29,10 +30,11 @@
     <link rel="stylesheet" type="text/css" href="/css/bootstrap.min.css"/>
     <script src="js/jquery.min.js"></script>
     <script src="js/bootstrap.min.js"></script>
+    <script src="js/bootstrap.min.js"></script>
 
     <!-- <script src="php/save_config.php"></script>
     <script src="php/restore_backup.php"></script> -->
-    <script type="text/javascript" src="config.json"></script>
+    <!-- <script src="config.json"></script> -->
 
 
   </head>
@@ -338,8 +340,6 @@
       // Can be read from firmware as:
       // String val1 = server.arg("key1");
       // String val2 = server.arg("key2");
-
-      // xhr.send("filename=config.json");
 
       xhr.send("filename=config.json");
       xhr.onreadystatechange = (e) => {

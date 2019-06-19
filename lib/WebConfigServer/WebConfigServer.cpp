@@ -267,6 +267,7 @@ void WebConfigServer::configureServer(ESP8266WebServer *server){
 
   //SERVER INIT
   //list directory
+  server->serveStatic("/img", SPIFFS, "/img");
   server->serveStatic("/", SPIFFS, "/index.html");
   server->serveStatic("/css", SPIFFS, "/css");
   server->serveStatic("/js", SPIFFS, "/js");
