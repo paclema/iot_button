@@ -52,8 +52,23 @@ String formatBytes(size_t bytes) {
   }
 }
 
+void parseConfig(const JsonDocument& doc, Config& config) {
+
+  serializeJsonPretty(doc, Serial);
+
+  // Network object:
+  strlcpy(config.network.ssid_name, doc["network"]["ssid_name"] | "SSID_name", sizeof(config.network.ssid_name));
+  strlcpy(config.network.ssid_password, doc["network"]["ssid_password"] | "SSID_password", sizeof(config.network.ssid_password));
+  config.network.connection = false;
+
+  // MQTT object:
+  strlcpy(config.mqtt.server, doc["mqtt"]["server"] | "server_address", sizeof(config.mqtt.server));
+  config.mqtt.port = doc["mqtt"]["port"] | 8888;
+
+}
+
 // Loads the configuration from a file
-void loadConfiguration(const char *filename, Config &config) {
+void loadConfigurationFile(const char *filename, Config& config) {
   // Open file for reading
   File file = SPIFFS.open(filename, "r");
 
@@ -67,23 +82,15 @@ void loadConfiguration(const char *filename, Config &config) {
   if (error)
     Serial.println(F("Failed to read file, using default configuration"));
 
-
-  // Network object:
-  strlcpy(config.network.ssid_name, doc["network"]["ssid_name"] | "SSID_name", sizeof(config.network.ssid_name));
-  strlcpy(config.network.ssid_password, doc["network"]["ssid_password"] | "SSID_password", sizeof(config.network.ssid_password));
-  config.network.connection = false;
-
-  // MQTT object:
-  strlcpy(config.mqtt.server, doc["mqtt"]["server"] | "server_address", sizeof(config.mqtt.server));
-  config.mqtt.port = doc["mqtt"]["port"] | 8888;
-
+  // Parse file to Config struct object:
+  parseConfig(doc,config);
 
   // Close the file (Curiously, File's destructor doesn't close the file)
   file.close();
 }
 
 // Saves the configuration to a file
-void saveConfiguration(const char *filename, const Config &config) {
+void saveConfigurationFile(const char *filename, const Config &config) {
   // Delete existing file, otherwise the configuration is appended to the file
   SPIFFS.remove(filename);
 
@@ -152,10 +159,12 @@ void updateGpio(){
      pin = D7;
    } else if ( gpio == "D8" ) {
      pin = D8;
+   } else if ( gpio == "LED_BUILTIN" ) {
+     pin = LED_BUILTIN;
    } else {
-     // Built-in nodemcu GPI16, pin 16 led
+     // Built-in nodemcu GPI16, pin 16 led D0
      // esp12 led is 2 or D4
-      pin = LED_BUILTIN;
+     pin = LED_BUILTIN;
 
     }
 
@@ -201,8 +210,8 @@ void setup() {
     }
     Serial.printf("\n");
 
-    loadConfiguration(CONFIG_FILE, config);
-    printFile(CONFIG_FILE);
+    loadConfigurationFile(CONFIG_FILE, config);
+    //printFile(CONFIG_FILE);
 
   }
 
@@ -228,12 +237,12 @@ void setup() {
     Serial.println("Connecting to WiFi..");
   }
 
-  // Print ESP32 Local IP Address
+  // Print Local IP Address
   Serial.println(WiFi.localIP());
   config.network.connection=true;
 
   // Create configuration file
-  //saveConfiguration(CONFIG_FILE, config);
+  //saveConfigurationFile(CONFIG_FILE, config);
   //printFile(CONFIG_FILE);
 
 
@@ -265,6 +274,9 @@ void setup() {
     Serial.print("JSON POST: ");
     serializeJsonPretty(doc, Serial);
     Serial.println("");
+
+    // Parse file to Config struct object:
+    parseConfig(doc,config);
 
     server.send ( 200, "text/json", "{success:true}" );
 

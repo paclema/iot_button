@@ -134,7 +134,7 @@
     // Button functions:
 
     $('#gpio_test').click(function(){
-       setGPIO('D8',true);
+       setGPIO('LED_BUILTIN',true);
      });
 
 
@@ -334,17 +334,26 @@
     function storeJson(config){
       console.log("Storing the data...");
       console.log(config);
-      $.ajax({
-          type: "GET",
-          dataType : 'json',
-          url: '/php/save_config.php',
-          async: true,
-          data: { data: JSON.stringify(config) },
-          //data: `{ "data": JSON.stringify(window.config) }`,
-          success: function () {alert("Thanks!"); },
-          failure: function() {alert("Error!");}
-      });
+
+      // Using php file:
+      // $.ajax({
+      //     type: "GET",
+      //     dataType : 'json',
+      //     url: '/php/save_config.php',
+      //     async: true,
+      //     data: { data: JSON.stringify(config) },
+      //     //data: `{ "data": JSON.stringify(window.config) }`,
+      //     success: function () {alert("Thanks!"); },
+      //     failure: function() {alert("Error!");}
+      // });
+
+      // Direclty using POST req configured in the fw:
+      var xhr = new XMLHttpRequest();
+      xhr.open("POST", "/save_config", true);
+      xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8");
+      xhr.send(JSON.stringify(window.config));
       console.log("data stored");
+
     };
 
 
