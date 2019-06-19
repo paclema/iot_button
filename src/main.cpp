@@ -21,13 +21,13 @@ void setup() {
 
   Webconfig.begin();
 
-  Serial.println((String)"Wifi ssid?: " + Webconfig.config.network.ssid_name);
-  Serial.println((String)"Connected?: " + Webconfig.config.network.ssid_password);
+  Serial.println((String)"Wifi ssid?: " + Webconfig.network.ssid_name);
+  Serial.println((String)"Connected?: " + Webconfig.network.ssid_password);
 
 
   // Connect to Wi-Fi
   // WiFi.begin("paclema_fon", "paclematest");
-  WiFi.begin(Webconfig.config.network.ssid_name, Webconfig.config.network.ssid_password);
+  WiFi.begin(Webconfig.network.ssid_name, Webconfig.network.ssid_password);
   while (WiFi.status() != WL_CONNECTED) {
     delay(1000);
     Serial.println("Connecting to WiFi..");

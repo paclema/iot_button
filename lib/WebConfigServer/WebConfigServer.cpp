@@ -21,7 +21,7 @@ void WebConfigServer::begin(void){
 
     if (SPIFFS.exists(CONFIG_FILE)) {
       Serial.print(CONFIG_FILE); Serial.println(" exists!");
-      loadConfigurationFile(CONFIG_FILE, config);
+      loadConfigurationFile(CONFIG_FILE);
     printFile(CONFIG_FILE);
     }
 
@@ -67,18 +67,18 @@ void WebConfigServer::saveWebConfigurationFile(const char *filename, const JsonD
 }
 
 
-void WebConfigServer::parseConfig(const JsonDocument& doc, Config& config){
+void WebConfigServer::parseConfig(const JsonDocument& doc){
 
     // serializeJsonPretty(doc, Serial);
 
     // Network object:
-    strlcpy(config.network.ssid_name, doc["network"]["ssid_name"] | "SSID_name", sizeof(config.network.ssid_name));
-    strlcpy(config.network.ssid_password, doc["network"]["ssid_password"] | "SSID_password", sizeof(config.network.ssid_password));
-    config.network.connection = false;
+    strlcpy(network.ssid_name, doc["network"]["ssid_name"] | "SSID_name", sizeof(network.ssid_name));
+    strlcpy(network.ssid_password, doc["network"]["ssid_password"] | "SSID_password", sizeof(network.ssid_password));
+    network.connection = false;
 
     // MQTT object:
-    strlcpy(config.mqtt.server, doc["mqtt"]["server"] | "server_address", sizeof(config.mqtt.server));
-    config.mqtt.port = doc["mqtt"]["port"] | 8888;
+    strlcpy(mqtt.server, doc["mqtt"]["server"] | "server_address", sizeof(mqtt.server));
+    mqtt.port = doc["mqtt"]["port"] | 8888;
 
     // Save the config file with new configuration:
     saveWebConfigurationFile(CONFIG_FILE,doc);
@@ -87,7 +87,7 @@ void WebConfigServer::parseConfig(const JsonDocument& doc, Config& config){
 
 
 // Loads the configuration from a file
-void WebConfigServer::loadConfigurationFile(const char *filename, Config& config){
+void WebConfigServer::loadConfigurationFile(const char *filename){
   // Open file for reading
   File file = SPIFFS.open(filename, "r");
 
@@ -102,7 +102,7 @@ void WebConfigServer::loadConfigurationFile(const char *filename, Config& config
     Serial.println(F("Failed to read file, using default configuration"));
 
   // Parse file to Config struct object:
-  parseConfig(doc,config);
+  parseConfig(doc);
 
   // Close the file (Curiously, File's destructor doesn't close the file)
   file.close();
@@ -110,8 +110,7 @@ void WebConfigServer::loadConfigurationFile(const char *filename, Config& config
 
 
 // Saves the Config struct configuration to a file
-// void WebConfigServer::saveConfigurationFile(const char *filename, const Config &config)
-void WebConfigServer::saveConfigurationFile(const char *filename, Config& config){
+void WebConfigServer::saveConfigurationFile(const char *filename){
   // Delete existing file, otherwise the configuration is appended to the file
   SPIFFS.remove(filename);
 
@@ -129,13 +128,13 @@ void WebConfigServer::saveConfigurationFile(const char *filename, Config& config
   DynamicJsonDocument doc(JSON_CONFIG_BUFF_SIZZE);
 
   // Network object:
-  doc["network"]["ssid_name"] = config.network.ssid_name;
-  doc["network"]["ssid_password"] = config.network.ssid_password;
-  doc["network"]["connection"] = config.network.connection;
+  doc["network"]["ssid_name"] = network.ssid_name;
+  doc["network"]["ssid_password"] = network.ssid_password;
+  doc["network"]["connection"] = network.connection;
 
   // Network object:
-  doc["mqtt"]["server"] = config.mqtt.server;
-  doc["mqtt"]["port"] = config.mqtt.port;
+  doc["mqtt"]["server"] = mqtt.server;
+  doc["mqtt"]["port"] = mqtt.port;
 
 
 
@@ -170,7 +169,6 @@ void WebConfigServer::printFile(String filename){
 
 
 // Restore the backup of a file:
-// void saveConfigurationFile(const char *filename, const Config &config){
 void WebConfigServer::restoreBackupFile(String filenamechar){
 
       String filename = filenamechar;
@@ -261,7 +259,7 @@ void WebConfigServer::updateGpio(ESP8266WebServer *server){
 void WebConfigServer::configureServer(ESP8266WebServer *server){
 
   // Create configuration file
-  //saveConfigurationFile(CONFIG_FILE, config);
+  //saveConfigurationFile(CONFIG_FILE);
 
   //printFile(CONFIG_FILE);
 
@@ -290,7 +288,7 @@ void WebConfigServer::configureServer(ESP8266WebServer *server){
     Serial.println("");
 
     // Parse file to Config struct object to update internal config:
-    parseConfig(doc,config);
+    parseConfig(doc);
 
     server->send ( 200, "text/json", "{success:true}" );
 
