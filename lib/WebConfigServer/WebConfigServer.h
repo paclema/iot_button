@@ -34,7 +34,7 @@ public:
 
   };
 
-  ESP8266WebServer *server;
+  // ESP8266WebServer *server;
   // ESP8266WebServer server(80);
 
   Config config;   // <- global configuration object
@@ -49,9 +49,10 @@ public:
   void saveConfigurationFile(const char *filename, Config& config);
   void printFile(String filename);
   void restoreBackupFile(String filenamechar);
-  void updateGpio(void);
+  // void updateGpio(void);
+  void updateGpio(ESP8266WebServer *server);
 
-  void serverBegin(void);
+  void configureServer(ESP8266WebServer *server);
   void handle(void);
   void begin(void);
 

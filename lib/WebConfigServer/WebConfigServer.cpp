@@ -7,12 +7,6 @@ WebConfigServer::WebConfigServer(void){
 
 void WebConfigServer::begin(void){
 
-  Serial.println("WebConfigServer starting...");
-  Serial.print("--- JSON_CONFIG_BUFF_SIZZE: "); Serial.println(JSON_CONFIG_BUFF_SIZZE);
-  Serial.print("--- Free heap: "); Serial.println(ESP.getFreeHeap());
-
-  ESP8266WebServer server(80);
-
   if (!SPIFFS.begin()) {
     Serial.println("SPIFFS Mount failed");
   } else {
@@ -32,9 +26,6 @@ void WebConfigServer::begin(void){
     }
 
   }
-
-  Serial.println("WebConfigServer initiated");
-  Serial.print("--- Free heap: "); Serial.println(ESP.getFreeHeap());
 
 }
 
@@ -218,7 +209,7 @@ void WebConfigServer::restoreBackupFile(String filenamechar){
 }
 
 
-void WebConfigServer::updateGpio(void){
+void WebConfigServer::updateGpio(ESP8266WebServer *server){
   String gpio = server->arg("id");
   String val = server->arg("val");
   String success = "1";
@@ -267,43 +258,26 @@ void WebConfigServer::updateGpio(void){
 }
 
 
-void WebConfigServer::serverBegin(void){
+void WebConfigServer::configureServer(ESP8266WebServer *server){
 
   // Create configuration file
   //saveConfigurationFile(CONFIG_FILE, config);
 
-  Serial.println("WebConfigServer begin...");
-  Serial.print("--- Free heap: "); Serial.println(ESP.getFreeHeap());
-  printFile(CONFIG_FILE);
-
-  delay(2000);
-
+  //printFile(CONFIG_FILE);
 
   //SERVER INIT
   //list directory
-  // server->serveStatic("/img", SPIFFS, "/img");
-
-  Serial.println("Adding werver files:");
-  Serial.println("    * /index.html");
   server->serveStatic("/", SPIFFS, "/index.html");
-  delay(2000);
-  Serial.println("    * /css");
   server->serveStatic("/css", SPIFFS, "/css");
-  delay(2000);
-  Serial.println("    * /js");
   server->serveStatic("/js", SPIFFS, "/js");
-  delay(2000);
-  Serial.println("    * /certs");
   server->serveStatic("/certs", SPIFFS, "/certs");
-  delay(2000);
-  Serial.println("    * /gpio");
   server->serveStatic("/config.json", SPIFFS, "/config.json");
-  delay(2000);
-  Serial.println("    * /css");
-  server->on("/gpio", std::bind(&WebConfigServer::updateGpio, this));
-  delay(2000);
-  Serial.println("    * /save_config");
-  server->on("/save_config", HTTP_POST, [& ,this](){
+
+  server->on("/gpio", HTTP_POST, [& ,server](){
+    updateGpio(server);
+  });
+
+  server->on("/save_config", HTTP_POST, [& ,server](){
 
     DynamicJsonDocument doc(JSON_CONFIG_BUFF_SIZZE);
     deserializeJson(doc, server->arg("plain"));
@@ -320,15 +294,14 @@ void WebConfigServer::serverBegin(void){
     server->send ( 200, "text/json", "{success:true}" );
 
   });
-  delay(2000);
-  Serial.println("    * /restore_config");
-  server->on("/restore_config", HTTP_POST, [& ,this](){
+
+  server->on("/restore_config", HTTP_POST, [& ,server](){
     // StaticJsonBuffer<200> newBuffer;
     // JsonObject& newjson = newBuffer.parseObject(server->arg("plain"));
     //
     // server->send ( 200, "text/json", "{success:true}" );
-
-    DynamicJsonDocument doc(JSON_CONFIG_BUFF_SIZZE);
+/*
+    StaticJsonDocument doc(JSON_CONFIG_BUFF_SIZZE);
     //DynamicJsonDocument doc(JSON_CONFIG_BUFF_SIZZE);
     deserializeJson(doc, server->arg("plain"));
 
@@ -342,38 +315,36 @@ void WebConfigServer::serverBegin(void){
     restoreBackupFile(doc["filename"]);
 
     // server->send ( 200, "text/json", "{success:true}" );
+*/
 
 
+    Serial.print("JSON POST: "); Serial.println(server->arg("plain"));
+    Serial.print("JSON POST argName: "); Serial.println(server->argName(0));
+    Serial.print("JSON POST args: "); Serial.println(server->args());
 
+      if (server->args() > 0){
+         for (int i = 0; i < server->args(); i++ ) {
+             // Serial.print("POST Arguments: " ); Serial.println(server->args(i));
+             Serial.print("Name: "); Serial.println(server->argName(i));
+             Serial.print("Value: "); Serial.println(server->arg(i));
+        }
+     }
 
-    // Serial.print("JSON POST: "); Serial.println(server->arg("plain"));
-    // Serial.print("JSON POST argName: "); Serial.println(server->argName(0));
-    // Serial.print("JSON POST args: "); Serial.println(server->args());
-    //
-    //   if (server->args() > 0){
-    //      for (int i = 0; i < server->args(); i++ ) {
-    //          // Serial.print("POST Arguments: " ); Serial.println(server->args(i));
-    //          Serial.print("Name: "); Serial.println(server->argName(i));
-    //          Serial.print("Value: "); Serial.println(server->arg(i));
-    //     }
-    //  }
-    //
-    // if( ! server.hasArg("filename") || server->arg("filename") == NULL){
-    //   server->send(400, "text/plain", "400: Invalid Request");
-    // } else{
-    //   Serial.print("File to restore: "); Serial.println(server->arg("filename"));
-    //   restoreBackupFile(server->arg("filename"));
-    //   server->send ( 200, "text/json", "{success:true}" );
-    // }
+    if( ! server->hasArg("filename") || server->arg("filename") == NULL){
+      server->send(400, "text/plain", "400: Invalid Request");
+    } else{
+      Serial.print("File to restore: "); Serial.println(server->arg("filename"));
+      restoreBackupFile(server->arg("filename"));
+      server->send ( 200, "text/json", "{success:true}" );
+    }
 
 
   });
 
-  delay(2000);
-  Serial.println("    * /onNotFound");
+
   //called when the url is not defined here
   //use it to load content from SPIFFS
-  server->onNotFound([& ,this]() {
+  server->onNotFound([& ,server]() {
     // if (!handleFileRead(server.uri())) {
       server->send(404, "text/plain", "FileNotFound");
     // }
@@ -381,11 +352,11 @@ void WebConfigServer::serverBegin(void){
 
   server->begin();
   Serial.println ( "HTTP server started" );
-  Serial.print("--- Free heap: "); Serial.println(ESP.getFreeHeap());
+
 
 }
 
 
 void WebConfigServer::handle(void){
-  server->handleClient();
+
 }
