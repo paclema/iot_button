@@ -12,10 +12,16 @@
 
 #define CONFIG_FILE "/config.json"
 
+#define CONFIG_LOADED "loaded"
+#define CONFIG_NOT_LOADED "not_loaded"
+
 
 class WebConfigServer {
 
 public:
+
+  // const char* status = new char(32);
+  String config_status;
 
   struct Network {
     char ssid_name[64];
@@ -28,13 +34,27 @@ public:
     int port;
   } mqtt;
 
+  struct FTP {
+    bool enabled;
+    char user[64];
+    char password[64];
+  };
+
+  struct Services {
+    FTP ftp;
+    bool OTA;
+    bool sleep_mode;
+  } services;
+
 
 
   WebConfigServer(void);
 
   void configureServer(ESP8266WebServer *server);
   void handle(void);
-  void begin(void);
+  bool begin(void);
+
+  String status(void) { return config_status;};
 
 private:
 

@@ -3,12 +3,15 @@
 
 WebConfigServer::WebConfigServer(void){
   // Serial.println("WebConfigServer loaded");
+  config_status = CONFIG_NOT_LOADED;
 }
 
-void WebConfigServer::begin(void){
+bool WebConfigServer::begin(void){
 
   if (!SPIFFS.begin()) {
     Serial.println("SPIFFS Mount failed");
+    config_status = CONFIG_NOT_LOADED;
+    return false;
   } else {
     Serial.println("SPIFFS Mount succesfull");
     Dir dir = SPIFFS.openDir("/");
@@ -23,9 +26,13 @@ void WebConfigServer::begin(void){
       Serial.print(CONFIG_FILE); Serial.println(" exists!");
       loadConfigurationFile(CONFIG_FILE);
     printFile(CONFIG_FILE);
+  } else {
+    config_status = CONFIG_NOT_LOADED;
+    return false;
     }
-
   }
+  config_status = CONFIG_LOADED;
+  return true;
 
 }
 
@@ -74,11 +81,17 @@ void WebConfigServer::parseConfig(const JsonDocument& doc){
     // Network object:
     strlcpy(network.ssid_name, doc["network"]["ssid_name"] | "SSID_name", sizeof(network.ssid_name));
     strlcpy(network.ssid_password, doc["network"]["ssid_password"] | "SSID_password", sizeof(network.ssid_password));
-    network.connection = false;
 
     // MQTT object:
     strlcpy(mqtt.server, doc["mqtt"]["server"] | "server_address", sizeof(mqtt.server));
     mqtt.port = doc["mqtt"]["port"] | 8888;
+
+    // Services object:
+    services.ftp.enabled = doc["services"]["ftp"]["enabled"] | false;
+    strlcpy(services.ftp.user, doc["services"]["ftp"]["user"] | "admin", sizeof(services.ftp.user));
+    strlcpy(services.ftp.password, doc["services"]["ftp"]["password"] | "admin", sizeof(services.ftp.password));
+    services.OTA = doc["services"]["OTA"] | false;
+    services.sleep_mode = doc["services"]["sleep_mode"] | false;
 
     // Save the config file with new configuration:
     saveWebConfigurationFile(CONFIG_FILE,doc);
@@ -136,7 +149,9 @@ void WebConfigServer::saveConfigurationFile(const char *filename){
   doc["mqtt"]["server"] = mqtt.server;
   doc["mqtt"]["port"] = mqtt.port;
 
-
+  // Services object:
+  doc["services"]["FTP"] = mqtt.server;
+  doc["services"]["port"] = mqtt.port;
 
   // Serialize JSON to file
   if (serializeJson(doc, file) == 0) {
@@ -317,9 +332,9 @@ void WebConfigServer::configureServer(ESP8266WebServer *server){
 */
 
 
-    Serial.print("JSON POST: "); Serial.println(server->arg("plain"));
-    Serial.print("JSON POST argName: "); Serial.println(server->argName(0));
-    Serial.print("JSON POST args: "); Serial.println(server->args());
+    // Serial.print("JSON POST: "); Serial.println(server->arg("plain"));
+    // Serial.print("JSON POST argName: "); Serial.println(server->argName(0));
+    // Serial.print("JSON POST args: "); Serial.println(server->args());
 
       if (server->args() > 0){
          for (int i = 0; i < server->args(); i++ ) {
@@ -337,6 +352,29 @@ void WebConfigServer::configureServer(ESP8266WebServer *server){
       server->send ( 200, "text/json", "{success:true}" );
     }
 
+
+  });
+
+  server->on("/restart", HTTP_POST, [& ,server](){
+    // if (!handleFileRead(server.uri())) {
+      // server->send(404, "text/plain", "FileNotFound");
+    // }
+    if( ! server->hasArg("restart") || server->arg("restart") == NULL){
+      server->send(400, "text/plain", "400: Invalid Request");
+    } else{
+      Serial.print("File to restore: "); Serial.println(server->arg("restart"));
+      if (server->arg("restart") == "true"){
+        server->send ( 200, "text/json", "{success:true}" );
+
+
+        server->close();
+        server->stop();
+        WiFi.disconnect();
+        SPIFFS.end();
+        ESP.restart();
+      }
+      server->send ( 200, "text/json", "{success:false}" );
+    }
 
   });
 

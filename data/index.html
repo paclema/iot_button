@@ -157,6 +157,22 @@
       storeJson(config_reloaded);
 
       //Restart esp8266
+      var xhr = new XMLHttpRequest();
+      xhr.open("POST", "/restart", true);
+      xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8");
+
+
+      // xhr.send('key1=value1&key2=value2');
+      // Can be read from firmware as:
+      // String val1 = server.arg("key1");
+      // String val2 = server.arg("key2");
+
+      xhr.send("restart=true");
+      xhr.onreadystatechange = (e) => {
+        console.log(xhr.responseText);
+        window.location.reload();
+      }
+
 
     };
     document.getElementById("LoadConfig").onclick = function LoadConfig() {
