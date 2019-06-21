@@ -8,9 +8,11 @@
 
 #define ARDUINOJSON_ENABLE_ALIGNMENT 1
 #include <ArduinoJson.h>
-#define JSON_CONFIG_BUFF_SIZZE 1150
+
 
 #define CONFIG_FILE "/config.json"
+#define CONFIG_JSON_SIZE 1150
+#define MQTT_TOPIC_MAX_SIZE_LIST 10
 
 #define CONFIG_LOADED "loaded"
 #define CONFIG_NOT_LOADED "not_loaded"
@@ -24,20 +26,33 @@ public:
   String config_status;
 
   struct Network {
-    char ssid_name[64];
-    char ssid_password[64];
-    bool connection = false;
+    String ssid_name;
+    String ssid_password;
+    String ip_address;
+    String subnet;
+    String dns_Server;
+    String hostname;
+
+
   } network;
 
   struct Mqtt {
-    char server[64];
+    String server;
     int port;
+    String id_name;
+    String user_name;
+    String user_password;
+    String ca_file;
+    String cert_file;
+    String key_file;
+    String pub_topic[MQTT_TOPIC_MAX_SIZE_LIST];
+    String sub_topic[MQTT_TOPIC_MAX_SIZE_LIST];
   } mqtt;
 
   struct FTP {
     bool enabled;
-    char user[64];
-    char password[64];
+    String user;
+    String password;
   };
 
   struct Services {
@@ -45,6 +60,17 @@ public:
     bool OTA;
     bool sleep_mode;
   } services;
+
+  struct Device {
+    bool track_restart_counter;
+  } device;
+
+  struct Info {
+    int restart_counter;
+    String fw_version;
+    String repo;
+
+  } info;
 
 
 

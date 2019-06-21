@@ -78,23 +78,53 @@ void WebConfigServer::parseConfig(const JsonDocument& doc){
 
     // serializeJsonPretty(doc, Serial);
 
+    // Parse char network[64]:
+    // strlcpy(network.ssid_name, doc["network"]["ssid_name"] | "SSID_name", sizeof(network.ssid_name));
+
     // Network object:
-    strlcpy(network.ssid_name, doc["network"]["ssid_name"] | "SSID_name", sizeof(network.ssid_name));
-    strlcpy(network.ssid_password, doc["network"]["ssid_password"] | "SSID_password", sizeof(network.ssid_password));
+    network.ssid_name = doc["network"]["ssid_name"] | "SSID_name";
+    network.ssid_password = doc["network"]["ssid_password"] | "SSID_password";
+    network.ip_address = doc["network"]["ip_address"] | "192.168.1.2";
+    network.subnet = doc["network"]["subnet"] | "255.255.255.0";
+    network.dns_Server = doc["network"]["dns_Server"] | "192.168.1.1";
+    network.hostname = doc["network"]["hostname"] | "iotdevice.local";
+
 
     // MQTT object:
-    strlcpy(mqtt.server, doc["mqtt"]["server"] | "server_address", sizeof(mqtt.server));
+    mqtt.server= doc["mqtt"]["server"] | "server_address";
     mqtt.port = doc["mqtt"]["port"] | 8888;
+    mqtt.id_name= doc["mqtt"]["id_name"] | "iotdevice";
+    mqtt.user_name= doc["mqtt"]["user_name"] | "user_name";
+    mqtt.user_password= doc["mqtt"]["user_password"] | "user_password";
+    mqtt.ca_file= doc["mqtt"]["ca_file"] | "certs/ca.crt";
+    mqtt.cert_file= doc["mqtt"]["cert_file"] | "certs/client.crt";
+    mqtt.key_file= doc["mqtt"]["key_file"] | "certs/client.key";
+    mqtt.ca_file= doc["mqtt"]["ca_file"] | "server_address";
+    for (int i = 0; i < doc["mqtt"]["pub_topic"].size(); i++) { //Iterate through results
+      // mqtt.pub_topic[i] = doc["mqtt"]["pub_topic"][i];  //Implicit cast
+      mqtt.pub_topic[i] = doc["mqtt"]["pub_topic"][i].as<String>(); //Explicit cast
+    }
+    for (int i = 0; i < doc["mqtt"]["sub_topic"].size(); i++)
+      mqtt.sub_topic[i] = doc["mqtt"]["sub_topic"][i].as<String>();
+
 
     // Services object:
     services.ftp.enabled = doc["services"]["ftp"]["enabled"] | false;
-    strlcpy(services.ftp.user, doc["services"]["ftp"]["user"] | "admin", sizeof(services.ftp.user));
-    strlcpy(services.ftp.password, doc["services"]["ftp"]["password"] | "admin", sizeof(services.ftp.password));
+    services.ftp.user = doc["services"]["ftp"]["user"] | "admin";
+    services.ftp.password = doc["services"]["ftp"]["password"] | "admin";
     services.OTA = doc["services"]["OTA"] | false;
     services.sleep_mode = doc["services"]["sleep_mode"] | false;
 
-    // Save the config file with new configuration:
-    saveWebConfigurationFile(CONFIG_FILE,doc);
+
+    // Device object:
+    device.track_restart_counter = doc["device"]["track_restart_counter"] | true;
+
+
+    // Info object:
+    info.restart_counter = doc["info"]["ftp"]["enabled"] | false;
+    info.fw_version = doc["info"]["fw_version"] | "-";
+    info.repo = doc["info"]["repo"] | "github.com/paclema";
+
 
 }
 
@@ -107,7 +137,7 @@ void WebConfigServer::loadConfigurationFile(const char *filename){
   // Allocate a temporary JsonDocument
   // Don't forget to change the capacity to match your requirements.
   // Use arduinojson.org/v6/assistant to compute the capacity.
-  DynamicJsonDocument doc(JSON_CONFIG_BUFF_SIZZE);
+  DynamicJsonDocument doc(CONFIG_JSON_SIZE);
 
   // Deserialize the JSON document
   DeserializationError error = deserializeJson(doc, file);
@@ -138,12 +168,11 @@ void WebConfigServer::saveConfigurationFile(const char *filename){
   // Allocate a temporary JsonDocument
   // Don't forget to change the capacity to match your requirements.
   // Use arduinojson.org/assistant to compute the capacity.
-  DynamicJsonDocument doc(JSON_CONFIG_BUFF_SIZZE);
+  DynamicJsonDocument doc(CONFIG_JSON_SIZE);
 
   // Network object:
   doc["network"]["ssid_name"] = network.ssid_name;
   doc["network"]["ssid_password"] = network.ssid_password;
-  doc["network"]["connection"] = network.connection;
 
   // Network object:
   doc["mqtt"]["server"] = mqtt.server;
@@ -293,7 +322,7 @@ void WebConfigServer::configureServer(ESP8266WebServer *server){
 
   server->on("/save_config", HTTP_POST, [& ,server](){
 
-    DynamicJsonDocument doc(JSON_CONFIG_BUFF_SIZZE);
+    DynamicJsonDocument doc(CONFIG_JSON_SIZE);
     deserializeJson(doc, server->arg("plain"));
 
     // JsonObject network = doc["network"];
@@ -305,6 +334,9 @@ void WebConfigServer::configureServer(ESP8266WebServer *server){
     // Parse file to Config struct object to update internal config:
     parseConfig(doc);
 
+    // Save the config file with new configuration:
+    saveWebConfigurationFile(CONFIG_FILE,doc);
+
     server->send ( 200, "text/json", "{success:true}" );
 
   });
@@ -315,8 +347,8 @@ void WebConfigServer::configureServer(ESP8266WebServer *server){
     //
     // server->send ( 200, "text/json", "{success:true}" );
 /*
-    StaticJsonDocument doc(JSON_CONFIG_BUFF_SIZZE);
-    //DynamicJsonDocument doc(JSON_CONFIG_BUFF_SIZZE);
+    StaticJsonDocument doc(CONFIG_JSON_SIZE);
+    //DynamicJsonDocument doc(CONFIG_JSON_SIZE);
     deserializeJson(doc, server->arg("plain"));
 
     // JsonObject network = doc["network"];
