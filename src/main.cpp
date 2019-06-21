@@ -4,14 +4,21 @@
 
 #include <ESP8266WiFi.h>
 #include <ESP8266WebServer.h>
-#include "ESP8266FtpServer.h"
+#include <ESP8266FtpServer.h>
 
 
-#include <WebConfigServer.h>
+
+// OTA Includes
+#include "WrapperOTA.h"
+// #include <display2.h>
+
+#include "WebConfigServer.h"
 WebConfigServer config;   // <- global configuration object
 
 ESP8266WebServer server(80);
 FtpServer ftpSrv;
+
+WrapperOTA ota;
 
 void networkRestart(void){
   if(config.status() == CONFIG_LOADED){
@@ -47,20 +54,20 @@ void reconnect(void) {
   if (config.services.ftp.enabled && config.services.ftp.user !=NULL && config.services.ftp.password !=NULL){
     ftpSrv.begin(config.services.ftp.user,config.services.ftp.password);
     Serial.println("   - FTP -> enabled");
-  } else
-    Serial.println("   - FTP -> disabled");
+  } else Serial.println("   - FTP -> disabled");
 
   if (config.services.OTA){
-
+    // ota.init(&display);
+    ota.init(&config);
     Serial.println("   - OTA -> enabled");
-  } else
-    Serial.println("   - OTA -> disabled");
+  } else Serial.println("   - OTA -> disabled");
 
   if (config.services.sleep_mode){
 
     Serial.println("   - Sleep mode -> enabled");
-  } else
-    Serial.println("   - Sleep mode -> disabled");
+  } else Serial.println("   - Sleep mode -> disabled");
+
+  
 }
 void setup() {
   Serial.begin(115200);
@@ -77,8 +84,11 @@ void loop() {
     networkRestart();
     config.configureServer(&server);
   }
-  ftpSrv.handleFTP();
+
+  if (config.services.OTA) ota.handle();
+  if (config.services.ftp.enabled) ftpSrv.handleFTP();
   server.handleClient();
+
 
 
 }
