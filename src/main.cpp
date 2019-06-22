@@ -12,8 +12,8 @@ extern "C" {
 
 // MQTT
 #include <PubSubClient.h>
-WiFiClientSecure wifiClientSecure;  // To use with mqtt and certificates
-WiFiClient wifiClient;         // To use with mqtt without certificates
+WiFiClientSecure wifiClientSecure;    // To use with mqtt and certificates
+WiFiClient wifiClient;                // To use with mqtt without certificates
 PubSubClient mqttClient;
 long connection_time = millis();
 
@@ -305,16 +305,6 @@ void loop() {
   if (config.services.deep_sleep.enabled){
     // long time_now = millis();
     if (millis() > connection_time + (config.services.deep_sleep.sleep_delay*1000)){
-      // // We will enable it on the loop function
-      // Serial.print("   - Deep sleep -> enabled for ");
-      // Serial.print(config.services.deep_sleep.sleep_time);
-      // Serial.println(" secs. Choose sleep_time: 0 for infinite sleeping");
-      // Serial.println("Do not forget to connect D0 to RST pin to auto-wake up! Or I will sleep forever");
-      // Serial.print("Waitting for sleeping: ");
-      // Serial.print(config.services.deep_sleep.sleep_delay);
-      // Serial.println(" secs");
-
-      // delay(config.services.deep_sleep.sleep_delay*1000);
       Serial.println("Deep sleeping...");
       if (config.services.deep_sleep.mode == "WAKE_RF_DEFAULT")
         // sleep_time is in secs, but the function gets microsecs
