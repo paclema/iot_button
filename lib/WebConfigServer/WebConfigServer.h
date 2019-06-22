@@ -11,8 +11,9 @@
 
 
 #define CONFIG_FILE "/config.json"
-#define CONFIG_JSON_SIZE 1150
+#define CONFIG_JSON_SIZE 1648
 #define MQTT_TOPIC_MAX_SIZE_LIST 10
+#define JSON_MAX_SIZE_LIST 6
 
 #define CONFIG_LOADED "loaded"
 #define CONFIG_NOT_LOADED "not_loaded"
@@ -57,10 +58,25 @@ public:
     String password;
   };
 
+  struct DeepSleep {
+    bool enabled;
+    String mode;
+    String mode_options[JSON_MAX_SIZE_LIST];
+    int sleep_time;
+    int sleep_delay;
+  };
+
+  struct LightSleep {
+    bool enabled;
+    String mode;
+    String mode_options[JSON_MAX_SIZE_LIST];
+  };
+
   struct Services {
     FTP ftp;
     bool OTA;
-    bool sleep_mode;
+    DeepSleep deep_sleep;
+    LightSleep light_sleep;
   } services;
 
   struct Device {

@@ -2,6 +2,11 @@
 
 #define DEBUG_ESP_CORE
 
+// Used for light sleep
+extern "C" {
+  #include "user_interface.h"
+}
+
 #include <ESP8266WiFi.h>
 
 
@@ -67,11 +72,33 @@ void enableServices(void){
     Serial.println("   - FTP -> enabled");
   } else Serial.println("   - FTP -> disabled");
 
-  if (config.services.sleep_mode){
+  if (config.services.deep_sleep.enabled){
+    // We will enable it on the loop function
+    // Serial.println("   - Deep sleep -> configured");
+    Serial.print("   - Deep sleep -> enabled for ");
+    Serial.print(config.services.deep_sleep.sleep_time);
+    Serial.print("secs after waitting ");
+    Serial.print(config.services.deep_sleep.sleep_delay);
+    Serial.println("secs. Choose sleep_time: 0 for infinite sleeping");
+    Serial.println("     Do not forget to connect D0 to RST pin to auto-wake up! Or I will sleep forever");
+  } else Serial.println("   - Deep sleep -> disabled");
 
-    Serial.println("   - Sleep mode -> enabled");
-  } else Serial.println("   - Sleep mode -> disabled");
+  if (config.services.light_sleep.enabled){
+    if (config.services.light_sleep.mode == "LIGHT_SLEEP_T")
+      wifi_set_sleep_type(LIGHT_SLEEP_T);
+    else if (config.services.light_sleep.mode == "NONE_SLEEP_T")
+      wifi_set_sleep_type(NONE_SLEEP_T);
+    else {
+      Serial.println("   - Light sleep -> mode not available");
+      return;
+    }
+    Serial.println("   - Light sleep -> enabled");
+  } else Serial.println("   - Light sleep -> disabled");
+
+  Serial.println("");
+
 }
+
 
 void callbackMQTT(char* topic, byte* payload, unsigned int length) {
   Serial.print("Message arrived [");
@@ -252,7 +279,7 @@ void setup() {
     Serial.println("Flash Chip configuration ok.\n");
   }
 
-
+  Serial.println("###  Looping time\n");
 }
 
 void loop() {
@@ -270,6 +297,41 @@ void loop() {
   if (!mqttClient.connected())
     reconnectMQTT();
   mqttClient.loop();
+
+
+
+
+
+  if (config.services.deep_sleep.enabled){
+    // long time_now = millis();
+    if (millis() > connection_time + (config.services.deep_sleep.sleep_delay*1000)){
+      // // We will enable it on the loop function
+      // Serial.print("   - Deep sleep -> enabled for ");
+      // Serial.print(config.services.deep_sleep.sleep_time);
+      // Serial.println(" secs. Choose sleep_time: 0 for infinite sleeping");
+      // Serial.println("Do not forget to connect D0 to RST pin to auto-wake up! Or I will sleep forever");
+      // Serial.print("Waitting for sleeping: ");
+      // Serial.print(config.services.deep_sleep.sleep_delay);
+      // Serial.println(" secs");
+
+      // delay(config.services.deep_sleep.sleep_delay*1000);
+      Serial.println("Deep sleeping...");
+      if (config.services.deep_sleep.mode == "WAKE_RF_DEFAULT")
+        // sleep_time is in secs, but the function gets microsecs
+        ESP.deepSleep(config.services.deep_sleep.sleep_time * 1000000, WAKE_RF_DEFAULT);
+      else if (config.services.deep_sleep.mode == "WAKE_RF_DISABLED")
+        ESP.deepSleep(config.services.deep_sleep.sleep_time * 1000000, WAKE_RF_DISABLED);
+      else if (config.services.deep_sleep.mode == "WAKE_RFCAL")
+        ESP.deepSleep(config.services.deep_sleep.sleep_time * 1000000, WAKE_RFCAL);
+      else if (config.services.deep_sleep.mode == "WAKE_NO_RFCAL")
+        ESP.deepSleep(config.services.deep_sleep.sleep_time * 1000000, WAKE_NO_RFCAL);
+      else {
+        Serial.println("   - Deep sleep -> mode not available");
+        return;
+      }
+    }
+  }
+
 
 
 

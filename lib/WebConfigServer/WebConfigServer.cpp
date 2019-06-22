@@ -111,12 +111,26 @@ void WebConfigServer::parseConfig(const JsonDocument& doc){
 
 
     // Services object:
+    // FTP
     services.ftp.enabled = doc["services"]["ftp"]["enabled"] | false;
     services.ftp.user = doc["services"]["ftp"]["user"] | "admin";
     services.ftp.password = doc["services"]["ftp"]["password"] | "admin";
+    // OTA
     services.OTA = doc["services"]["OTA"] | false;
-    services.sleep_mode = doc["services"]["sleep_mode"] | false;
-
+    // DeepSleep
+    services.deep_sleep.enabled = doc["services"]["deep_sleep"]["enabled"] | false;
+    services.deep_sleep.mode = doc["services"]["deep_sleep"]["mode"] | "WAKE_RF_DEFAULT";
+    for (int i = 0; i < doc["services"]["deep_sleep"]["mode_options"].size(); i++) { //Iterate through results
+      services.deep_sleep.mode_options[i] = doc["services"]["deep_sleep"]["mode_options"][i].as<String>(); //Explicit cast
+    }
+    services.deep_sleep.sleep_time = doc["services"]["deep_sleep"]["sleep_time"] | 10;
+    services.deep_sleep.sleep_delay = doc["services"]["deep_sleep"]["sleep_delay"] | 5;
+    // LightSleep
+    services.light_sleep.enabled = doc["services"]["light_sleep"]["enabled"] | false;
+    services.light_sleep.mode = doc["services"]["light_sleep"]["mode"] | "LIGHT_SLEEP_T";
+    for (int i = 0; i < doc["services"]["light_sleep"]["mode_options"].size(); i++) { //Iterate through results
+      services.light_sleep.mode_options[i] = doc["services"]["light_sleep"]["mode_options"][i].as<String>(); //Explicit cast
+    }
 
     // Device object:
     device.track_restart_counter = doc["device"]["track_restart_counter"] | true;
