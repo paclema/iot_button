@@ -239,7 +239,9 @@
              id_name = tab + "_" + key + "_form";
              formbody.innerHTML += "<div id=\"" + id_name + "\" class=\"form-group\">"
              var formobjs= document.getElementById(id_name);
-             formobjs.innerHTML += "<label class=\"col-md-4 control-label\" for=\""+key+"\">" + key.replace(/_/g, ' '); + "</label>"
+
+             var key_name = key.charAt(0).toUpperCase() + key.slice(1)
+             formobjs.innerHTML += "<label class=\"col-md-4 control-label\" for=\""+key+"\">" + key_name.replace(/_/g, ' '); + "</label>"
 
              id_name = tab + "_" + key + "_input";
              formobjs.innerHTML += "<div id=\"" + id_name + "\" class=\"col-md-4\">"
