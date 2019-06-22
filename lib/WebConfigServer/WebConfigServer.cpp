@@ -25,7 +25,7 @@ bool WebConfigServer::begin(void){
     if (SPIFFS.exists(CONFIG_FILE)) {
       Serial.print(CONFIG_FILE); Serial.println(" exists!");
       loadConfigurationFile(CONFIG_FILE);
-    printFile(CONFIG_FILE);
+    // printFile(CONFIG_FILE);
   } else {
     config_status = CONFIG_NOT_LOADED;
     return false;
@@ -94,8 +94,10 @@ void WebConfigServer::parseConfig(const JsonDocument& doc){
     mqtt.server= doc["mqtt"]["server"] | "server_address";
     mqtt.port = doc["mqtt"]["port"] | 8888;
     mqtt.id_name= doc["mqtt"]["id_name"] | "iotdevice";
+    mqtt.enable_user_and_pass = doc["mqtt"]["enable_user_and_pass"] | false;
     mqtt.user_name= doc["mqtt"]["user_name"] | "user_name";
     mqtt.user_password= doc["mqtt"]["user_password"] | "user_password";
+    mqtt.enable_certificates = doc["mqtt"]["enable_certificates"] | false;
     mqtt.ca_file= doc["mqtt"]["ca_file"] | "certs/ca.crt";
     mqtt.cert_file= doc["mqtt"]["cert_file"] | "certs/client.crt";
     mqtt.key_file= doc["mqtt"]["key_file"] | "certs/client.key";

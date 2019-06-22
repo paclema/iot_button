@@ -40,8 +40,10 @@ public:
     String server;
     int port;
     String id_name;
+    bool enable_user_and_pass;
     String user_name;
     String user_password;
+    bool enable_certificates;
     String ca_file;
     String cert_file;
     String key_file;
