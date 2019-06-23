@@ -61,11 +61,12 @@ void networkRestart(void){
 void enableServices(void){
   Serial.println("--- Services: ");
 
-  if (config.services.OTA){
+  if (config.services.ota){
     // ota.init(&display);
     ota.init(&config);
     Serial.println("   - OTA -> enabled");
   } else Serial.println("   - OTA -> disabled");
+
 
   if (config.services.ftp.enabled && config.services.ftp.user !=NULL && config.services.ftp.password !=NULL){
     ftpSrv.begin(config.services.ftp.user,config.services.ftp.password);
@@ -289,7 +290,7 @@ void loop() {
   //   config.configureServer(&server);
   // }
 
-  if (config.services.OTA) ota.handle();
+  if (config.services.ota) ota.handle();
   if (config.services.ftp.enabled) ftpSrv.handleFTP();
   server.handleClient();
 
