@@ -25,7 +25,7 @@ ESP8266WebServer server(80);
 
 // FTP server
 #include <ESP8266FtpServer.h>
-#include <FS.h>
+#include <LittleFS.h>
 FtpServer ftpSrv;
 
 // OTA Includes
@@ -159,7 +159,7 @@ void initMQTT(void){
     // Load certificate file:
     // But you must convert it to .der
     // openssl x509 -in ./certs/IoLed_controller/client.crt -out ./certs/IoLed_controller/cert.der -outform DER
-    File cert = SPIFFS.open(config.mqtt.cert_file, "r"); //replace cert.crt with your uploaded file name
+    File cert = LittleFS.open(config.mqtt.cert_file, "r"); //replace cert.crt with your uploaded file name
     if (!cert) Serial.println("Failed to open cert file ");
     else Serial.println("Success to open cert file");
 
@@ -170,7 +170,7 @@ void initMQTT(void){
     // Load private key:
     // But you must convert it to .der
     // openssl rsa -in ./certs/IoLed_controller/client.key -out ./certs/IoLed_controller/private.der -outform DER
-    File private_key = SPIFFS.open(config.mqtt.key_file, "r");
+    File private_key = LittleFS.open(config.mqtt.key_file, "r");
     if (!private_key) Serial.println("Failed to open key file ");
     else Serial.println("Success to open key file");
 
@@ -179,7 +179,7 @@ void initMQTT(void){
     private_key.close();
 
     // Load CA file:
-    File ca = SPIFFS.open(config.mqtt.ca_file, "r");
+    File ca = LittleFS.open(config.mqtt.ca_file, "r");
     if (!ca) Serial.println("Failed to open CA file ");
     else Serial.println("Success to open CA file");
 
