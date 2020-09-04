@@ -94,6 +94,7 @@ void WebConfigServer::parseConfig(const JsonDocument& doc){
     mqtt.server= doc["mqtt"]["server"] | "server_address";
     mqtt.port = doc["mqtt"]["port"] | 8888;
     mqtt.id_name= doc["mqtt"]["id_name"] | "iotdevice";
+    mqtt.reconnect_mqtt = doc["mqtt"]["reconnect_mqtt"] | false;
     mqtt.enable_user_and_pass = doc["mqtt"]["enable_user_and_pass"] | false;
     mqtt.user_name= doc["mqtt"]["user_name"] | "user_name";
     mqtt.user_password= doc["mqtt"]["user_password"] | "user_password";

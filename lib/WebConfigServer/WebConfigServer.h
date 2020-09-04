@@ -41,6 +41,7 @@ public:
     String server;
     int port;
     String id_name;
+    bool reconnect_mqtt;
     bool enable_user_and_pass;
     String user_name;
     String user_password;

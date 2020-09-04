@@ -251,7 +251,8 @@ void reconnect(void) {
 
   // Configure MQTT broker:
   initMQTT();
-  reconnectMQTT();
+  if (config.mqtt.reconnect_mqtt)
+    reconnectMQTT();
 
 }
 
@@ -295,7 +296,7 @@ void loop() {
   server.handleClient();
 
   // Handle mqtt reconnection:
-  if (!mqttClient.connected())
+  if (!mqttClient.connected() && config.mqtt.reconnect_mqtt)
     reconnectMQTT();
   mqttClient.loop();
 
