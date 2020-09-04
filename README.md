@@ -15,6 +15,10 @@
 * push button on D5 --> to erase wifi data and restart in AP mode
 * CHPD (or EN) to VCC
 
+##### Add a new configuration object:
+1. Update the new object in the configuration file _/data/config.json_
+2. Add the struct object in the configuration class _/lib/WebConfigServer/WebConfigServer.h_
+3. Update the parse function to link the json object with the class struct in the configuration class _/lib/WebConfigServer/WebConfigServer.cpp_
 
 ##### Upload _/data_ folder to ESP SPIFFS File System:
 
