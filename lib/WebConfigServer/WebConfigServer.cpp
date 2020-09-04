@@ -1,5 +1,4 @@
 #include "WebConfigServer.h"
-#include <LittleFS.h>
 
 
 WebConfigServer::WebConfigServer(void){
@@ -9,47 +8,13 @@ WebConfigServer::WebConfigServer(void){
 
 bool WebConfigServer::begin(void){
 
-  if (!LittleFS.begin()) {
+  if (!SPIFFS.begin()) {
     Serial.println("SPIFFS Mount failed");
     config_status = CONFIG_NOT_LOADED;
     return false;
   } else {
     Serial.println("SPIFFS Mount succesfull");
-
-    // To format all space in LittleFS
-   //LittleFS.format();
-
-  // Get all information of your LittleFS
-  FSInfo fs_info;
-  LittleFS.info(fs_info);
-
-  Serial.println("File sistem info.");
-
-  Serial.print("Total space:      ");
-  Serial.print(fs_info.totalBytes);
-  Serial.println("byte");
-
-  Serial.print("Total space used: ");
-  Serial.print(fs_info.usedBytes);
-  Serial.println("byte");
-
-  Serial.print("Block size:       ");
-  Serial.print(fs_info.blockSize);
-  Serial.println("byte");
-
-  Serial.print("Page size:        ");
-  Serial.print(fs_info.totalBytes);
-  Serial.println("byte");
-
-  Serial.print("Max open files:   ");
-  Serial.println(fs_info.maxOpenFiles);
-
-  Serial.print("Max path lenght:  ");
-  Serial.println(fs_info.maxPathLength);
-
-  Serial.println();
-
-    Dir dir = LittleFS.openDir("/data");
+    Dir dir = SPIFFS.openDir("/");
     while (dir.next()) {
       String fileName = dir.fileName();
       size_t fileSize = dir.fileSize();
@@ -57,7 +22,7 @@ bool WebConfigServer::begin(void){
     }
     Serial.printf("\n");
 
-    if (LittleFS.exists(CONFIG_FILE)) {
+    if (SPIFFS.exists(CONFIG_FILE)) {
       Serial.print(CONFIG_FILE); Serial.println(" exists!");
       loadConfigurationFile(CONFIG_FILE);
     // printFile(CONFIG_FILE);
@@ -89,11 +54,11 @@ String WebConfigServer::formatBytes(size_t bytes){
 // Saves the web configuration from a POST req to a file
 void WebConfigServer::saveWebConfigurationFile(const char *filename, const JsonDocument& doc){
   // Delete existing file, otherwise the configuration is appended to the file
-  LittleFS.remove(filename);
+  SPIFFS.remove(filename);
 
   // Open file for writing
   // File file = SD.open(filename, FILE_WRITE);
-  File file = LittleFS.open(filename, "w");
+  File file = SPIFFS.open(filename, "w");
   if (!file) {
     Serial.println(F("Failed to create file"));
     return;
@@ -117,8 +82,8 @@ void WebConfigServer::parseConfig(const JsonDocument& doc){
     // strlcpy(network.ssid_name, doc["network"]["ssid_name"] | "SSID_name", sizeof(network.ssid_name));
 
     // Network object:
-    network.ssid_name = doc["network"]["ssid_name"] | "Basislager";
-    network.ssid_password = doc["network"]["ssid_password"] | "Messner1944";
+    network.ssid_name = doc["network"]["ssid_name"] | "SSID_name";
+    network.ssid_password = doc["network"]["ssid_password"] | "SSID_password";
     network.ip_address = doc["network"]["ip_address"] | "192.168.1.2";
     network.subnet = doc["network"]["subnet"] | "255.255.255.0";
     network.dns_server = doc["network"]["dns_server"] | "192.168.1.1";
@@ -183,7 +148,7 @@ void WebConfigServer::parseConfig(const JsonDocument& doc){
 // Loads the configuration from a file
 void WebConfigServer::loadConfigurationFile(const char *filename){
   // Open file for reading
-  File file = LittleFS.open(filename, "r");
+  File file = SPIFFS.open(filename, "r");
 
   // Allocate a temporary JsonDocument
   // Don't forget to change the capacity to match your requirements.
@@ -206,11 +171,11 @@ void WebConfigServer::loadConfigurationFile(const char *filename){
 // Saves the Config struct configuration to a file
 void WebConfigServer::saveConfigurationFile(const char *filename){
   // Delete existing file, otherwise the configuration is appended to the file
-  LittleFS.remove(filename);
+  SPIFFS.remove(filename);
 
   // Open file for writing
   // File file = SD.open(filename, FILE_WRITE);
-  File file = LittleFS.open(filename, "w");
+  File file = SPIFFS.open(filename, "w");
   if (!file) {
     Serial.println(F("Failed to create file"));
     return;
@@ -246,7 +211,7 @@ void WebConfigServer::saveConfigurationFile(const char *filename){
 // Prints the content of a file to the Serial
 void WebConfigServer::printFile(String filename){
   // Open file for reading
-  File file = LittleFS.open(filename, "r");
+  File file = SPIFFS.open(filename, "r");
   if (!file) {
     Serial.println(F("Failed to read file"));
     return;
@@ -271,16 +236,16 @@ void WebConfigServer::restoreBackupFile(String filenamechar){
       String filename_bak =  "/.bak"+filename;
       Serial.print("Restoring backup for: "); Serial.println(filename);
       // Delete existing file, otherwise the configuration is appended to the file
-      LittleFS.remove(filename);
+      SPIFFS.remove(filename);
 
-      File file = LittleFS.open(filename, "w+");
+      File file = SPIFFS.open(filename, "w+");
       if (!file) {
         Serial.print(F("Failed to read file: "));Serial.println(filename);
         return;
       }
 
       //Serial.print("Opened: "); Serial.println(filename);
-      File file_bak = LittleFS.open(filename_bak, "r");
+      File file_bak = SPIFFS.open(filename_bak, "r");
       if (!file) {
         Serial.print(F("Failed to read backup file: "));Serial.println(filename_bak);
         return;
@@ -360,12 +325,12 @@ void WebConfigServer::configureServer(ESP8266WebServer *server){
 
   //SERVER INIT
   //list directory
-  server->serveStatic("/img", LittleFS, "/img");
-  server->serveStatic("/", LittleFS, "/index.html");
-  server->serveStatic("/css", LittleFS, "/css");
-  server->serveStatic("/js", LittleFS, "/js");
-  server->serveStatic("/certs", LittleFS, "/certs");
-  server->serveStatic("/config.json", LittleFS, "/config.json");
+  server->serveStatic("/img", SPIFFS, "/img");
+  server->serveStatic("/", SPIFFS, "/index.html");
+  server->serveStatic("/css", SPIFFS, "/css");
+  server->serveStatic("/js", SPIFFS, "/js");
+  server->serveStatic("/certs", SPIFFS, "/certs");
+  server->serveStatic("/config.json", SPIFFS, "/config.json");
 
   server->on("/gpio", HTTP_POST, [& ,server](){
     updateGpio(server);
@@ -453,7 +418,7 @@ void WebConfigServer::configureServer(ESP8266WebServer *server){
         server->close();
         server->stop();
         WiFi.disconnect();
-        LittleFS.end();
+        SPIFFS.end();
         ESP.restart();
       }
       server->send ( 200, "text/json", "{success:false}" );
