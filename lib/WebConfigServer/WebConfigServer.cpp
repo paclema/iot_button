@@ -82,7 +82,7 @@ void WebConfigServer::parseConfig(const JsonDocument& doc){
     // strlcpy(network.ssid_name, doc["network"]["ssid_name"] | "SSID_name", sizeof(network.ssid_name));
 
     // Network object:
-    network.ssid_name = doc["network"]["ssid_name"] | "SSID_name";
+    network.ssid_name = doc["network"]["WiFi_SSID"] | "SSID_name";
     network.ssid_password = doc["network"]["ssid_password"] | "SSID_password";
     network.ip_address = doc["network"]["ip_address"] | "192.168.1.2";
     network.subnet = doc["network"]["subnet"] | "255.255.255.0";
