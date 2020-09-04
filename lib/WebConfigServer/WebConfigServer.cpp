@@ -82,8 +82,10 @@ void WebConfigServer::parseConfig(const JsonDocument& doc){
     // strlcpy(network.ssid_name, doc["network"]["ssid_name"] | "SSID_name", sizeof(network.ssid_name));
 
     // Network object:
+    network.ap_name = doc["network"]["AP_SSID"] | "iotdevice";
+    network.ap_password = doc["network"]["AP_password"] | "iotdevice";
     network.ssid_name = doc["network"]["WiFi_SSID"] | "SSID_name";
-    network.ssid_password = doc["network"]["ssid_password"] | "SSID_password";
+    network.ssid_password = doc["network"]["WiFi_password"] | "SSID_password";
     network.ip_address = doc["network"]["ip_address"] | "192.168.1.2";
     network.subnet = doc["network"]["subnet"] | "255.255.255.0";
     network.dns_server = doc["network"]["dns_server"] | "192.168.1.1";

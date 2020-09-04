@@ -41,7 +41,16 @@ void networkRestart(void){
     // Config loaded correctly
     if (config.network.ssid_name!=NULL && config.network.ssid_password!=NULL){
         // Connect to Wi-Fi
-        WiFi.mode(WIFI_STA);
+        // WiFi.mode(WIFI_STA);
+        WiFi.mode(WIFI_AP_STA);
+
+        // Access point config:
+        WiFi.softAP(config.network.ap_name,config.network.ap_password, false);
+        IPAddress myIP = WiFi.softAPIP();
+        Serial.print(config.network.ap_name);Serial.print(" AP IP address: ");
+        Serial.println(myIP);
+
+        // Wifi client config:
         WiFi.begin(config.network.ssid_name, config.network.ssid_password);
         Serial.print("Connecting to ");Serial.print(config.network.ssid_name);
         while (WiFi.status() != WL_CONNECTED) {

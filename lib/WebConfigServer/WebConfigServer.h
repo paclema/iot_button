@@ -27,6 +27,8 @@ public:
   String config_status;
 
   struct Network {
+    String ap_name;
+    String ap_password;
     String ssid_name;
     String ssid_password;
     String ip_address;
