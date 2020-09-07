@@ -32,9 +32,14 @@
     ]
   },
   "services": {
+    "FTP": {
+      "enabled": true,
+      "user": "paclema",
+      "password": "paclema"
+    },
     "OTA": true,
     "deep_sleep": {
-      "enabled": true,
+      "enabled": false,
       "mode": "WAKE_RF_DEFAULT",
       "mode_options": [
         "WAKE_RF_DEFAULT",
@@ -42,8 +47,8 @@
         "WAKE_RFCAL",
         "WAKE_NO_RFCAL"
       ],
-      "sleep_time": 10,
-      "sleep_delay": 30
+      "sleep_time": 60000,
+      "sleep_delay": 60
     },
     "light_sleep": {
       "enabled": false,
@@ -56,5 +61,10 @@
   },
   "device": {
     "track_restart_counter": true
+  },
+  "info": {
+    "restart_counter": 0,
+    "fw_version": "v0.1",
+    "repo": "github.com/paclema/iot_button"
   }
 }

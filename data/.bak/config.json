@@ -1,7 +1,9 @@
 {
   "network": {
+    "AP_SSID": "iotdevice",
+    "AP_password": "iotdevice",
     "WiFi_SSID": "ssid",
-    "ssid_password": "password",
+    "WiFi_password": "password",
     "ip_address": "192.168.1.2",
     "subnet": "255.255.255.0",
     "dns_Server": "192.168.1.1",
