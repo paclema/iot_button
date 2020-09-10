@@ -58,7 +58,9 @@
     }
   },
   "device": {
-    "track_restart_counter": true
+    "track_restart_counter": true,
+    "loop_time_ms": 100,
+    "publish_time_ms":1500
   },
   "info": {
     "restart_counter": 0,

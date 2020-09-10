@@ -137,6 +137,8 @@ void WebConfigServer::parseConfig(const JsonDocument& doc){
 
     // Device object:
     device.track_restart_counter = doc["device"]["track_restart_counter"] | true;
+    device.loop_time_ms = doc["device"]["loop_time_ms"] | 100;
+    device.publish_time_ms = doc["device"]["publish_time_ms"] | 1500;
 
 
     // Info object:

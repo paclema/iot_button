@@ -33,6 +33,9 @@ FtpServer ftpSrv;
 // #include <display2.h>
 WrapperOTA ota;
 
+// Device configurations
+long previousLoopMillis = 0;
+long previousMQTTPublishMillis = 0;
 
 
 
@@ -294,24 +297,23 @@ void setup() {
 }
 
 void loop() {
+
+  // Reconnection loop:
   // if (WiFi.status() != WL_CONNECTED) {
   //   config.begin();
   //   networkRestart();
   //   config.configureServer(&server);
   // }
-
-  if (config.services.ota) ota.handle();
-  if (config.services.ftp.enabled) ftpSrv.handleFTP();
-  server.handleClient();
-
   // Handle mqtt reconnection:
-  if (!mqttClient.connected() && config.mqtt.reconnect_mqtt)
+  if (config.mqtt.reconnect_mqtt && !mqttClient.connected())
     reconnectMQTT();
+
+  server.handleClient();
   mqttClient.loop();
 
-
-
-
+  // Services loop:
+  if (config.services.ota) ota.handle();
+  if (config.services.ftp.enabled) ftpSrv.handleFTP();
 
   if (config.services.deep_sleep.enabled){
     // long time_now = millis();
@@ -332,6 +334,28 @@ void loop() {
       }
     }
   }
+
+
+  // Main Loop:
+  unsigned long currentLoopMillis = millis();
+
+  if((config.device.loop_time_ms != 0 ) && (currentLoopMillis - previousLoopMillis > config.device.loop_time_ms)) {
+    previousLoopMillis = currentLoopMillis;
+    // Here starts the device loop configured:
+
+
+  }
+  if((config.device.publish_time_ms != 0 ) && (currentLoopMillis - previousMQTTPublishMillis > config.device.publish_time_ms)) {
+    previousMQTTPublishMillis = currentLoopMillis;
+    // Here starts the MQTT publish loop configured:
+
+    String base_topic_pub = "/" + config.mqtt.id_name + "/";
+    String topic_pub = base_topic_pub + "data";
+    String msg_pub ="{'angle':35, 'distance' : 124, }";
+    mqttClient.publish(topic_pub.c_str(), msg_pub.c_str());
+    Serial.println("MQTT published: " + msg_pub + " -- loop: " + config.device.publish_time_ms);
+  }
+
 
 
 

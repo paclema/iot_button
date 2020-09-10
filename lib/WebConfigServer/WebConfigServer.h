@@ -84,6 +84,9 @@ public:
 
   struct Device {
     bool track_restart_counter;
+    int loop_time_ms;
+    int publish_time_ms;
+
   } device;
 
   struct Info {
