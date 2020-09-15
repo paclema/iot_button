@@ -298,48 +298,65 @@
                 var checked="";
                 if  (val === 'true' || val === true) checked="checked=\"checked\"";
                 formimput.innerHTML += "<input id=\""+key+"\"name=\""+key+"\" type=\"checkbox\" value=\""+val+"\" class=\"input-md\" "+checked+"></label>"
+              // List object:
+              // } else if (Array.isArray(val)) {
+              //
+              //   var list = val.slice();
+              //   var list_name = "list-" + key;
+              //
+              //   formimput.innerHTML +="<div id=\""+list_name+"\" class=\"tag-list\"></div>"
+              //   $(function() {
+              //       // If using Bootstrap 2, be sure to include:
+              //       // Tags.bootstrapVersion = "2";
+              //       $("#"+ list_name).tags({
+              //         tagData:[val],
+              //         suggestions:["basic", "suggestions"],
+              //         excludeList:["not", "these", "words"],
+              //         beforeAddingTag: function(tag){ console.log(tag); }
+              //       });
+              //     });
               // File object:
               } else if (isFile) {
-                formimput.innerHTML += "<input id=\""+key+"\" name=\""+key+"\" type=\"text\" placeholder=\""+key+"\" class=\"form-control input-md\" value=" + val + ">";
+                  formimput.innerHTML += "<input id=\""+key+"\" name=\""+key+"\" type=\"text\" placeholder=\""+key+"\" class=\"form-control input-md\" value=" + val + ">";
 
-                // formimput.innerHTML += `<div class="custom-file">
-                //                          <input type="file" class="custom-file-input" id="customFile">
-                //                          <label class="custom-file-label" for="customFile">Choose file</label>
-                //                        </div>`
-
-
-
-                // formimput.innerHTML += `<form class="md-form">
-                //             <div class="file-field">
-                //               <div class="btn btn-primary btn-sm float-left">
-                //                 <span>Choose file</span>
-                //                 <input type="file">
-                //               </div>
-                //               <div class="file-path-wrapper">
-                //                 <input class="file-path validate" type="text" placeholder="Upload your file">
-                //               </div>
-                //             </div>
-                //           </form>`
-
-              // Object of objects:
-              } else if (typeof val === 'object') {
-
-                val = JSON.stringify(val, null);
-                formimput.innerHTML += "<input "+readonly+" id=\""+key+"\" name=\""+key+"\" type=\""+type+"\" placeholder=\""+key+"\" class=\"form-control input-md\" value=" + val + ">";
-
-                // formimput.innerHTML += "<div class=\"form-group blue-border-focus\"><textarea "+readonly+" id=\""+key+"\" name=\""+key+"\" type=\""+type+"\" placeholder=\""+val+"\" class=\"form-control\" cols=100 rows=10></textarea></div>";
-                document.getElementById(key).placeholder = val;
-                document.getElementById(key).value = JSON.stringify(val, null);
+                  // formimput.innerHTML += `<div class="custom-file">
+                  //                          <input type="file" class="custom-file-input" id="customFile">
+                  //                          <label class="custom-file-label" for="customFile">Choose file</label>
+                  //                        </div>`
 
 
-              } else {
-                // The rest objects:
-                formimput.innerHTML += "<input "+readonly+" id=\""+key+"\" name=\""+key+"\" type=\""+type+"\" placeholder=\""+key+"\" class=\"form-control input-md\" value=" + val + ">";
+
+                  // formimput.innerHTML += `<form class="md-form">
+                  //             <div class="file-field">
+                  //               <div class="btn btn-primary btn-sm float-left">
+                  //                 <span>Choose file</span>
+                  //                 <input type="file">
+                  //               </div>
+                  //               <div class="file-path-wrapper">
+                  //                 <input class="file-path validate" type="text" placeholder="Upload your file">
+                  //               </div>
+                  //             </div>
+                  //           </form>`
+
+                // Object of objects:
+                } else if (typeof val === 'object') {
+
+                  val = JSON.stringify(val, null);
+                  formimput.innerHTML += "<input "+readonly+" id=\""+key+"\" name=\""+key+"\" type=\""+type+"\" placeholder=\""+key+"\" class=\"form-control input-md\" value=" + val + ">";
+
+                  // formimput.innerHTML += "<div class=\"form-group blue-border-focus\"><textarea "+readonly+" id=\""+key+"\" name=\""+key+"\" type=\""+type+"\" placeholder=\""+val+"\" class=\"form-control\" cols=100 rows=10></textarea></div>";
+                  document.getElementById(key).placeholder = val;
+                  document.getElementById(key).value = JSON.stringify(val, null);
+
+
+                } else {
+                  // The rest objects:
+                  formimput.innerHTML += "<input "+readonly+" id=\""+key+"\" name=\""+key+"\" type=\""+type+"\" placeholder=\""+key+"\" class=\"form-control input-md\" value=" + val + ">";
+                }
+
+               formobjs.innerHTML +="</div>";
+               formbody.innerHTML +="</div>";
               }
-
-             formobjs.innerHTML +="</div>";
-             formbody.innerHTML +="</div>";
-            }
 
            formpanel.innerHTML +="</div>";
            // formpanel.innerHTML +="</div>"
