@@ -37,7 +37,16 @@ WrapperOTA ota;
 long previousLoopMillis = 0;
 long previousMQTTPublishMillis = 0;
 
+// #include "Adafruit_VL53L0X.h"
+// Adafruit_VL53L0X lox = Adafruit_VL53L0X();
 
+#include <Wire.h>
+#include <VL53L0X.h>
+
+VL53L0X sensor;
+
+int sensorAngle=35;
+int sensorDistance=124;
 
 void networkRestart(void){
   if(config.status() == CONFIG_LOADED){
@@ -293,7 +302,38 @@ void setup() {
     Serial.println("Flash Chip configuration ok.\n");
   }
 
+
+  // Device configs:
+  // if (!lox.begin()) {
+  //   Serial.println(F("Failed to boot VL53L0X"));
+  //   while(1);
+  // }
+
+  Wire.begin();
+  sensor.setTimeout(500);
+  if (!sensor.init())
+  {
+    Serial.println("Failed to detect and initialize sensor!");
+    while (1) {}
+  }
+
+  Serial.println("###  Device sensors info:\n");
+  // VL53L0X_Version_t* version;
+  // Serial.print("   - Version: ");Serial.println(VL53L0X_GetVersion(version));
+  // Serial.print("   - ROI zones: ");Serial.println(VL53L0X_GetVersion(version));
+
+  VL53L1_CalibrationData_t * calibrationData;
+  status = VL53L1_GetCalibrationData(Dev, &calibrationData);
+  Serial.print("VL53L1_GetCalibrationData returns ");
+  Serial.println(status);
+  Serial.print("Optical Center (x,y): ");
+  Serial.print(calibrationData.optical_centre.x_centre/16.0);  //8 bit fixed point
+  Serial.print(", ");
+  Serial.println(calibrationData.optical_centre.y_centre/16.0);
+
   Serial.println("###  Looping time\n");
+
+  delay(1000);
 }
 
 void loop() {
@@ -343,6 +383,26 @@ void loop() {
     previousLoopMillis = currentLoopMillis;
     // Here starts the device loop configured:
 
+    // sensorDistance++;
+    // if (sensorDistance>400) sensorDistance=400;
+    VL53L0X_RangingMeasurementData_t measure;
+    Serial.print("Reading a measurement... ");
+    lox.rangingTest(&measure, false); // pass in 'true' to get debug data printout!
+
+    if (measure.RangeStatus != 4) {  // phase failures have incorrect data
+      Serial.print("  - Distance (mm): "); Serial.println(measure.RangeMilliMeter);
+    } else {
+      Serial.println(" out of range ");
+    }
+
+    Serial.print("  - ZoneId: "); Serial.println(measure.ZoneId);
+    Serial.print("  - RangeFractionalPart: "); Serial.println(measure.RangeFractionalPart);
+    Serial.print("  - RangeStatus: "); Serial.println(measure.RangeStatus);
+    Serial.print("  - EffectiveSpadRtnCount: "); Serial.println(measure.EffectiveSpadRtnCount);
+
+    sensorDistance = measure.RangeMilliMeter/10;
+
+
 
   }
   if((config.device.publish_time_ms != 0 ) && (currentLoopMillis - previousMQTTPublishMillis > config.device.publish_time_ms)) {
@@ -351,7 +411,8 @@ void loop() {
 
     String base_topic_pub = "/" + config.mqtt.id_name + "/";
     String topic_pub = base_topic_pub + "data";
-    String msg_pub ="{'angle':35, 'distance' : 124, }";
+
+    String msg_pub ="{'angle':" + String(sensorAngle) + ", 'distance' :"+ String(sensorDistance) +", }";
     mqttClient.publish(topic_pub.c_str(), msg_pub.c_str());
     Serial.println("MQTT published: " + msg_pub + " -- loop: " + config.device.publish_time_ms);
   }
