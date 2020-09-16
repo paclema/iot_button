@@ -42,8 +42,12 @@ long previousMQTTPublishMillis = 0;
 // #include "sensorVL53L0X.h"
 #include "sensorVL53L1X.h"
 
-int sensorAngle=35;
-int sensorDistance=124;
+int sensorAngle=0;
+int sensorDistance=0;
+
+#include <Servo.h>
+Servo servo;
+int servoIncrement = 1;
 
 void networkRestart(void){
   if(config.status() == CONFIG_LOADED){
@@ -303,6 +307,8 @@ void setup() {
   // Device configs:
   sensorSetup();
 
+  servo.attach(0); // Attaching Servo to D3
+
 
   Serial.println("###  Looping time\n");
 
@@ -354,9 +360,19 @@ void loop() {
 
   if((config.device.loop_time_ms != 0 ) && (currentLoopMillis - previousLoopMillis > config.device.loop_time_ms)) {
     previousLoopMillis = currentLoopMillis;
-    // Here starts the device loop configured:
 
+    // Here starts the device loop configured:
     sensorDistance = sensorLoop();
+
+    // sensorAngle=map()
+    sensorAngle += servoIncrement;
+    servo.write(sensorAngle);
+
+    if ((sensorAngle >= 180) || (sensorAngle <= 0)) // end of sweep
+    {
+      // reverse direction
+      servoIncrement = -servoIncrement;
+    }
 
 
 
