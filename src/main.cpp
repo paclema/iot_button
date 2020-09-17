@@ -43,8 +43,14 @@ long previousMQTTPublishMillis = 0;
 // #include "sensorVL53L0X.h"
 #include "sensorVL53L1X.h"
 
-int sensorAngle=0;
+// #include "sensorVL53L1X_ROI.h"
+
+
+int sensorAngle=25;
 int sensorDistance=0;
+int sensorDistance_1=0;
+int sensorDistance_2=0;
+
 
 #include <Servo.h>
 Servo servo;
