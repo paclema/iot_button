@@ -39,27 +39,25 @@ void sensorSetup(void){
 
 }
 
-int sensorLoop(void){
+bool sensorRead(int &distance){
 
-	int distance;
 	VL53L0X_RangingMeasurementData_t measure;
 	// Serial.print("Reading a measurement... ");
 	lox.rangingTest(&measure, false); // pass in 'true' to get debug data printout!
 
 	if (measure.RangeStatus != 4) {  // phase failures have incorrect data
 	  Serial.print("  - Distance (mm): "); Serial.println(measure.RangeMilliMeter);
+		// Serial.print("  - ZoneId: "); Serial.println(measure.ZoneId);
+		// Serial.print("  - RangeFractionalPart: "); Serial.println(measure.RangeFractionalPart);
+		// Serial.print("  - RangeStatus: "); Serial.println(measure.RangeStatus);
+		// Serial.print("  - EffectiveSpadRtnCount: "); Serial.println(measure.EffectiveSpadRtnCount);
+
+		// distance = measure.RangeMilliMeter/10;
+		distance = measure.RangeMilliMeter;
+		return true;
 	} else {
 	  Serial.println(" out of range ");
+		return false;
 	}
-
-
-	// Serial.print("  - ZoneId: "); Serial.println(measure.ZoneId);
-	// Serial.print("  - RangeFractionalPart: "); Serial.println(measure.RangeFractionalPart);
-	// Serial.print("  - RangeStatus: "); Serial.println(measure.RangeStatus);
-	// Serial.print("  - EffectiveSpadRtnCount: "); Serial.println(measure.EffectiveSpadRtnCount);
-
-	// distance = measure.RangeMilliMeter/10;
-	distance = measure.RangeMilliMeter;
-	return distance;
 
 }

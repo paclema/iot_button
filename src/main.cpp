@@ -35,6 +35,7 @@ WrapperOTA ota;
 
 // Device configurations
 long previousLoopMillis = 0;
+long previousLoopMainMillis = 0;
 long previousMQTTPublishMillis = 0;
 
 // Distance sensor:
@@ -47,7 +48,11 @@ int sensorDistance=0;
 
 #include <Servo.h>
 Servo servo;
-int servoIncrement = 1;
+int servoIncrement = 0;
+
+
+
+
 
 void networkRestart(void){
   if(config.status() == CONFIG_LOADED){
@@ -124,9 +129,9 @@ void enableServices(void){
 
 
 void callbackMQTT(char* topic, byte* payload, unsigned int length) {
-  Serial.print("Message arrived [");
-  Serial.print(topic);
-  Serial.print("] ");
+  // Serial.print("Message arrived [");
+  // Serial.print(topic);
+  // Serial.print("] ");
 
   char buff[length + 1];
   for (int i = 0; i < length; i++) {
@@ -138,8 +143,8 @@ void callbackMQTT(char* topic, byte* payload, unsigned int length) {
   buff[length] = '\0';
   String message(buff);
 
-  Serial.print(message);
-  Serial.println();
+  // Serial.print(message);
+  // Serial.println();
 
 /*
   if (strcmp(topic, "/lamp") == 0) {
@@ -159,7 +164,7 @@ void callbackMQTT(char* topic, byte* payload, unsigned int length) {
   }
 */
 
-  Serial.print("Heap: "); Serial.println(ESP.getFreeHeap()); //Low heap can cause problems
+  // Serial.print("Heap: "); Serial.println(ESP.getFreeHeap()); //Low heap can cause problems
   ///
 
 }
@@ -306,6 +311,7 @@ void setup() {
 
   // Device configs:
   sensorSetup();
+  servoIncrement = config.device.angle_accuracy;
 
   servo.attach(0); // Attaching Servo to D3
 
@@ -358,17 +364,24 @@ void loop() {
   // Main Loop:
   unsigned long currentLoopMillis = millis();
 
+  int loop_delay = currentLoopMillis - previousLoopMainMillis;
+  // Serial.print("Loop time: ");
+  // Serial.println(loop_delay);
+  previousLoopMainMillis = currentLoopMillis;
+
+
+  // Sensor Loop
   if((config.device.loop_time_ms != 0 ) && (currentLoopMillis - previousLoopMillis > config.device.loop_time_ms)) {
     previousLoopMillis = currentLoopMillis;
 
     // Here starts the device loop configured:
-    sensorDistance = sensorLoop();
+    //Servo move:
 
     // sensorAngle=map()
     sensorAngle += servoIncrement;
     servo.write(sensorAngle);
 
-    if ((sensorAngle >= 180) || (sensorAngle <= 0)) // end of sweep
+    if ((sensorAngle >= 160) || (sensorAngle <= 25)) // end of sweep
     {
       // reverse direction
       servoIncrement = -servoIncrement;
@@ -376,17 +389,29 @@ void loop() {
 
 
 
-  }
-  if((config.device.publish_time_ms != 0 ) && (currentLoopMillis - previousMQTTPublishMillis > config.device.publish_time_ms)) {
-    previousMQTTPublishMillis = currentLoopMillis;
-    // Here starts the MQTT publish loop configured:
+    if (sensorRead(sensorDistance)){
+      if((config.device.publish_time_ms != 0 ) && (currentLoopMillis - previousMQTTPublishMillis > config.device.publish_time_ms)) {
+        previousMQTTPublishMillis = currentLoopMillis;
+        // Here starts the MQTT publish loop configured:
 
-    String base_topic_pub = "/" + config.mqtt.id_name + "/";
-    String topic_pub = base_topic_pub + "data";
+        String base_topic_pub = "/" + config.mqtt.id_name + "/";
+        String topic_pub = base_topic_pub + "data";
 
-    String msg_pub ="{'angle':" + String(sensorAngle) + ", 'distance' :"+ String(sensorDistance) +", }";
-    mqttClient.publish(topic_pub.c_str(), msg_pub.c_str());
-    Serial.println("MQTT published: " + msg_pub + " -- loop: " + config.device.publish_time_ms);
+        String msg_pub ="{'angle':" + String(sensorAngle) + ", 'distance' :"+ String(sensorDistance) +"}";
+        if (sensorDistance != 0 ){
+          // String msg_pub ="{'persons':" + String(sensorDistance) + ", 'distance_1' :" + String(sensorDistance_1) + ", 'distance_2' :"+ String(sensorDistance_2)+" }";
+          mqttClient.publish(topic_pub.c_str(), msg_pub.c_str());
+          Serial.println("MQTT published: " + msg_pub + " -- loop: " + config.device.publish_time_ms);
+        }
+      }
+
+    }
+
+    Serial.print("Loop time: ");
+    Serial.println(loop_delay);
+
+
+
   }
 
 
