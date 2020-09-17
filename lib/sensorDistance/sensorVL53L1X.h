@@ -2,7 +2,7 @@
 #include <Wire.h>
 #include <VL53L1X.h>
 // Add pololu/VL53L1X @ ^1.0.1 lib_deps on platformio.ini
-
+// Lib documentation: https://github.com/pololu/vl53l1x-arduino
 VL53L1X sensor;
 
 
@@ -23,26 +23,30 @@ void sensorSetup(void){
   // the minimum timing budget is 20 ms for short distance mode and 33 ms for
   // medium and long distance modes. See the VL53L1X datasheet for more
   // information on range and timing limits.
-  sensor.setDistanceMode(VL53L1X::Long);
-  sensor.setMeasurementTimingBudget(50000);
+	// sensor.setDistanceMode(VL53L1X::Long);
+  sensor.setDistanceMode(VL53L1X::Short);
+	// sensor.setMeasurementTimingBudget(50000);
+  sensor.setMeasurementTimingBudget(20000);
 
   // Start continuous readings at a rate of one measurement every 50 ms (the
   // inter-measurement period). This period should be at least as long as the
   // timing budget.
-  sensor.startContinuous(50);
+	// sensor.startContinuous(50);
+  sensor.startContinuous(20);
 
 }
 
-int sensorLoop(void){
+bool sensorRead(int &distance){
 
-	int distance = sensor.read();
-	// Serial.print(distance);
-	if (sensor.timeoutOccurred()){
-		// Serial.print(" TIMEOUT");
-		return 0;
-	};
-
-	// Serial.println();
-	return distance;
-
+	if (sensor.dataReady()){
+		distance = sensor.read(false);
+		// Serial.print(distance);
+		if (sensor.timeoutOccurred()){
+			// Serial.print(" TIMEOUT");
+			return false;
+		};
+		// Serial.println();
+		return true;
+	}
+	return false;
 }
