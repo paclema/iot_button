@@ -13,7 +13,7 @@
 // Don't forget to change the capacity to match your requirements.
 // Use arduinojson.org/assistant to compute the capacity.
 #define CONFIG_FILE "/config.json"
-#define CONFIG_JSON_SIZE 2000
+#define CONFIG_JSON_SIZE 2200
 #define MQTT_TOPIC_MAX_SIZE_LIST 10
 #define JSON_MAX_SIZE_LIST 6
 
@@ -87,6 +87,7 @@ public:
   struct Device {
     bool track_restart_counter;
     int angle_accuracy;
+    float servo_speed_ms;
     int loop_time_ms;
     int publish_time_ms;
 
