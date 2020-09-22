@@ -88,7 +88,7 @@ public:
     bool track_restart_counter;
     int angle_accuracy;
     float servo_speed_ms;
-    int loop_time_ms;
+    int loop_sensor_time_ms;
     int publish_time_ms;
 
   } device;
