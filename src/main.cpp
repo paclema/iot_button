@@ -45,6 +45,7 @@ SensorMotor sensorHead;
 // Choose one sensor library:
 // #include "sensorVL53L0X.h"
 #include "sensorVL53L1X.h"
+// #include "sensorHCSR04.h"
 
 // #include "sensorVL53L1X_ROI.h"
 
