@@ -36,7 +36,7 @@ void sensorSetup(void){
 
 }
 
-bool sensorRead(int &distance){
+bool sensorRead(float &distance){
 
 	if (sensor.dataReady()){
 		distance = sensor.read(false);
