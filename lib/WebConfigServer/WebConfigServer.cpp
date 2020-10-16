@@ -330,12 +330,17 @@ void WebConfigServer::configureServer(ESP8266WebServer *server){
 
   //SERVER INIT
   //list directory
+  server->serveStatic("/config/config.json", SPIFFS, "/config/config.json");
+  server->serveStatic("/certs", SPIFFS, "/certs");
   server->serveStatic("/img", SPIFFS, "/img");
   server->serveStatic("/", SPIFFS, "/index.html");
-  server->serveStatic("/css", SPIFFS, "/css");
-  server->serveStatic("/js", SPIFFS, "/js");
-  server->serveStatic("/certs", SPIFFS, "/certs");
-  server->serveStatic("/config.json", SPIFFS, "/config.json");
+  server->serveStatic("/main.js", SPIFFS, "/main.js");
+  server->serveStatic("/polyfills.js", SPIFFS, "/polyfills.js");
+  server->serveStatic("/runtime.js", SPIFFS, "/runtime.js");
+  server->serveStatic("/styles.css", SPIFFS, "/styles.css");
+  server->serveStatic("/3rdpartylicenses.txt", SPIFFS, "/3rdpartylicenses.txt");
+  server->serveStatic("/favicon.ico", SPIFFS, "/favicon.ico");
+
 
   server->on("/gpio", HTTP_POST, [& ,server](){
     updateGpio(server);
