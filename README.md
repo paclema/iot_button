@@ -32,4 +32,8 @@ Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
 
 ng build --prod --optimization=true --outputHashing=none --outputPath=../data --deleteOutputPath=false
 
+To build for xammp:
+ng build --prod --optimization=true --outputHashing=none --outputPath=C:/xampp/htdocs --deleteOutputPath=false
+
+
 These build options can be added in angular.json in the future.
