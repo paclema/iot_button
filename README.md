@@ -23,3 +23,13 @@
 ##### Upload _/data_ folder to ESP SPIFFS File System:
 
 Using platformio run the next command: `pio run -t uploadfs`
+
+
+##### Build webserver to _/data_ fodler:
+If you can not run angular-cli from platformio PowerShell using windows, activate it with:
+Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
+
+
+ng build --prod --optimization=true --outputHashing=none --outputPath=../data --deleteOutputPath=false
+
+These build options can be added in angular.json in the future.
