@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import configFileData from './config/config.json';
 
 @Component({
   selector: 'app-config-tabs',
@@ -7,7 +8,9 @@ import { Component, OnInit } from '@angular/core';
 })
 export class ConfigTabsComponent implements OnInit {
 
-  constructor() { }
+  constructor() {
+      console.log(configFileData);
+  }
 
   ngOnInit(): void {
   }
