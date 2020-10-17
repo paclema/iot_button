@@ -8,6 +8,7 @@ import configFileData from './config/config.json';
 })
 export class ConfigTabsComponent implements OnInit {
 
+  public configData = configFileData;
   constructor() {
       console.log(configFileData);
   }
