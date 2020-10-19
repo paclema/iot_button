@@ -37,3 +37,24 @@ ng build --prod --optimization=true --outputHashing=none --outputPath=C:/xampp/h
 
 
 These build options can be added in angular.json in the future.
+
+##### To add bootsrap into the webserver:
+Follow this [tutorial](https://therichpost.com/angular-10-bootstrap-4-tab-nav-pills-working-example/) and install bootstrap and jquery node modules:
+
+```console
+npm i jquery --save
+npm i bootstrap --save
+```
+
+And add the styles and scripts to angular.json:
+
+```json
+"styles": [
+             ...
+             "node_modules/bootstrap/dist/css/bootstrap.min.css",
+
+           ],
+           "scripts": [
+             "node_modules/jquery/dist/jquery.js",
+             "node_modules/bootstrap/dist/js/bootstrap.js",
+```

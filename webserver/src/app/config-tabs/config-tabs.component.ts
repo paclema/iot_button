@@ -8,12 +8,13 @@ import configFileData from './config/config.json';
 })
 export class ConfigTabsComponent implements OnInit {
 
-  public configData = configFileData;
+  public configData;
   constructor() {
       console.log(configFileData);
   }
 
   ngOnInit(): void {
+    this.configData = configFileData;
   }
 
 }
