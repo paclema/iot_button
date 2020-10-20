@@ -11,7 +11,17 @@ export class ConfigTabsComponent implements OnInit {
   public configData;
   public errorMsg;
 
-  sleepModes = ['Deep sleep', 'Light sleep', 'Keep awake']
+  testFormModel = {
+    "userName": "Pablo",
+    "email": "email@gmail.com",
+    "phone": "666666666",
+    "sleepMode": "Keep awake",
+    "timePreference": "evening",
+    "ota": "true",
+
+  };
+
+  sleepModes = ['Deep sleep', 'Light sleep', 'Keep awake'];
 
   constructor(private _configService: ConfigService) {
   }
