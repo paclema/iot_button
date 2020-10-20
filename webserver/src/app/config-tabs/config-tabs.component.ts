@@ -9,6 +9,7 @@ import { ConfigService } from '../config.service';
 export class ConfigTabsComponent implements OnInit {
 
   public configData;
+  public errorMsg;
 
   constructor(private _configService: ConfigService) {
   }
@@ -17,7 +18,8 @@ export class ConfigTabsComponent implements OnInit {
 
     // Subscribe to the Observable received within the HTTP request to get the data
     this._configService.getConfigData()
-          .subscribe(data => this.configData = data);
+          .subscribe(data => this.configData = data,
+                      error => this.errorMsg = error);
 
     console.log(this.configData);
   }

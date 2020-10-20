@@ -1,4 +1,6 @@
 <!-- <p>config-tabs works!</p> -->
+<ng-container *ngIf="errorMsg"><div class="alert alert-danger" role="alert">{{errorMsg}}</div></ng-container>
+
 <ul class="nav nav-tabs" id="myTab" role="tablist">
   <li class="nav-item" *ngFor="let tabname of configData | keyValueUnsorted ; first as isFirst; index as index">
     <!-- Key: <b>{{tabname.key}}</b> and Value: <b>{{tabname.value}}</b> -->
