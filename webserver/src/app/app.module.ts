@@ -6,7 +6,6 @@ import { AppComponent } from './app.component';
 import { ConfigTabsComponent } from './config-tabs/config-tabs.component';
 
 import { KeyValueUnsortedPipe } from './key-value-unsorted.pipe';
-import { ConfigService } from './config.service';
 import { HttpClientModule } from '@angular/common/http';
 
 
@@ -21,9 +20,7 @@ import { HttpClientModule } from '@angular/common/http';
     AppRoutingModule,
     HttpClientModule
   ],
-  providers: [
-    ConfigService
-  ],
+  providers: [],
   bootstrap: [AppComponent]
 })
 export class AppModule { }
