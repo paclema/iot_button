@@ -14,6 +14,8 @@ export class ConfigTabsComponent implements OnInit {
   }
 
   ngOnInit(): void {
+
+    // Subscribe to the Observable received within the HTTP request to get the data
     this._configService.getConfigData()
           .subscribe(data => this.configData = data);
 

@@ -10,9 +10,15 @@ export class ConfigService {
 
   constructor(private http: HttpClient) { }
 
+  // get config.json without class interface:
   getConfigData(){
-    // Return the http get request tp get the config.json file
+    // Return the http get request as Observable to get the config.json file
     return this.http.get(this._urlConfigFileLocation);
-
   }
+
+  // get config.json with class interface:
+  // getConfigData() Observable<IConfig[]>{
+  //   // Return the http get request tp get the config.json file
+  //   return this.http.get<IConfig[]>(this._urlConfigFileLocation);
+  // }
 }
