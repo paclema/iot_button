@@ -33,6 +33,11 @@
             ]
           },
           "configurations": {
+            "dev": {
+              "assets": [
+                "src/config/config.json"
+              ]
+            },
             "production": {
               "fileReplacements": [
                 {
