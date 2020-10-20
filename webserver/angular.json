@@ -35,6 +35,8 @@
           "configurations": {
             "dev": {
               "assets": [
+                "src/favicon.ico",
+                "src/assets",
                 "src/config/config.json"
               ]
             },
@@ -76,6 +78,9 @@
           "configurations": {
             "production": {
               "browserTarget": "webserver:build:production"
+            },
+            "dev": {
+              "browserTarget": "webserver:build:dev"
             }
           }
         },

@@ -9,11 +9,14 @@ import { ConfigService } from '../config.service';
 export class ConfigTabsComponent implements OnInit {
 
   public configData;
+
   constructor(private _configService: ConfigService) {
   }
 
   ngOnInit(): void {
-    this.configData = this._configService.getConfigData();
+    this._configService.getConfigData()
+          .subscribe(data => this.configData = data);
+
     console.log(this.configData);
   }
 
