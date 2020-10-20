@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import configFileData from './config/config.json';
+import { ConfigService } from '../config.service';
 
 @Component({
   selector: 'app-config-tabs',
@@ -9,12 +9,12 @@ import configFileData from './config/config.json';
 export class ConfigTabsComponent implements OnInit {
 
   public configData;
-  constructor() {
-      console.log(configFileData);
+  constructor(private _configService: ConfigService) {
   }
 
   ngOnInit(): void {
-    this.configData = configFileData;
+    this.configData = this._configService.getConfigData();
+    console.log(this.configData);
   }
 
 }

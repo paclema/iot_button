@@ -5,6 +5,8 @@ import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { ConfigTabsComponent } from './config-tabs/config-tabs.component';
 import { KeyValueUnsortedPipe } from './key-value-unsorted.pipe';
+import { ConfigService } from './config.service';
+
 
 @NgModule({
   declarations: [
@@ -14,9 +16,9 @@ import { KeyValueUnsortedPipe } from './key-value-unsorted.pipe';
   ],
   imports: [
     BrowserModule,
-    AppRoutingModule
+  providers: [
+    ConfigService
   ],
-  providers: [],
   bootstrap: [AppComponent]
 })
 export class AppModule { }
