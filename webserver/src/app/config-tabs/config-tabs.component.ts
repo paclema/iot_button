@@ -22,7 +22,7 @@ export class ConfigTabsComponent implements OnInit {
   };
 
   sleepModes = ['Deep sleep', 'Light sleep', 'Keep awake'];
-  sleepModeHasError = true;
+  sleepModeHasError = false;
 
   constructor(private _configService: ConfigService) {
   }

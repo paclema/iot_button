@@ -75,6 +75,8 @@
   <h1>Test form:</h1>
   <form #testForm="ngForm">
 
+    #testForm valid: {{ testForm.form.valid }}
+    <hr />
     {{ testForm.value | json}}
     <hr />
     {{ testFormModel | json}}
@@ -141,7 +143,7 @@
         <label class="form-check-label">OTA</label>
       </div>
 
-      <button class="btn btn-primary" type="submit">Submit form</button>
+      <button [disabled]="testForm.form.invalid || sleepModeHasError" class="btn btn-primary" type="submit">Submit form</button>
 
     </div>
 
