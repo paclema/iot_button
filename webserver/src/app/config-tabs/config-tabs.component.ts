@@ -11,7 +11,8 @@ export class ConfigTabsComponent implements OnInit {
 
   public configData;
   public errorMsg;
-  public errorMsgPost;
+  public errorMsgPost = false;
+  public dataMsgPost;
 
   testFormModel = {
     "userName": "Pablo",
@@ -25,6 +26,8 @@ export class ConfigTabsComponent implements OnInit {
 
   sleepModes = ['Deep sleep', 'Light sleep', 'Keep awake'];
   sleepModeHasError = false;
+
+  submitted = false;
 
   constructor(private _configService: ConfigService,
               private _enrollmentService: EnrollmentService
@@ -50,13 +53,19 @@ export class ConfigTabsComponent implements OnInit {
 
   onSubmit(){
     console.log(this.testFormModel);
+    // this.errorMsgPost = false;
+
 
     this._enrollmentService.enroll(this.testFormModel)
       .subscribe(
-        data => console.log('Success posting the data', data),
+        data => {console.log('Success posting the data', data);
+                  this.dataMsgPost = data;
+                  this.submitted = true;},
         error => {console.log('Error posting the data', error);
-                  this.errorMsgPost = error}
+                  this.errorMsgPost = error;
+                  this.submitted = false;}
       )
+
   }
 
 

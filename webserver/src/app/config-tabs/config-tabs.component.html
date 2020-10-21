@@ -73,7 +73,7 @@
 <hr />
 <div class="container-fluid">
   <h1>Test form:</h1>
-  <form #testForm="ngForm" (ngSubmit)="onSubmit()" novalidate>
+  <form #testForm="ngForm" *ngIf="(!submitted); else formSubmittedBlock" (ngSubmit)="onSubmit()" novalidate>
 
     #testForm valid: {{ testForm.form.valid }}
     <hr />
@@ -149,6 +149,12 @@
 
 
   </form>
+  <ng-template #formSubmittedBlock>
+    <div *ngIf="dataMsgPost" class="alert alert-success alert-dismissible fade show" role="alert">
+      Test form successfully posted to the server: {{dataMsgPost.message}}
+    </div>
+  </ng-template>
+
 </div>
 
 
