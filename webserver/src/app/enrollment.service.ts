@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
-import { Observable, throwError } from 'rxjs';
+import { throwError } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 
 @Injectable({
@@ -20,7 +20,7 @@ export class EnrollmentService {
   }
 
   errorHandler(error: HttpErrorResponse){
-    return throwError(error.message || "Error getting config.json")
+    return throwError(error.message || "Error posting data")
   }
 
 
