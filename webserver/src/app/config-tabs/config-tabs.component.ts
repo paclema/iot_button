@@ -11,6 +11,7 @@ export class ConfigTabsComponent implements OnInit {
 
   public configData;
   public errorMsg;
+  public errorMsgPost;
 
   testFormModel = {
     "userName": "Pablo",
@@ -53,7 +54,8 @@ export class ConfigTabsComponent implements OnInit {
     this._enrollmentService.enroll(this.testFormModel)
       .subscribe(
         data => console.log('Success posting the data', data),
-        error => console.log('Error posting the data', error)
+        error => {console.log('Error posting the data', error);
+                  this.errorMsgPost = error}
       )
   }
 

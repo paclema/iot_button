@@ -144,7 +144,7 @@
       </div>
 
       <button [disabled]="testForm.form.invalid || sleepModeHasError" class="btn btn-primary" type="submit">Submit form</button>
-
+      <ng-container *ngIf="errorMsgPost"><hr /><div class="alert alert-danger" role="alert">{{errorMsgPost}}</div></ng-container>
     </div>
 
 
