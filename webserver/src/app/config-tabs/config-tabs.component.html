@@ -115,10 +115,13 @@
       </div>
 
       <div class="form-group">
-        <select class="custom-select" [(ngModel)]="testFormModel.sleepMode" name="sleepMode">
-          <option value="">Sleep mode</option>
+        <select (blur)="validateSleepMode(sleepMode.value)" (change)="validateSleepMode(sleepMode.value)" required
+        #sleepMode="ngModel" [class.is-invalid]="sleepModeHasError && sleepMode.touched"
+        class="custom-select" [(ngModel)]="testFormModel.sleepMode" name="sleepMode">
+          <option value="default">Sleep mode</option>
           <option *ngFor="let mode of sleepModes">{{ mode }}</option>
         </select>
+          <small *ngIf="sleepModeHasError && sleepMode.touched" class="text-danger">Please choose a sleep mode</small>
       </div>
 
       <div class="mb-3">

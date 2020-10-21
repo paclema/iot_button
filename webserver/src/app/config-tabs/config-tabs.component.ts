@@ -22,6 +22,7 @@ export class ConfigTabsComponent implements OnInit {
   };
 
   sleepModes = ['Deep sleep', 'Light sleep', 'Keep awake'];
+  sleepModeHasError = true;
 
   constructor(private _configService: ConfigService) {
   }
@@ -34,6 +35,13 @@ export class ConfigTabsComponent implements OnInit {
                       error => this.errorMsg = error);
 
     console.log(this.configData);
+  }
+
+  validateSleepMode(value){
+    if((value === "default" ) || (value === ''))
+      this.sleepModeHasError = true;
+    else
+      this.sleepModeHasError = false;
   }
 
 }
