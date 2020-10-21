@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { ConfigService } from '../config.service';
+import { EnrollmentService } from '../enrollment.service';
 
 @Component({
   selector: 'app-config-tabs',
@@ -24,7 +25,9 @@ export class ConfigTabsComponent implements OnInit {
   sleepModes = ['Deep sleep', 'Light sleep', 'Keep awake'];
   sleepModeHasError = false;
 
-  constructor(private _configService: ConfigService) {
+  constructor(private _configService: ConfigService,
+              private _enrollmentService: EnrollmentService
+            ) {
   }
 
   ngOnInit(): void {
@@ -43,5 +46,16 @@ export class ConfigTabsComponent implements OnInit {
     else
       this.sleepModeHasError = false;
   }
+
+  onSubmit(){
+    console.log(this.testFormModel);
+
+    this._enrollmentService.enroll(this.testFormModel)
+      .subscribe(
+        data => console.log('Success posting the data', data),
+        error => console.log('Error posting the data', error)
+      )
+  }
+
 
 }

@@ -73,7 +73,7 @@
 <hr />
 <div class="container-fluid">
   <h1>Test form:</h1>
-  <form #testForm="ngForm">
+  <form #testForm="ngForm" (ngSubmit)="onSubmit()" novalidate>
 
     #testForm valid: {{ testForm.form.valid }}
     <hr />
