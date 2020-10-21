@@ -1,5 +1,5 @@
 {
-  "name": "iotdevice",
+  "name": "webserver",
   "version": "0.0.0",
   "scripts": {
     "ng": "ng",
