@@ -86,6 +86,12 @@
         <label>Name</label>
         <input type="text" required #name="ngModel" [class.is-invalid]="name.invalid && name.touched"
         class="form-control" [(ngModel)]="testFormModel.userName" name="userName">
+        <!-- validating form with class binding: (not working!)-->
+        <!-- <small class="text-danger" [class.d-none]="name.valid && name.untouched">Name is required</small> -->
+        <!-- validating form using ngif: https://angular.io/guide/form-validation-->
+        <div *ngIf="name.errors && (name.invalid || name.touched)">
+          <small class="text-danger" *ngIf="name.errors.required">Name is required</small>
+        </div>
         <!-- {{name.valid}} -->
       </div>
 
@@ -96,8 +102,15 @@
 
       <div class="form-group">
         <label>Phone</label>
-        <input type="tel" #phone="ngModel" pattern="^\d{9}$" [class.is-invalid]="phone.invalid && phone.touched"
+        <input type="tel" #phone="ngModel" pattern="^\d{9}$" [class.is-invalid]="phone.invalid && phone.touched" required
         class="form-control" [(ngModel)]="testFormModel.phone" name="phone">
+        <!-- validating form with class binding: (not working!)-->
+        <!-- <small class="text-danger" [class.d-none]="phone.valid && phone.untouched">Phone number is required and must be 10 digits</small> -->
+        <!-- validating form using ngif: https://angular.io/guide/form-validation-->
+        <div *ngIf="phone.errors && (phone.invalid || phone.touched)">
+          <small class="text-danger" *ngIf="phone.errors.required">Phone number is required</small>
+          <small class="text-danger" *ngIf="phone.errors.pattern">Phone number must be 10 digits and follow the pattern</small>
+        </div>
         <!-- {{phone.valid}} -->
       </div>
 
