@@ -84,7 +84,9 @@
 
       <div class="form-group">
         <label>Name</label>
-        <input type="text" class="form-control" [(ngModel)]="testFormModel.userName" name="userName">
+        <input type="text" required #name="ngModel" [class.is-invalid]="name.invalid && name.touched"
+        class="form-control" [(ngModel)]="testFormModel.userName" name="userName">
+        <!-- {{name.valid}} -->
       </div>
 
       <div class="form-group">
@@ -94,7 +96,9 @@
 
       <div class="form-group">
         <label>Phone</label>
-        <input type="tel" class="form-control" [(ngModel)]="testFormModel.phone" name="phone">
+        <input type="tel" #phone="ngModel" pattern="^\d{9}$" [class.is-invalid]="phone.invalid && phone.touched"
+        class="form-control" [(ngModel)]="testFormModel.phone" name="phone">
+        <!-- {{phone.valid}} -->
       </div>
 
       <div class="form-group">
