@@ -51,9 +51,15 @@ export class ConfigTabsComponent implements OnInit {
       this.sleepModeHasError = false;
   }
 
-  onSubmit(){
+  onSubmit(testForm){
+
+    // The property of this class:
     console.log(this.testFormModel);
     // this.errorMsgPost = false;
+
+    // The whole ngFormGroup status and data, received onSubmit():
+    console.log(testForm);
+
 
 
     this._enrollmentService.enroll(this.testFormModel)

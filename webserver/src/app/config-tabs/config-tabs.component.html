@@ -73,7 +73,7 @@
 <hr />
 <div class="container-fluid">
   <h1>Test form:</h1>
-  <form #testForm="ngForm" *ngIf="(!submitted); else formSubmittedBlock" (ngSubmit)="onSubmit()" novalidate>
+  <form #testForm="ngForm" *ngIf="(!submitted); else formSubmittedBlock" (ngSubmit)="onSubmit(testForm)" novalidate>
 
     #testForm valid: {{ testForm.form.valid }}
     <hr />
