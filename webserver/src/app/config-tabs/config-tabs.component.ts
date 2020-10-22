@@ -6,6 +6,7 @@ import { EnrollmentService } from '../enrollment.service';
 // import { FormGroup, FormControl } from '@angular/forms';
 // For the (auto) Reactive Form:
 import { FormBuilder, Validators }  from '@angular/forms';
+import { forbiddenNameValidator }  from './shared/user-name.validator';
 
 @Component({
   selector: 'app-config-tabs',
@@ -52,7 +53,7 @@ export class ConfigTabsComponent implements OnInit {
   // For the (auto) Reactive Form:
 
   registrationForm = this.fb.group({
-    userName: ['', [Validators.required, Validators.minLength(3)]],
+    userName: ['', [Validators.required, Validators.minLength(3), forbiddenNameValidator]],
     password: [''],
     confirmPassword: [''],
     address: this.fb.group({
