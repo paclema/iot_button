@@ -5,7 +5,7 @@ import { EnrollmentService } from '../enrollment.service';
 // For the (manual) Reactive Form:
 // import { FormGroup, FormControl } from '@angular/forms';
 // For the (auto) Reactive Form:
-import { FormBuilder }  from '@angular/forms';
+import { FormBuilder, Validators }  from '@angular/forms';
 
 @Component({
   selector: 'app-config-tabs',
@@ -52,7 +52,7 @@ export class ConfigTabsComponent implements OnInit {
   // For the (auto) Reactive Form:
 
   registrationForm = this.fb.group({
-    userName: ['paclema'],
+    userName: ['', [Validators.required, Validators.minLength(3)]],
     password: [''],
     confirmPassword: [''],
     address: this.fb.group({
@@ -97,8 +97,6 @@ export class ConfigTabsComponent implements OnInit {
 
     // The whole ngFormGroup status and data, received onSubmit():
     console.log(testForm);
-
-
 
     this._enrollmentService.enroll(this.testFormModel)
       .subscribe(
