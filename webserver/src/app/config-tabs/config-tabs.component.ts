@@ -40,7 +40,12 @@ export class ConfigTabsComponent implements OnInit {
   registrationForm = new FormGroup({
     userName: new FormControl('paclema'),
     password: new FormControl(''),
-    confirmPassword: new FormControl('')
+    confirmPassword: new FormControl(''),
+    address: new FormGroup({
+      city: new FormControl('Coslada'),
+      state: new FormControl('Madrid'),
+      postalCode: new FormControl('28820')
+    })
   });
 
   constructor(private _configService: ConfigService,
