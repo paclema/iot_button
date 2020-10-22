@@ -166,16 +166,16 @@
 
     <div class="form-group">
       <label>Username</label>
-      <input [class.is-invalid]="registrationForm.get('userName').invalid &&
-                                  registrationForm.get('userName').touched"
+      <input [class.is-invalid]="userName.invalid &&
+                                  userName.touched"
         formControlName="userName" type="text" class="form-control" >
       <!-- <small [class.d-none]="registrationForm.get('userName').valid ||
                               registrationForm.get('userName').untouched"
        class="text-danger">Username is required</small> -->
-      <div *ngIf="registrationForm.get('userName').invalid &&
-                    registrationForm.get('userName').touched" >
-        <small *ngIf="registrationForm.get('userName').errors?.required" class="text-danger">Username is required</small>
-        <small *ngIf="registrationForm.get('userName').errors?.minlength" class="text-danger">Username must be at least 3 characters</small>
+      <div *ngIf="userName.invalid &&
+                    userName.touched" >
+        <small *ngIf="userName.errors?.required" class="text-danger">Username is required</small>
+        <small *ngIf="userName.errors?.minlength" class="text-danger">Username must be at least 3 characters</small>
 
       </div>
     </div>

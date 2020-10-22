@@ -141,5 +141,9 @@ export class ConfigTabsComponent implements OnInit {
       });
   }
 
+  get userName(){
+    return this.registrationForm.get('userName');
+  }
+
 
 }
