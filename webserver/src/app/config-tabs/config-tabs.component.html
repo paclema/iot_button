@@ -197,7 +197,8 @@
     </div>
 
     <div>{{registrationForm.value | json}}</div>
-    <button class="btn btn-primary" type="submit">Register</button>
+    <button (click)="loadApiData()" class="btn btn-secondary" type="submit">Load API Data</button>
+    <button class="btn btn-primary ml-2" type="submit">Register</button>
 
   </form>
 

@@ -61,8 +61,10 @@ export class ConfigTabsComponent implements OnInit {
                       error => this.errorMsg = error);
 
     console.log(this.configData);
+    // this.loadApiData();
   }
 
+  // For the Template Driven Form:
   validateSleepMode(value){
     if((value === "default" ) || (value === ''))
       this.sleepModeHasError = true;
@@ -91,6 +93,37 @@ export class ConfigTabsComponent implements OnInit {
                   this.submitted = false;}
       )
 
+  }
+
+
+  // For the Reactive Form:
+  loadApiData(){
+    // To set each FormControl values for the Reactive FormGrop:
+    // setValue() accepts an object that matches the structure of the FormGroup
+    // the object must contain all keys
+
+    // this.registrationForm.setValue({
+    //   userName: 'name',
+    //   password: 'password',
+    //   confirmPassword: 'password',
+    //   address: {
+    //     city: 'City',
+    //     state:'State',
+    //     postalCode: '123456'
+    //     }
+    //   });
+
+    // If only a few keys want to be set use patchValue():
+    this.registrationForm.patchValue({
+      userName: 'name',
+      // password: 'password',
+      // confirmPassword: 'password',
+      address: {
+        city: 'City',
+        state:'State',
+        // postalCode: '123456'
+        }
+      });
   }
 
 
