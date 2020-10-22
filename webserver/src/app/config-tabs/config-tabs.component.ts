@@ -53,7 +53,7 @@ export class ConfigTabsComponent implements OnInit {
   // For the (auto) Reactive Form:
 
   registrationForm = this.fb.group({
-    userName: ['', [Validators.required, Validators.minLength(3), forbiddenNameValidator]],
+    userName: ['', [Validators.required, Validators.minLength(3), forbiddenNameValidator(/admin/)]],
     password: [''],
     confirmPassword: [''],
     address: this.fb.group({
