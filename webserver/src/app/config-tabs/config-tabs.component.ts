@@ -2,6 +2,10 @@ import { Component, OnInit } from '@angular/core';
 import { ConfigService } from '../config.service';
 import { EnrollmentService } from '../enrollment.service';
 
+// For the Reactive Form:
+import { FormGroup, FormControl } from '@angular/forms';
+
+
 @Component({
   selector: 'app-config-tabs',
   templateUrl: './config-tabs.component.html',
@@ -11,6 +15,9 @@ export class ConfigTabsComponent implements OnInit {
 
   public configData;
   public errorMsg;
+
+
+  // For the Template Driven Form:
   public errorMsgPost = false;
   public dataMsgPost;
 
@@ -28,6 +35,13 @@ export class ConfigTabsComponent implements OnInit {
   sleepModeHasError = false;
 
   submitted = false;
+
+  // For the Reactive Form:
+  registrationForm = new FormGroup({
+    userName: new FormControl('paclema'),
+    password: new FormControl(''),
+    confirmPassword: new FormControl('')
+  });
 
   constructor(private _configService: ConfigService,
               private _enrollmentService: EnrollmentService

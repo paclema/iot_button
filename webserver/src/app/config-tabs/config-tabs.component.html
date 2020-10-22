@@ -72,7 +72,7 @@
 <!-- Example Template Driven Form -->
 <hr />
 <div class="container-fluid">
-  <h1>Test form:</h1>
+  <h1>Test Template Driven Form:</h1>
   <form #testForm="ngForm" *ngIf="(!submitted); else formSubmittedBlock" (ngSubmit)="onSubmit(testForm)" novalidate>
 
     #testForm valid: {{ testForm.form.valid }}
@@ -158,4 +158,30 @@
 </div>
 
 
-<!-- <button class="btn btn-primary">Submit</button> -->
+<!-- Example Reactive Form -->
+<hr />
+<div class="container-fluid col-md-4">
+  <h1>Test Reactive Form:</h1>
+  <form [formGroup]="registrationForm">
+
+    <div class="form-group">
+      <label>Username</label>
+      <input formControlName="userName" type="text" class="form-control" >
+    </div>
+
+    <div class="form-group">
+      <label>Paswsword</label>
+      <input formControlName="password" type="password" class="form-control" >
+    </div>
+
+    <div class="form-group">
+      <label>Confirm Paswsword</label>
+      <input formControlName="confirmPassword" type="password" class="form-control" >
+    </div>
+
+    <div>{{registrationForm.value | json}}</div>
+    <button class="btn btn-primary" type="submit">Register</button>
+
+  </form>
+
+</div>
