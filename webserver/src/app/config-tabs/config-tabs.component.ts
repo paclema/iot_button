@@ -7,6 +7,7 @@ import { EnrollmentService } from '../enrollment.service';
 // For the (auto) Reactive Form:
 import { FormBuilder, Validators }  from '@angular/forms';
 import { ForbiddenNameValidator }  from './shared/user-name.validator';
+import { PasswordValidator }  from './shared/password.validator';
 
 @Component({
   selector: 'app-config-tabs',
@@ -61,7 +62,7 @@ export class ConfigTabsComponent implements OnInit {
       state: [''],
       postalCode: ['']
     })
-  });
+  }, {validator: PasswordValidator});
 
 
 
