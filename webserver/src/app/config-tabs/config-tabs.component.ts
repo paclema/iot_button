@@ -2,9 +2,10 @@ import { Component, OnInit } from '@angular/core';
 import { ConfigService } from '../config.service';
 import { EnrollmentService } from '../enrollment.service';
 
-// For the Reactive Form:
-import { FormGroup, FormControl } from '@angular/forms';
-
+// For the (manual) Reactive Form:
+// import { FormGroup, FormControl } from '@angular/forms';
+// For the (auto) Reactive Form:
+import { FormBuilder }  from '@angular/forms';
 
 @Component({
   selector: 'app-config-tabs',
@@ -36,20 +37,36 @@ export class ConfigTabsComponent implements OnInit {
 
   submitted = false;
 
-  // For the Reactive Form:
-  registrationForm = new FormGroup({
-    userName: new FormControl('paclema'),
-    password: new FormControl(''),
-    confirmPassword: new FormControl(''),
-    address: new FormGroup({
-      city: new FormControl('Coslada'),
-      state: new FormControl('Madrid'),
-      postalCode: new FormControl('28820')
+  // For the (manual) Reactive Form:
+  // registrationForm = new FormGroup({
+  //   userName: new FormControl('paclema'),
+  //   password: new FormControl(''),
+  //   confirmPassword: new FormControl(''),
+  //   address: new FormGroup({
+  //     city: new FormControl('Coslada'),
+  //     state: new FormControl('Madrid'),
+  //     postalCode: new FormControl('28820')
+  //   })
+  // });
+
+  // For the (auto) Reactive Form:
+
+  registrationForm = this.fb.group({
+    userName: ['paclema'],
+    password: [''],
+    confirmPassword: [''],
+    address: this.fb.group({
+      city: [''],
+      state: [''],
+      postalCode: ['']
     })
   });
 
+
+
   constructor(private _configService: ConfigService,
-              private _enrollmentService: EnrollmentService
+              private _enrollmentService: EnrollmentService,
+              private fb: FormBuilder
             ) {
   }
 
