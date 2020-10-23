@@ -50,7 +50,7 @@ SensorMotor sensorHead;
 // #include "sensorVL53L1X_ROI.h"
 
 
-int sensorAngle=0;
+float sensorAngle=0;
 float sensorDistance=0;
 float sensorDistance_1=0;
 float sensorDistance_2=0;
