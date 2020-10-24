@@ -5,7 +5,7 @@ import { EnrollmentService } from '../enrollment.service';
 // For the (manual) Reactive Form:
 // import { FormGroup, FormControl } from '@angular/forms';
 // For the (auto) Reactive Form:
-import { FormBuilder, Validators, FormGroup }  from '@angular/forms';
+import { FormBuilder, Validators, FormGroup, FormArray }  from '@angular/forms';
 import { ForbiddenNameValidator }  from './shared/user-name.validator';
 import { PasswordValidator }  from './shared/password.validator';
 
@@ -98,7 +98,8 @@ export class ConfigTabsComponent implements OnInit {
         city: [''],
         state: [''],
         postalCode: ['']
-      })
+      }),
+      alternateEmails: this.fb.array([])    // Dynamic FormArray initialy empty
     }, {validator: PasswordValidator});
 
     // Subscribe to the Observable to receive "subscribe" FormControl value changes:
@@ -181,6 +182,14 @@ export class ConfigTabsComponent implements OnInit {
 
   get email(){
     return this.registrationForm.get('email');
+  }
+
+  get alternateEmails(){
+    return this.registrationForm.get('alternateEmails') as FormArray;
+  }
+
+  addAlternativeEmails(){
+    this.alternateEmails.push(this.fb.control(''));
   }
 
 }

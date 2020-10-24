@@ -184,8 +184,12 @@
 
     <div class="form-group">
       <label>Email</label>
+      <button type="button" class="btn btn-secondary btn-sm m-2" (click)="addAlternativeEmails()">Add e-mail</button>
       <input [class.is-invalid]="email.invalid && email.touched" formControlName="email" type="text" class="form-control" >
       <small class="text-danger" [class.d-none]="email.valid || email.untouched"> Email is required</small>
+      <div formArrayName="alternateEmails" class="" *ngFor="let email of alternateEmails.controls; let i=index ">
+        <input type="text" class="form-control my-1" [formControlName]="i">
+      </div>
     </div>
 
     <div class="form-check mb-3">
