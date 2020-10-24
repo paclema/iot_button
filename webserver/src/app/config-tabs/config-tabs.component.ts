@@ -5,7 +5,7 @@ import { EnrollmentService } from '../enrollment.service';
 // For the (manual) Reactive Form:
 // import { FormGroup, FormControl } from '@angular/forms';
 // For the (auto) Reactive Form:
-import { FormBuilder, Validators }  from '@angular/forms';
+import { FormBuilder, Validators, FormGroup }  from '@angular/forms';
 import { ForbiddenNameValidator }  from './shared/user-name.validator';
 import { PasswordValidator }  from './shared/password.validator';
 
@@ -52,9 +52,12 @@ export class ConfigTabsComponent implements OnInit {
   // });
 
   // For the (auto) Reactive Form:
-
+  // Moved to OnInit() to add conditional validation and subscribe for the observable
+  /*
   registrationForm = this.fb.group({
     userName: ['', [Validators.required, Validators.minLength(3), ForbiddenNameValidator(/admin/)]],
+    email: [''],
+    subscribe: [false],
     password: [''],
     confirmPassword: [''],
     address: this.fb.group({
@@ -63,7 +66,9 @@ export class ConfigTabsComponent implements OnInit {
       postalCode: ['']
     })
   }, {validator: PasswordValidator});
-
+  */
+  // And add the FormGroup property:
+  registrationForm: FormGroup;
 
 
   constructor(private _configService: ConfigService,
@@ -81,6 +86,33 @@ export class ConfigTabsComponent implements OnInit {
 
     console.log(this.configData);
     // this.loadApiData();
+
+    // For the (auto) Reactive Form:
+    this.registrationForm = this.fb.group({
+      userName: ['', [Validators.required, Validators.minLength(3), ForbiddenNameValidator(/admin/)]],
+      email: [''],
+      subscribe: [false],
+      password: [''],
+      confirmPassword: [''],
+      address: this.fb.group({
+        city: [''],
+        state: [''],
+        postalCode: ['']
+      })
+    }, {validator: PasswordValidator});
+
+    // Subscribe to the Observable to receive "subscribe" FormControl value changes:
+    this.registrationForm.get('subscribe').valueChanges
+          .subscribe(checkedValue => {
+            const email = this.registrationForm.get('email');
+            if (checkedValue){
+              email.setValidators(Validators.required);
+            } else {
+              email.clearValidators();
+            }
+            email.updateValueAndValidity();
+          });
+
   }
 
   // For the Template Driven Form:
@@ -147,5 +179,8 @@ export class ConfigTabsComponent implements OnInit {
     return this.registrationForm.get('userName');
   }
 
+  get email(){
+    return this.registrationForm.get('email');
+  }
 
 }
