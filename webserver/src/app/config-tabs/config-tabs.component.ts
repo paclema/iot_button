@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { ConfigService } from '../config.service';
 import { EnrollmentService } from '../enrollment.service';
+import { PostConfigTabsService } from '../post-config-tabs.service';
 
 // For the (manual) Reactive Form:
 // import { FormGroup, FormControl } from '@angular/forms';
@@ -73,7 +74,8 @@ export class ConfigTabsComponent implements OnInit {
 
   constructor(private _configService: ConfigService,
               private _enrollmentService: EnrollmentService,
-              private fb: FormBuilder
+              private fb: FormBuilder,
+              private _postConfigTabsService: PostConfigTabsService,
             ) {
   }
 
@@ -190,6 +192,21 @@ export class ConfigTabsComponent implements OnInit {
 
   addAlternativeEmails(){
     this.alternateEmails.push(this.fb.control(''));
+  }
+
+  onSubmitRF(){
+    console.log(this.registrationForm.value);
+
+    this._postConfigTabsService.register(this.registrationForm.value)
+    .subscribe(
+      response => {console.log('Success posting the data', response);
+                this.dataMsgPost = response;
+                this.submitted = true;},
+      error => {console.log('Error posting the data', error);
+                this.errorMsgPost = error;
+                this.submitted = false;}
+    )
+
   }
 
 }

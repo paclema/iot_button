@@ -162,7 +162,7 @@
 <hr />
 <div class="container-fluid col-md-4">
   <h1>Test Reactive Form:</h1>
-  <form [formGroup]="registrationForm">
+  <form [formGroup]="registrationForm" (ngSubmit)="onSubmitRF()">
 
     <div class="form-group">
       <label>Username</label>
@@ -229,7 +229,9 @@
 
     <div>{{registrationForm.value | json}}</div>
     <button (click)="loadApiData()" class="btn btn-secondary" type="submit">Load API Data</button>
-    <button class="btn btn-primary ml-2" type="submit">Register</button>
+    <button [disabled]='!registrationForm.valid' class="btn btn-primary ml-2" type="submit">Register</button>
+    <ng-container *ngIf="errorMsgPost"><hr /><div class="alert alert-danger" role="alert">{{errorMsgPost}}</div></ng-container>
+
 
   </form>
 
