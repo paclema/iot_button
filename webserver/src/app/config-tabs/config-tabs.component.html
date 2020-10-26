@@ -48,15 +48,19 @@
                 <ng-template #ObjectBlock>
                   <!-- {{configparam.value.value | json}} -->
                   <input [readonly]="tabname.key.toLowerCase() == 'info' ? 'readonly' : null" id={{configparam.key}}
+                  <!-- [class.is-invalid]="configTabsForm.get(configparam.key).invalid && configTabsForm.get(configparam.key).touched" -->
                   name={{configparam.key}} type="{{configparam.key.includes('password') ? 'password' : 'text'}}"
                   placeholder={{configparam.key}} class="form-control input-md" value={{configparam.value}}
                   formControlName="{{configparam.key}}">
+                  <small class="text-danger" [class.d-none]="configparam.value.valid || configparam.value.untouched">{{configparam.key}} is required</small>
                 </ng-template>
                 <ng-template #noObjectBlock>
                   <input [readonly]="tabname.key.toLowerCase() == 'info' ? 'readonly' : null" id={{configparam.key}}
+                  [class.is-invalid]="configparam.value.invalid && configparam.value.touched"
                   name={{configparam.key}} type="{{configparam.key.includes('password') ? 'password' : 'text'}}"
                   placeholder={{configparam.key}} class="form-control input-md" value={{configparam.value}}
                   formControlName="{{configparam.key}}">
+                  <small class="text-danger" [class.d-none]="configparam.value.valid || configparam.value.untouched">{{configparam.key}} is required</small>
                 </ng-template>
               </div>
             </div>
@@ -82,15 +86,19 @@
                 <ng-template #ObjectBlock>
                   <!-- {{configparam.value.value | json}} -->
                   <input [readonly]="tabname.key.toLowerCase() == 'info' ? 'readonly' : null" id={{configparam.key}}
+                  [class.is-invalid]="configparam.value.invalid && configparam.value.touched"
                   name={{configparam.key}} type="{{configparam.key.includes('password') ? 'password' : 'text'}}"
                   placeholder={{configparam.key}} class="form-control input-md" value={{configparam.value}}
                   formControlName="{{configparam.key}}">
+                  <small class="text-danger" [class.d-none]="configparam.value.valid || configparam.value.untouched">{{configparam.key}} is required</small>
                 </ng-template>
                 <ng-template #noObjectBlock>
                   <input [readonly]="tabname.key.toLowerCase() == 'info' ? 'readonly' : null" id={{configparam.key}}
+                  [class.is-invalid]="configparam.value.invalid && configparam.value.touched"
                   name={{configparam.key}} type="{{configparam.key.includes('password') ? 'password' : 'text'}}"
                   placeholder={{configparam.key}} class="form-control input-md" value={{configparam.value}}
                   formControlName="{{configparam.key}}">
+                  <small class="text-danger" [class.d-none]="configparam.value.valid || configparam.value.untouched">{{configparam.key}} is required</small>
                 </ng-template>
               </div>
             </div>

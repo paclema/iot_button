@@ -261,8 +261,8 @@ export class ConfigTabsComponent implements OnInit {
       this.configTabsForm.addControl(tab, newTabForm);
 
     }
-    // console.log('Form built: configTabsForm');
-    // console.log(this.configTabsForm);
+    console.log('Form built: configTabsForm');
+    console.log(this.configTabsForm);
     // console.log('Form built: configTabsForm.value');
     console.log(this.configTabsForm.value);
   }
