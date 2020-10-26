@@ -122,9 +122,7 @@ export class ConfigTabsComponent implements OnInit {
           });
 
 
-    this._configService.getConfigData()
-          .subscribe(data => this.buildTabsForm(data),
-                      error => this.errorMsg = error);
+    this.loadConfigFile();
 
 
   }
@@ -189,6 +187,12 @@ export class ConfigTabsComponent implements OnInit {
       });
   }
 
+  loadConfigFile(){
+    this._configService.getConfigData()
+          .subscribe(data => this.buildTabsForm(data),
+                      error => this.errorMsg = error);
+  }
+
   get userName(){
     return this.registrationForm.get('userName');
   }
@@ -220,9 +224,30 @@ export class ConfigTabsComponent implements OnInit {
 
   }
 
+  onSubmitConfigTabs(){
+    // console.log(this.configTabsForm.value);
+
+    this._postConfigTabsService.register(this.configTabsForm.value)
+    .subscribe(
+      response => {console.log('Success posting the data', response);
+                this.dataMsgPost = response;
+                this.submitted = true;},
+      error => {console.log('Error posting the data', error);
+                this.errorMsgPost = error;
+                this.submitted = false;}
+    )
+
+  }
+
+  configFactoryDefaults(){
+    console.log("Restoring the backup for config.json...");
+
+  }
+
   buildTabsForm(configTabs){
     console.log('Building configTabsForm...');
-    console.log(configTabs);
+    // console.log(configTabs);
+    this.configTabsForm = this.fb.group({});
 
     for(let tab in configTabs) {
       let newTabForm = this.fb.group({});
@@ -236,9 +261,9 @@ export class ConfigTabsComponent implements OnInit {
       this.configTabsForm.addControl(tab, newTabForm);
 
     }
-    console.log('Form built: configTabsForm');
-    console.log(this.configTabsForm);
-    console.log('Form built: configTabsForm.value');
+    // console.log('Form built: configTabsForm');
+    // console.log(this.configTabsForm);
+    // console.log('Form built: configTabsForm.value');
     console.log(this.configTabsForm.value);
   }
 
@@ -261,6 +286,6 @@ export class ConfigTabsComponent implements OnInit {
     var pretty = JSON.stringify(text.value, undefined, 4);
     // document.getElementById('myTextArea').value = pretty;
     return pretty;
-}
+  }
 
 }
