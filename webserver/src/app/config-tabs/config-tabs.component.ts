@@ -25,6 +25,8 @@ export class ConfigTabsComponent implements OnInit {
   public errorMsgPost = false;
   public dataMsgPost;
 
+  public enableTutorial = true;
+
   testFormModel = {
     "userName": "Pablo",
     "email": "email@gmail.com",
