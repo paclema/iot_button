@@ -80,6 +80,8 @@ export class ConfigTabsComponent implements OnInit {
               private fb: FormBuilder,
               private _postConfigTabsService: PostConfigTabsService,
             ) {
+
+    this.configTabsForm = this.fb.group({});
   }
 
   ngOnInit(): void {
@@ -89,7 +91,7 @@ export class ConfigTabsComponent implements OnInit {
           .subscribe(data => this.configData = data,
                       error => this.errorMsg = error);
 
-    console.log(this.configData);
+    // console.log(this.configData);
     // this.loadApiData();
 
     // For the (auto) Reactive Form:
@@ -222,8 +224,6 @@ export class ConfigTabsComponent implements OnInit {
     console.log('Building configTabsForm...');
     console.log(configTabs);
 
-    this.configTabsForm = this.fb.group({});
-
     for(let tab in configTabs) {
       let newTabForm = this.fb.group({});
       for(let ind in configTabs[tab]) {
@@ -240,6 +240,12 @@ export class ConfigTabsComponent implements OnInit {
     console.log(this.configTabsForm);
     console.log('Form built: configTabsForm.value');
     console.log(this.configTabsForm.value);
+  }
+
+  // This function its added to use keyvalue pipe under *ngFor to get the
+  // configTabsForm.controls unsorted:
+  returnZero() {
+    return 0
   }
 
 }
