@@ -70,6 +70,7 @@ export class ConfigTabsComponent implements OnInit {
   */
   // And add the FormGroup property:
   registrationForm: FormGroup;
+  configTabsForm: FormGroup;
 
 
   constructor(private _configService: ConfigService,
@@ -115,6 +116,12 @@ export class ConfigTabsComponent implements OnInit {
             }
             email.updateValueAndValidity();
           });
+
+
+    this._configService.getConfigData()
+          .subscribe(data => this.buildTabsForm(data),
+                      error => this.errorMsg = error);
+
 
   }
 
@@ -206,6 +213,28 @@ export class ConfigTabsComponent implements OnInit {
                 this.errorMsgPost = error;
                 this.submitted = false;}
     )
+
+  }
+
+  buildTabsForm(configTabs){
+    console.log('Building configTabsForm...');
+    console.log(configTabs);
+
+    this.configTabsForm = this.fb.group({});
+
+    for(let tab in configTabs) {
+      let newTabForm = this.fb.group({});
+      for(let ind in configTabs[tab]) {
+        newTabForm.addControl(ind, this.fb.control(configTabs[tab][ind]));
+      }
+      // console.log('newTabForm: ');
+      // console.log(newTabForm);
+      // newTabForm.setParent(this.configTabsForm);
+      this.configTabsForm.addControl(tab, newTabForm);
+
+    }
+    console.log('Form built: configTabsForm.value');
+    console.log(this.configTabsForm.value);
 
   }
 
