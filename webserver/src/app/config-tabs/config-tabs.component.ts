@@ -225,7 +225,8 @@ export class ConfigTabsComponent implements OnInit {
     for(let tab in configTabs) {
       let newTabForm = this.fb.group({});
       for(let ind in configTabs[tab]) {
-        newTabForm.addControl(ind, this.fb.control(configTabs[tab][ind]));
+        // newTabForm.addControl(ind, this.fb.control(configTabs[tab][ind]));
+        newTabForm.addControl(ind, this.fb.control(configTabs[tab][ind], Validators.required));
       }
       // console.log('newTabForm: ');
       // console.log(newTabForm);
@@ -233,9 +234,10 @@ export class ConfigTabsComponent implements OnInit {
       this.configTabsForm.addControl(tab, newTabForm);
 
     }
+    console.log('Form built: configTabsForm');
+    console.log(this.configTabsForm);
     console.log('Form built: configTabsForm.value');
     console.log(this.configTabsForm.value);
-
   }
 
 }
