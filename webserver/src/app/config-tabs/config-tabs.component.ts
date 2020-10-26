@@ -248,4 +248,19 @@ export class ConfigTabsComponent implements OnInit {
     return 0
   }
 
+  isNumber(val): boolean { return typeof val === 'number'; }
+  isBoolean(val): boolean { return typeof val === 'boolean'; }
+  isObject(val): boolean {
+    // console.log(val.value);
+    return typeof val.value === 'object';
+  }
+
+  prettyPrint(text) {
+    // var ugly = document.getElementById('myTextArea').value;
+    // var obj = JSON.parse(text);
+    var pretty = JSON.stringify(text.value, undefined, 4);
+    // document.getElementById('myTextArea').value = pretty;
+    return pretty;
+}
+
 }

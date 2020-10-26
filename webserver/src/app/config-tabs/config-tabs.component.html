@@ -42,12 +42,21 @@
               <div id='{{tabname.key + "_" + configparam.key + "_input"}}' class="col-md-12">
                 <!-- here check if  {{tabname.key}} its info so the input is readonly -->
                 <!-- here check if  {{configparam.key}} contains password, file, etc..-->
-                <input [readonly]="tabname.key.toLowerCase() == 'info' ? 'readonly' : null" id={{configparam.key}}
-                name={{configparam.key}} type="{{configparam.key.includes('password') ? 'password' : 'text'}}"
-                placeholder={{configparam.key}} class="form-control input-md" value={{configparam.value}}
-                [formControlName]="configparam.key">
-                <!-- formControlName="{{configTabsForm.controls[tabname.key].controls[configparam.key].controls}}"> -->
-                <!-- formControlName="{{testForm.get(tabname.key + '.' + configparam.key).controls}}"> -->
+
+                <ng-container *ngIf="isObject(configparam.value); then ObjectBlock; else noObjectBlock"></ng-container>
+                <ng-template #ObjectBlock>
+                  <!-- {{configparam.value.value | json}} -->
+                  <input [readonly]="tabname.key.toLowerCase() == 'info' ? 'readonly' : null" id={{configparam.key}}
+                  name={{configparam.key}} type="{{configparam.key.includes('password') ? 'password' : 'text'}}"
+                  placeholder={{configparam.key}} class="form-control input-md" value={{configparam.value}}
+                  formControlName="{{configparam.key}}">
+                </ng-template>
+                <ng-template #noObjectBlock>
+                  <input [readonly]="tabname.key.toLowerCase() == 'info' ? 'readonly' : null" id={{configparam.key}}
+                  name={{configparam.key}} type="{{configparam.key.includes('password') ? 'password' : 'text'}}"
+                  placeholder={{configparam.key}} class="form-control input-md" value={{configparam.value}}
+                  formControlName="{{configparam.key}}">
+                </ng-template>
               </div>
             </div>
           </ng-container>
@@ -67,10 +76,21 @@
               <div id='{{tabname.key + "_" + configparam.key + "_input"}}' class="col-md-12">
                 <!-- here check if  {{tabname.key}} its info so the input is readonly -->
                 <!-- here check if  {{configparam.key}} contains password, file, etc..-->
-                <input [readonly]="tabname.key.toLowerCase() == 'info' ? 'readonly' : null" id={{configparam.key}}
-                name={{configparam.key}} type="{{configparam.key.includes('password') ? 'password' : 'text'}}"
-                placeholder={{configparam.key}} class="form-control input-md" value={{configparam.value}}
-                formControlName="{{configparam.key}}">
+
+                <ng-container *ngIf="isObject(configparam.value); then ObjectBlock; else noObjectBlock"></ng-container>
+                <ng-template #ObjectBlock>
+                  <!-- {{configparam.value.value | json}} -->
+                  <input [readonly]="tabname.key.toLowerCase() == 'info' ? 'readonly' : null" id={{configparam.key}}
+                  name={{configparam.key}} type="{{configparam.key.includes('password') ? 'password' : 'text'}}"
+                  placeholder={{configparam.key}} class="form-control input-md" value={{configparam.value}}
+                  formControlName="{{configparam.key}}">
+                </ng-template>
+                <ng-template #noObjectBlock>
+                  <input [readonly]="tabname.key.toLowerCase() == 'info' ? 'readonly' : null" id={{configparam.key}}
+                  name={{configparam.key}} type="{{configparam.key.includes('password') ? 'password' : 'text'}}"
+                  placeholder={{configparam.key}} class="form-control input-md" value={{configparam.value}}
+                  formControlName="{{configparam.key}}">
+                </ng-template>
               </div>
             </div>
           </ng-container>
