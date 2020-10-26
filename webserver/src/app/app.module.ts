@@ -10,13 +10,15 @@ import { ConfigTabsComponent } from './config-tabs/config-tabs.component';
 
 import { KeyValueUnsortedPipe } from './key-value-unsorted.pipe';
 import { HttpClientModule } from '@angular/common/http';
+import { ReplaceUnderscorePipe } from './replace-underscore.pipe';
 
 
 @NgModule({
   declarations: [
     AppComponent,
     ConfigTabsComponent,
-    KeyValueUnsortedPipe
+    KeyValueUnsortedPipe,
+    ReplaceUnderscorePipe
   ],
   imports: [
     BrowserModule,
