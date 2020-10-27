@@ -50,6 +50,7 @@
                   name={{configparam.key}} type="{{configparam.key.includes('password') ? 'password' : 'text'}}"
                   placeholder={{configparam.key}} class="form-control input-md" value={{configparam.value}}
                   formControlName="{{configparam.key}}">
+                  <small class="text-danger" [class.d-none]="configparam.value.valid || configparam.value.untouched">{{configparam.key}} is required</small>
                 </div>
               </div>
             </ng-container>
@@ -63,6 +64,7 @@
                   name={{configparam.key}} type="{{configparam.key.includes('password') ? 'password' : 'text'}}"
                   placeholder={{configparam.key}} class="form-control input-md" value={{configparam.value}}
                   formControlName="{{configparam.key}}">
+                  <small class="text-danger" [class.d-none]="configparam.value.valid || configparam.value.untouched">{{configparam.key}} is required</small>
                 </div>
               </div>
             </ng-container>
@@ -89,16 +91,12 @@
                   name={{configparam.key}} type="{{configparam.key.includes('password') ? 'password' : 'text'}}"
                   placeholder={{configparam.key}} class="form-control input-md" value={{configparam.value}}
                   formControlName="{{configparam.key}}">
+                  <small class="text-danger" [class.d-none]="configparam.value.valid || configparam.value.untouched">{{configparam.key}} is required</small>
                 </div>
               </div>
             </ng-container>
 
-
-
-            <small class="text-danger" [class.d-none]="configparam.value.valid || configparam.value.untouched">{{configparam.key}} is required</small>
-
           </ng-container>
-
         </div>
       </div>
     </ng-template>
@@ -121,6 +119,7 @@
                   name={{configparam.key}} type="{{configparam.key.includes('password') ? 'password' : 'text'}}"
                   placeholder={{configparam.key}} class="form-control input-md" value={{configparam.value}}
                   formControlName="{{configparam.key}}">
+                  <small class="text-danger" [class.d-none]="configparam.value.valid || configparam.value.untouched">{{configparam.key}} is required</small>
                 </div>
               </div>
             </ng-container>
@@ -134,6 +133,7 @@
                   name={{configparam.key}} type="{{configparam.key.includes('password') ? 'password' : 'text'}}"
                   placeholder={{configparam.key}} class="form-control input-md" value={{configparam.value}}
                   formControlName="{{configparam.key}}">
+                  <small class="text-danger" [class.d-none]="configparam.value.valid || configparam.value.untouched">{{configparam.key}} is required</small>
                 </div>
               </div>
             </ng-container>
@@ -158,15 +158,13 @@
                   <input [readonly]="tabname.key.toLowerCase() == 'info' ? 'readonly' : null" id={{configparam.key}}
                   [class.is-invalid]="configparam.value.invalid && configparam.value.touched"
                   name={{configparam.key}} type="{{configparam.key.includes('password') ? 'password' : 'text'}}"
-                  placeholder={{configparam.key}} class="form-control input-md" value={{configparam.value}}
+                  placeholder={{configparam.key}} class="form-control input-md" value="{{configparam.value.value | json}}"
                   formControlName="{{configparam.key}}">
+                  <small class="text-danger" [class.d-none]="configparam.value.valid || configparam.value.untouched">{{configparam.key}} is required</small>
                 </div>
               </div>
             </ng-container>
 
-
-
-            <small class="text-danger" [class.d-none]="configparam.value.valid || configparam.value.untouched">{{configparam.key}} is required</small>
 
           </ng-container>
 
