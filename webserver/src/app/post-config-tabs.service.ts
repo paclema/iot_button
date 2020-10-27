@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpErrorResponse } from '@angular/common/http';
+import { HttpClient, HttpErrorResponse, HttpParams  } from '@angular/common/http';
 import { throwError } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 
@@ -9,6 +9,7 @@ import { catchError } from 'rxjs/operators';
 export class PostConfigTabsService {
 
   _url = 'http://localhost:3000/enroll';
+  _urlBase = 'http://localhost:3000';
 
   constructor(private _http: HttpClient) { }
 
@@ -26,5 +27,17 @@ export class PostConfigTabsService {
   }
 
 
+  restoreBackup(url, filename){
+    let urlTemp = this._urlBase + url;
+
+    const params = new HttpParams()
+                  // .set('filename', filename)
+                  .set('filename', filename);
+
+    return this._http.post<any>(urlTemp, params)
+                        .pipe(
+                          catchError(this.errorHandler));
+
+  }
 
 }

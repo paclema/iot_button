@@ -241,6 +241,19 @@ export class ConfigTabsComponent implements OnInit {
 
   configFactoryDefaults(){
     console.log("Restoring the backup for config.json...");
+    // The property of this class:
+    // console.log(this.testFormModel);
+    // this.errorMsgPost = false;
+
+    this._postConfigTabsService.restoreBackup("/restore_config","config.json")
+    .subscribe(
+      response => {console.log('Success restoring config.json', response);
+                this.dataMsgPost = response;
+                this.submitted = true;},
+      error => {console.log('Error restoring config.json', error);
+                this.errorMsgPost = error;
+                this.submitted = false;}
+    )
 
   }
 
