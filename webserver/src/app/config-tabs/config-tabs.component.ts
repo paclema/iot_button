@@ -25,7 +25,7 @@ export class ConfigTabsComponent implements OnInit {
   public errorMsgPost = false;
   public dataMsgPost;
 
-  public enableTutorial = true;
+  public enableTutorial = false;
 
   testFormModel = {
     "userName": "Pablo",
@@ -274,11 +274,34 @@ export class ConfigTabsComponent implements OnInit {
   }
 
   isNumber(val): boolean { return typeof val === 'number'; }
+  isString(val): boolean { return typeof val === 'string'; }
   isBoolean(val): boolean { return typeof val === 'boolean'; }
-  isObject(val): boolean {
-    // console.log(val.value);
-    return typeof val.value === 'object';
+  isObject(val): boolean { return typeof val === 'object'; }
+  isFile(key): boolean {
+    if (key.includes("file")) {
+      return true;
+    } else
+      return false;
   }
+
+  typeConfig(obj): string {
+    // console.log("Receiving obj");
+    // console.log(obj);
+
+    if (this.isNumber(obj)) {
+      return 'number';
+    } else if (this.isString(obj)) {
+      return 'string';
+    } else if (this.isBoolean(obj)) {
+      return 'boolean';
+    } else if (this.isObject(obj)) {
+      return 'object';
+    } else
+      return null;
+
+  }
+
+  log(val) { console.log(val); }
 
   prettyPrint(text) {
     // var ugly = document.getElementById('myTextArea').value;
