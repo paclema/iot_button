@@ -37,7 +37,6 @@ export class PostConfigTabsService {
   restoreBackup(filename){
     const urlTemp = this._urlBase + "/restore_config";
     const params = new HttpParams()
-                  // .set('filename', filename)
                   .set('filename', filename);
 
     return this._http.post<any>(urlTemp, params)
@@ -49,8 +48,19 @@ export class PostConfigTabsService {
   restartDevice(){
     const urlTemp = this._urlBase + "/restart";
     const params = new HttpParams()
-                  // .set('filename', filename)
-                  .set('restart', true);
+                  .set('restart', 'true');
+
+    return this._http.post<any>(urlTemp, params)
+                        .pipe(
+                          catchError(this.errorHandler));
+
+  }
+
+  gpioTest(id, val){
+    const urlTemp = this._urlBase + "/gpio";
+    const params = new HttpParams()
+                  .set('id', id)
+                  .set('val', val);
 
     return this._http.post<any>(urlTemp, params)
                         .pipe(

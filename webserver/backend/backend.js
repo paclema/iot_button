@@ -41,6 +41,15 @@ app.post('/restore_config', function(req, res){
   res.status(200).send({"message": "Configuration " + req.body.filename +" restored"});
 });
 
+app.post('/gpio', function(req, res){
+  console.log("id: ", req.body.id," val: ", req.body.val);
+  if (req.body.id && req.body.val){
+    res.status(200).send({"message": "GPIO " + req.body.id + " changed to " + req.body.val});
+  }  else {
+    res.status(400).send({"message": "Invalid request. Add id and val parameters to the POST request" });
+    }
+});
+
 app.listen(PORT, function(req, res){
   console.log("Server running on localhost:" + PORT);
 });

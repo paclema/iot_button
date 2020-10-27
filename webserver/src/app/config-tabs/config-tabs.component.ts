@@ -244,10 +244,27 @@ export class ConfigTabsComponent implements OnInit {
 
     this._postConfigTabsService.restartDevice()
     .subscribe(
-      response => {console.log('Success posting the data', response);
+      response => {console.log('Success restarting the device', response);
                 this.dataMsgPost = response;
                 this.submitted = true;},
-      error => {console.log('Error posting the data', error);
+      error => {console.log('Error restarting the device', error);
+                this.errorMsgPost = error;
+                this.submitted = false;}
+    )
+
+  }
+
+  gpioTest(){
+    // console.log(this.configTabsForm.value);
+    const id = "LED_BUILTIN";
+    const val = true;
+
+    this._postConfigTabsService.gpioTest(id, val)
+    .subscribe(
+      response => {console.log('Success testing GPIO', response);
+                this.dataMsgPost = response;
+                this.submitted = true;},
+      error => {console.log('Error testing GPIO', error);
                 this.errorMsgPost = error;
                 this.submitted = false;}
     )
