@@ -46,4 +46,16 @@ export class PostConfigTabsService {
 
   }
 
+  restartDevice(){
+    const urlTemp = this._urlBase + "/restart";
+    const params = new HttpParams()
+                  // .set('filename', filename)
+                  .set('restart', true);
+
+    return this._http.post<any>(urlTemp, params)
+                        .pipe(
+                          catchError(this.errorHandler));
+
+  }
+
 }

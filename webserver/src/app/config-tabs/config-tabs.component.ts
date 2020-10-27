@@ -239,10 +239,10 @@ export class ConfigTabsComponent implements OnInit {
 
   }
 
-  onSubmitConfigTabs(){
+  restartDevice(){
     // console.log(this.configTabsForm.value);
 
-    this._postConfigTabsService.register(this.configTabsForm.value)
+    this._postConfigTabsService.restartDevice()
     .subscribe(
       response => {console.log('Success posting the data', response);
                 this.dataMsgPost = response;

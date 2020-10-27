@@ -26,6 +26,14 @@ app.post('/save_config', function(req, res){
   res.status(200).send({"message": "Configurations saved"});
 });
 
+app.post('/restart', function(req, res){
+  console.log(req.body.restart);
+  if (req.body.restart){
+    res.status(200).send({"message": "Restarting device... "});
+  }  else {
+    res.status(400).send({"message": "Invalid request. Add restart parameter to the POST request" });
+    }
+});
 
 app.post('/restore_config', function(req, res){
   console.log(req.body.filename);
