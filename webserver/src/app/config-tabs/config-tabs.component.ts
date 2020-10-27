@@ -245,7 +245,7 @@ export class ConfigTabsComponent implements OnInit {
     // console.log(this.testFormModel);
     // this.errorMsgPost = false;
 
-    this._postConfigTabsService.restoreBackup("/restore_config","config.json")
+    this._postConfigTabsService.restoreBackup("config.json")
     .subscribe(
       response => {console.log('Success restoring config.json', response);
                 this.dataMsgPost = response;

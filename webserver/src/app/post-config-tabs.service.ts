@@ -27,9 +27,9 @@ export class PostConfigTabsService {
   }
 
 
-  restoreBackup(url, filename){
-    let urlTemp = this._urlBase + url;
 
+  restoreBackup(filename){
+    const urlTemp = this._urlBase + "/restore_config";
     const params = new HttpParams()
                   // .set('filename', filename)
                   .set('filename', filename);
