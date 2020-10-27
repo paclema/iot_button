@@ -26,7 +26,13 @@ export class PostConfigTabsService {
     return throwError(error.message || "Error posting data")
   }
 
+  saveConfig(dataPost){
+    const urlTemp = this._urlBase + "/save_config";
+    return this._http.post<any>(urlTemp, dataPost)
+                        .pipe(
+                          catchError(this.errorHandler));
 
+  }
 
   restoreBackup(filename){
     const urlTemp = this._urlBase + "/restore_config";

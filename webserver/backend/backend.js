@@ -21,6 +21,12 @@ app.post('/enroll', function(req, res){
   res.status(200).send({"message": "Data received"});
 });
 
+app.post('/save_config', function(req, res){
+  console.log(req.body);
+  res.status(200).send({"message": "Configurations saved"});
+});
+
+
 app.post('/restore_config', function(req, res){
   console.log(req.body.filename);
 

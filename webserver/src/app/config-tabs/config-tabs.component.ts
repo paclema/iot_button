@@ -224,6 +224,21 @@ export class ConfigTabsComponent implements OnInit {
 
   }
 
+  saveConfigTabs(){
+    // console.log(this.configTabsForm.value);
+
+    this._postConfigTabsService.saveConfig(this.configTabsForm.value)
+    .subscribe(
+      response => {console.log('Success posting the data', response);
+                this.dataMsgPost = response;
+                this.submitted = true;},
+      error => {console.log('Error posting the data', error);
+                this.errorMsgPost = error;
+                this.submitted = false;}
+    )
+
+  }
+
   onSubmitConfigTabs(){
     // console.log(this.configTabsForm.value);
 
