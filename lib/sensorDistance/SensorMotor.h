@@ -13,6 +13,7 @@
 #define  END_ANGLE      160.0
 #define ANGLE_RANGE     (END_ANGLE - START_ANGLE)
 #define TIME_TO_TRAVEL  605
+#define TIME_TO_WAIT  10
 #define ANGULAR_SPEED   (ANGLE_RANGE / TIME_TO_TRAVEL)
 
 class SensorMotor
@@ -36,7 +37,11 @@ class SensorMotor
   long previousServoMillis = 0;
   long previousLoopMainMillis = 0;
   int timeSinceLastMove = 0;
-  float time_spent = 0;
+  float timeSinceLast180Scan = 0;
+  float time_spent  = 0;
+
+  float time_between_servo_writes = angleAccuracy*(ANGULAR_SPEED);
+
 
 
   public:
@@ -45,67 +50,124 @@ class SensorMotor
     servoIncrement = angle_accuracy;
     angleAccuracy = angle_accuracy;
     servoSpeed = servo_speed_ms;
-    servoPos = servoPosMin;
+    servoPos = START_ANGLE;
+    time_between_servo_writes = angleAccuracy/(ANGULAR_SPEED);
+    // time_between_servo_writes = angleAccuracy*(ANGULAR_SPEED) + TIME_TO_WAIT;
     servo.attach(0); // Attaching Servo to D3
     // servo.write(servoPos);
-    servo.write(0);
-    delay(2000);
+    servo.write(START_ANGLE);
+    // delay(2000);
 
-    // for (int i = 0; i <= 180; i++) {
-    //   servo.write(i);
-    //   Serial.print(" angle: ");
-    //   Serial.println(i);
-    //   delay(500);
-    // }
-    //
-    // for (int i = 180; i>= 0; i--) {
-    //   servo.write(i);
-    //   Serial.print(" angle: ");
-    //   Serial.println(i);
-    //   delay(500);
-    // }
-    servo.write(0);
-    delay(1000);
+    setRange();
 
+    // initMovement();
 
-
-
-    // for (int i = 180; i <= 180; i--) {
-    //   valPot = analogRead(0);
-    //   valPot = map(valPot, 0, 1023, 580, 750);
-    //   servo.write(25);
-    //   delay(valPot);
-    //   servo.write(160);
-    //   delay(valPot);
-    //     Serial.print(" valPot: ");
-    //     Serial.println(valPot);
-    //
-    // }
-
-
-    // delay(10000);
 
   }
+    void initMovement(void){
+      int increment = 10;
+      for (int i = 0; i <= 180; i++) {
+        for (int i = START_ANGLE; i <= END_ANGLE; i = i+increment) {
+          servo.write(i);
+          delay(100);
+
+          valPot = analogRead(0);
+          // valPot = constrain(valPot, 169, 825);
+          valPot = map(valPot, 169, 825, START_ANGLE, END_ANGLE);
+          Serial.print("angle: ");
+          Serial.print(i);
+          Serial.print(" valPot: ");
+          Serial.print(valPot);
+          Serial.print(" deviation: ");
+          Serial.println(i-valPot);
+          // delay(200);
+        }
+        delay(500);
+        for (int i = END_ANGLE; i>= START_ANGLE;  i = i-increment) {
+          servo.write(i);
+          delay(100);
+
+          valPot = analogRead(0);
+          // valPot = constrain(valPot, 169, 825);
+          valPot = map(valPot, 169, 825, START_ANGLE, END_ANGLE);
+          valPot = map(valPot, 0, 1023, 0, 750);
+          Serial.print("angle: ");
+          Serial.print(i);
+          Serial.print(" valPot: ");
+          Serial.print(valPot);
+          Serial.print(" deviation: ");
+          Serial.println(i-valPot);
+          // delay(200);
+        }
+        delay(500);
+      }
+      //
+      // for (int i = 180; i>= 0; i--) {
+      //   servo.write(i);
+      //   Serial.print(" angle: ");
+      //   Serial.println(i);
+      //   delay(500);
+      // }
+      // servo.write(0);
+      // delay(1000);
+
+
+
+
+      // for (int i = 180; i <= 180; i--) {
+      //   valPot = analogRead(0);
+      //   valPot = map(valPot, 0, 1023, 580, 750);
+      //   servo.write(25);
+      //   delay(valPot);
+      //   servo.write(160);
+      //   delay(valPot);
+      //     Serial.print(" valPot: ");
+      //     Serial.println(valPot);
+      //
+      // }
+
+
+      // delay(10000);
+    }
     void moveServo(void){
       unsigned long currentLoopMillis = millis();
       timeSinceLastMove = currentLoopMillis - previousServoMillis;
+      // timeSinceLast180Scan = currentLoopMillis - previousLoopMainMillis;
 
-      float time_between_servo_writes = float(angleAccuracy)*(ANGULAR_SPEED);
+      if (timeSinceLastMove >= time_between_servo_writes) {
+        timeSinceLast180Scan = timeSinceLast180Scan + time_between_servo_writes;
+      } else {
+        // timeSinceLast180Scan = timeSinceLast180Scan + timeSinceLastMove;
+        timeSinceLast180Scan = currentLoopMillis - previousLoopMainMillis;
+      }
 
-      if (timeSinceLastMove >= TIME_TO_TRAVEL){
+      // timeSinceLast180Scan = timeSinceLast180Scan + time_between_servo_writes;
+
+
+      // if (timeSinceLastMove >= TIME_TO_TRAVEL){
+      if (timeSinceLastMove >= time_between_servo_writes){
         previousServoMillis = currentLoopMillis;
 
-        if (servoPos >= END_ANGLE){
-          servoPos = START_ANGLE;
+
+        if (((servoPos + servoIncrement) >= END_ANGLE) || ((servoPos + servoIncrement) <= START_ANGLE)){
+          // reverse direction
+          servoIncrement = -servoIncrement;
+          previousLoopMainMillis = currentLoopMillis;
+          timeSinceLast180Scan = 0;
         }
-        else if (servoPos <= START_ANGLE){
-          servoPos = END_ANGLE;
-        }
+
+        // if (servoPos >= END_ANGLE){
+        //   servoPos = START_ANGLE;
+        // }
+        // else if (servoPos <= START_ANGLE){
+        //   servoPos = END_ANGLE;
+        // }
+
+        servoPos = servoPos + servoIncrement;
         servo.write(servoPos);
       }
 
 
-      previousLoopMainMillis = currentLoopMillis;
     };
 
     float sensorMotorAngle(void){
@@ -114,18 +176,26 @@ class SensorMotor
       moveServo();
 
       if (servoIncrement > 0){
-        servoAngle = START_ANGLE + (timeSinceLastMove)*(ANGULAR_SPEED);
+        servoAngle = START_ANGLE + (timeSinceLast180Scan)*(ANGULAR_SPEED);
+        // servoAngle = START_ANGLE + (timeSinceLast180Scan)*(angleAccuracy/time_between_servo_writes);
       } else {
-        servoAngle = END_ANGLE - (timeSinceLastMove)*(ANGULAR_SPEED);
+        servoAngle = END_ANGLE - (timeSinceLast180Scan)*(ANGULAR_SPEED);
       }
 
-      Serial.print("servoAngle: ");
-      Serial.print(servoAngle);
+      valPot = analogRead(0);
 
-      Serial.print(" ANGULAR_SPEED: ");
-      Serial.print(ANGULAR_SPEED);
+      Serial.print("valPot: ");
+      Serial.print(valPot);
+      Serial.print(" servoAngle: ");
+      Serial.print(servoAngle);
+      Serial.print(" time_between_servo_writes: ");
+      Serial.print(time_between_servo_writes);
       Serial.print(" timeSinceLastMove: ");
       Serial.print(timeSinceLastMove);
+      Serial.print(" timeSinceLast180Scan: ");
+      Serial.print(timeSinceLast180Scan);
+      Serial.print(" servoIncrement: ");
+      Serial.print(servoIncrement);
       Serial.print(" servoPos: ");
       Serial.println(servoPos);
 
