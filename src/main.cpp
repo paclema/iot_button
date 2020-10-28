@@ -403,7 +403,7 @@ void loop() {
   // int angleIncrement = loop_delay*60/(config.device.servo_speed_ms);
   // sensorAngle += (angleIncrement*reverseIncrement);
 
-  sensorAngle = sensorHead.sensorMotorAngle();
+  // sensorAngle = sensorHead.sensorMotorAngle();
 
   // Serial.print("servo_speed_ms: ");
   // Serial.print(config.device.servo_speed_ms);
@@ -423,6 +423,8 @@ void loop() {
   // Sensor reading:
   if((config.device.loop_sensor_time_ms != 0 ) && (currentLoopMillis - previousLoopMillis > config.device.loop_sensor_time_ms)) {
     previousLoopMillis = currentLoopMillis;
+
+    sensorAngle = sensorHead.sensorMotorAngle();
 
     // If measure is not available, mqtt is not sent:
     if (sensorRead(sensorDistance)){
