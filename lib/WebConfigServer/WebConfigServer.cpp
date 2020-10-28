@@ -54,6 +54,7 @@ String WebConfigServer::formatBytes(size_t bytes){
 // Saves the web configuration from a POST req to a file
 void WebConfigServer::saveWebConfigurationFile(const char *filename, const JsonDocument& doc){
   // Delete existing file, otherwise the configuration is appended to the file
+  Serial.println(F("Saving webconfig file..."));
   SPIFFS.remove(filename);
 
   // Open file for writing
@@ -137,8 +138,8 @@ void WebConfigServer::parseConfig(const JsonDocument& doc){
 
     // Device object:
     device.track_restart_counter = doc["device"]["track_restart_counter"] | true;
-    device.loop_time_ms = doc["device"]["loop_time_ms"] | 100;
-    device.publish_time_ms = doc["device"]["publish_time_ms"] | 1500;
+    device.loop_time_ms = doc["device"]["loop_time_ms"];
+    device.publish_time_ms = doc["device"]["publish_time_ms"];
 
 
     // Info object:
@@ -311,9 +312,12 @@ void WebConfigServer::updateGpio(ESP8266WebServer *server){
   //   Serial.println("Err parsing GPIO Value");
   // }
 
-  String json = "{\"gpio\":\"" + String(gpio) + "\",";
-  json += "\"val\":\"" + String(val) + "\",";
-  json += "\"success\":\"" + String(success) + "\"}";
+  // String json = "{\"gpio\":\"" + String(gpio) + "\",";
+  // json += "\"val\":\"" + String(val) + "\",";
+  // json += "\"success\":\"" + String(success) + "\"}";
+
+  String json = "{\"message\":\"GPIO " + String(gpio);
+  json += " changed to " + String(!digitalRead(pin)) + "\"}";
 
   server->send(200, "application/json", json);
   Serial.println("GPIO updated!");
@@ -330,12 +334,18 @@ void WebConfigServer::configureServer(ESP8266WebServer *server){
 
   //SERVER INIT
   //list directory
+  server->serveStatic("/config/config.json", SPIFFS, "/config/config.json");
+  server->serveStatic("/certs", SPIFFS, "/certs");
   server->serveStatic("/img", SPIFFS, "/img");
   server->serveStatic("/", SPIFFS, "/index.html");
-  server->serveStatic("/css", SPIFFS, "/css");
-  server->serveStatic("/js", SPIFFS, "/js");
-  server->serveStatic("/certs", SPIFFS, "/certs");
-  server->serveStatic("/config.json", SPIFFS, "/config.json");
+  server->serveStatic("/main.js", SPIFFS, "/main.js");
+  server->serveStatic("/polyfills.js", SPIFFS, "/polyfills.js");
+  server->serveStatic("/runtime.js", SPIFFS, "/runtime.js");
+  server->serveStatic("/styles.css", SPIFFS, "/styles.css");
+  server->serveStatic("/scripts.js", SPIFFS, "/scripts.js");
+  server->serveStatic("/3rdpartylicenses.txt", SPIFFS, "/3rdpartylicenses.txt");
+  server->serveStatic("/favicon.ico", SPIFFS, "/favicon.ico");
+
 
   server->on("/gpio", HTTP_POST, [& ,server](){
     updateGpio(server);
@@ -358,7 +368,7 @@ void WebConfigServer::configureServer(ESP8266WebServer *server){
     // Save the config file with new configuration:
     saveWebConfigurationFile(CONFIG_FILE,doc);
 
-    server->send ( 200, "text/json", "{success:true}" );
+    server->send ( 200, "text/json", "{\"message\": \"Configurations saved\"}" );
 
   });
 
@@ -402,7 +412,7 @@ void WebConfigServer::configureServer(ESP8266WebServer *server){
     } else{
       Serial.print("File to restore: "); Serial.println(server->arg("filename"));
       restoreBackupFile(server->arg("filename"));
-      server->send ( 200, "text/json", "{success:true}" );
+      server->send ( 200, "text/json", "{\"message\": \"Configuration restored\"}" );
     }
 
 
@@ -417,16 +427,16 @@ void WebConfigServer::configureServer(ESP8266WebServer *server){
     } else{
       Serial.print("File to restore: "); Serial.println(server->arg("restart"));
       if (server->arg("restart") == "true"){
-        server->send ( 200, "text/json", "{success:true}" );
+        server->send ( 200, "text/json", "{\"message\": \"Restarting device...\"}" );
 
-
+        delay(150);
         server->close();
         server->stop();
         WiFi.disconnect();
         SPIFFS.end();
         ESP.restart();
       }
-      server->send ( 200, "text/json", "{success:false}" );
+      server->send ( 200, "text/json", "{\"message\": \"Device restarted\"}" );
     }
 
   });

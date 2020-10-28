@@ -10,8 +10,8 @@
 #include <ArduinoJson.h>
 
 
-#define CONFIG_FILE "/config.json"
-#define CONFIG_JSON_SIZE 1648
+#define CONFIG_FILE "/config/config.json"
+#define CONFIG_JSON_SIZE 3000
 #define MQTT_TOPIC_MAX_SIZE_LIST 10
 #define JSON_MAX_SIZE_LIST 6
 
