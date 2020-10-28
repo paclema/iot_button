@@ -3,14 +3,16 @@ import { HttpClient, HttpErrorResponse, HttpParams  } from '@angular/common/http
 import { throwError } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 
+import { environment } from './../environments/environment';
+
+
 @Injectable({
   providedIn: 'root'
 })
 export class PostConfigTabsService {
 
   _url = 'http://localhost:3000/enroll';
-  _urlBase = 'http://localhost:3000';
-  // _urlBase = '';
+  _urlBase = environment.apiUrl;
 
   constructor(private _http: HttpClient) { }
 
