@@ -39,7 +39,7 @@ void sensorSetup(void){
 
 }
 
-bool sensorRead(int &distance){
+bool sensorRead(float &distance){
 
 	VL53L0X_RangingMeasurementData_t measure;
 	// Serial.print("Reading a measurement... ");

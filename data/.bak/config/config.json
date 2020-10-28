@@ -59,8 +59,8 @@
   },
   "device": {
     "track_restart_counter": true,
-    "angle_accuracy": 15,
-    "servo_speed_ms/60": 160,
+    "angle_accuracy": 5,
+    "servo_speed_ms/60": 800,
     "loop_sensor_time_ms": 30,
     "publish_time_ms":50
   },

@@ -37,9 +37,11 @@ WrapperOTA ota;
 long previousLoopMillis = 0;
 long previousLoopMainMillis = 0;
 long previousMQTTPublishMillis = 0;
-long previousServoMillis = 0;
 
 // Distance sensor:
+#include "SensorMotor.h"
+SensorMotor sensorHead;
+
 // Choose one sensor library:
 // #include "sensorVL53L0X.h"
 #include "sensorVL53L1X.h"
@@ -48,17 +50,9 @@ long previousServoMillis = 0;
 
 
 int sensorAngle=0;
-int sensorDistance=0;
-int sensorDistance_1=0;
-int sensorDistance_2=0;
-
-
-#include <Servo.h>
-Servo servo;
-int servoIncrement = 0;
-int servoPos = 0;
-int reverseIncrement = 1;
-
+float sensorDistance=0;
+float sensorDistance_1=0;
+float sensorDistance_2=0;
 
 
 
@@ -319,10 +313,7 @@ void setup() {
 
   // Device configs:
   sensorSetup();
-  servoIncrement = config.device.angle_accuracy;
-
-  servo.attach(0); // Attaching Servo to D3
-  servo.write(0);
+  sensorHead.sensorMotorSetup(config.device.angle_accuracy, config.device.servo_speed_ms);
 
   Serial.println("###  Looping time\n");
 
@@ -388,43 +379,45 @@ void loop() {
   // Serial.println(loop_delay);
 
 
-  int time_spent = (currentLoopMillis-previousServoMillis);
-  int time_between_servo_writes = config.device.servo_speed_ms * config.device.angle_accuracy/60;
+  // int time_spent = (currentLoopMillis-previousServoMillis);
+  // int time_between_servo_writes = config.device.servo_speed_ms * config.device.angle_accuracy/60;
+  //
+  // if (time_spent >= time_between_servo_writes){
+  //   previousServoMillis = currentLoopMillis;
+  //   servoPos += servoIncrement;
+  //   servo.write(servoPos);
+  //   sensorAngle = servoPos;
+  //
+  //   if ((servoPos >= 180) || (servoPos <= 0)) // end of sweep
+  //   {
+  //     // reverse direction
+  //     servoIncrement = -servoIncrement;
+  //     reverseIncrement = -reverseIncrement;
+  //
+  //   }
+  // }
+  //
+  //
+  // // int angleIncrement = (config.device.servo_speed_ms*config.device.angle_accuracy*config.device.angle_accuracy/60)/time_spent;
+  // int angleIncrement = loop_delay*60/(config.device.servo_speed_ms);
+  // sensorAngle += (angleIncrement*reverseIncrement);
 
-  if (time_spent >= time_between_servo_writes){
-    previousServoMillis = currentLoopMillis;
-    servoPos += servoIncrement;
-    servo.write(servoPos);
-    sensorAngle = servoPos;
+  sensorAngle = sensorHead.sensorMotorAngle();
 
-    if ((servoPos >= 180) || (servoPos <= 0)) // end of sweep
-    {
-      // reverse direction
-      servoIncrement = -servoIncrement;
-      reverseIncrement = -reverseIncrement;
-
-    }
-  }
-
-
-  // int angleIncrement = (config.device.servo_speed_ms*config.device.angle_accuracy*config.device.angle_accuracy/60)/time_spent;
-  int angleIncrement = loop_delay*60/(config.device.servo_speed_ms);
-  sensorAngle += (angleIncrement*reverseIncrement);
-
-  Serial.print("servo_speed_ms: ");
-  Serial.print(config.device.servo_speed_ms);
-  Serial.print(" angle_accuracy: ");
-  Serial.print(config.device.angle_accuracy);
-  Serial.print(" loop_delay: ");
-  Serial.print(loop_delay);
-  Serial.print(" time_spent: ");
-  Serial.print(time_spent);
-  Serial.print(" sensorAngle: ");
-  Serial.print(sensorAngle);
-  Serial.print(" angleIncrement: ");
-  Serial.print(angleIncrement);
-  Serial.print(" servoPos: ");
-  Serial.println(servoPos);
+  // Serial.print("servo_speed_ms: ");
+  // Serial.print(config.device.servo_speed_ms);
+  // Serial.print(" angle_accuracy: ");
+  // Serial.print(config.device.angle_accuracy);
+  // Serial.print(" loop_delay: ");
+  // Serial.print(loop_delay);
+  // Serial.print(" time_spent: ");
+  // Serial.print(time_spent);
+  // Serial.print(" sensorAngle: ");
+  // Serial.print(sensorAngle);
+  // Serial.print(" angleIncrement: ");
+  // Serial.print(angleIncrement);
+  // Serial.print(" servoPos: ");
+  // Serial.println(servoPos);
 
   // Sensor reading:
   if((config.device.loop_sensor_time_ms != 0 ) && (currentLoopMillis - previousLoopMillis > config.device.loop_sensor_time_ms)) {
@@ -451,8 +444,6 @@ void loop() {
 
     }
 
-    // Serial.print("Loop time: ");
-    // Serial.println(loop_delay);
 
   }
 
