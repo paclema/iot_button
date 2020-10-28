@@ -46,7 +46,7 @@ long previousMQTTPublishMillis = 0;
 // #include "sensorVL53L1X_ROI.h"
 
 
-int sensorAngle=25;
+int sensorAngle=0;
 int sensorDistance=0;
 int sensorDistance_1=0;
 int sensorDistance_2=0;
@@ -55,7 +55,8 @@ int sensorDistance_2=0;
 #include <Servo.h>
 Servo servo;
 int servoIncrement = 0;
-
+int servoAngAcc = 0;
+int reverseIncrement = 1;
 
 
 
@@ -320,14 +321,36 @@ void setup() {
   servoIncrement = config.device.angle_accuracy;
 
   servo.attach(0); // Attaching Servo to D3
-
+  servo.write(0);
+  // delay(1000);
+  // servo.write(180);
+  // delay(1000);
+  // servo.write(0);
+  // delay(500);
+  // servo.write(180);
+  // delay(500);
+  // servo.write(0);
+  // delay(500);
+  // servo.write(180);
+  // delay(500);
+  // servo.write(0);
+  // delay(500);
+  // servo.write(180);
+  // delay(500);
 
   Serial.println("###  Looping time\n");
 
   delay(1000);
+  previousLoopMainMillis = millis();
+
 }
 
 void loop() {
+
+  //  ----------------------------------------------
+  //
+  // Config services Loop:
+  //  ----------------------------------------------
 
   // Reconnection loop:
   // if (WiFi.status() != WL_CONNECTED) {
@@ -367,35 +390,48 @@ void loop() {
   }
 
 
+
+  //  ----------------------------------------------
+  //
   // Main Loop:
+  //  ----------------------------------------------
   unsigned long currentLoopMillis = millis();
 
-  int loop_delay = currentLoopMillis - previousLoopMainMillis;
+  // int loop_delay = currentLoopMillis - previousLoopMainMillis;
   // Serial.print("Loop time: ");
   // Serial.println(loop_delay);
-  previousLoopMainMillis = currentLoopMillis;
 
 
-  // Sensor Loop
+
+  int angleIncrement = (currentLoopMillis - previousLoopMainMillis)*config.device.servo_speed_ms;
+  // Serial.print("angleIncrement: ");
+  // Serial.println(angleIncrement);
+
+  servoAngAcc += angleIncrement;
+  sensorAngle += (angleIncrement*reverseIncrement);
+
+  if ((servoAngAcc) >= config.device.angle_accuracy){
+    servoAngAcc = 0;
+    servo.write(sensorAngle + config.device.angle_accuracy);
+
+  }
+
+  // reverse direction
+  if ((sensorAngle >= 180) || (sensorAngle <= 0)){
+    servoIncrement = -servoIncrement;
+    reverseIncrement = -reverseIncrement;
+  }
+
+
+
+  // Sensor reading:
   if((config.device.loop_time_ms != 0 ) && (currentLoopMillis - previousLoopMillis > config.device.loop_time_ms)) {
     previousLoopMillis = currentLoopMillis;
 
-    // Here starts the device loop configured:
-    //Servo move:
-
-    // sensorAngle=map()
-    sensorAngle += servoIncrement;
-    servo.write(sensorAngle);
-
-    if ((sensorAngle >= 160) || (sensorAngle <= 25)) // end of sweep
-    {
-      // reverse direction
-      servoIncrement = -servoIncrement;
-    }
-
-
-
+    // If measure is not available, mqtt is not sent:
     if (sensorRead(sensorDistance)){
+
+      // Publish mqtt sensor feedback:
       if((config.device.publish_time_ms != 0 ) && (currentLoopMillis - previousMQTTPublishMillis > config.device.publish_time_ms)) {
         previousMQTTPublishMillis = currentLoopMillis;
         // Here starts the MQTT publish loop configured:
@@ -406,22 +442,18 @@ void loop() {
         String msg_pub ="{'angle':" + String(sensorAngle) + ", 'distance' :"+ String(sensorDistance) +"}";
         if (sensorDistance != 0 ){
           // String msg_pub ="{'persons':" + String(sensorDistance) + ", 'distance_1' :" + String(sensorDistance_1) + ", 'distance_2' :"+ String(sensorDistance_2)+" }";
-          mqttClient.publish(topic_pub.c_str(), msg_pub.c_str());
+          // mqttClient.publish(topic_pub.c_str(), msg_pub.c_str());
           Serial.println("MQTT published: " + msg_pub + " -- loop: " + config.device.publish_time_ms);
         }
       }
 
     }
 
-    Serial.print("Loop time: ");
-    Serial.println(loop_delay);
-
-
-
+    // Serial.print("Loop time: ");
+    // Serial.println(loop_delay);
+    
   }
 
 
-
-
-
+  previousLoopMainMillis = currentLoopMillis;
 }
