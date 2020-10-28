@@ -61,6 +61,7 @@ void networkRestart(void){
   if(config.status() == CONFIG_LOADED){
     // Config loaded correctly
     if (config.network.ssid_name!=NULL && config.network.ssid_password!=NULL){
+        WiFi.hostname(config.network.hostname);
         // Connect to Wi-Fi
         // WiFi.mode(WIFI_STA);
         WiFi.mode(WIFI_AP_STA);
