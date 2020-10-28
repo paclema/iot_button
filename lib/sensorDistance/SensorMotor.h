@@ -42,6 +42,18 @@ class SensorMotor
 
   float time_between_servo_writes = angleAccuracy*(ANGULAR_SPEED);
 
+  // Testing servo pot:
+  int feedBack;           //used to hold servo feedback value
+  int mappedPulse;        //used to hold the value mapped between servo range and degree range
+  int lowEnd;             //servo feedback at 0 degrees
+  int highEnd;            //servo feedback at 180 degrees
+  int reading[20];
+  int servoPin1 = 2;
+  int test1;               //general purpose int
+  int test2;
+  int offset = 0;
+  int noise = 50;
+  boolean rangeTest= false;
 
 
   public:
@@ -62,8 +74,46 @@ class SensorMotor
 
     // initMovement();
 
+    while (1) {
+      initMovement2();
+    }
 
   }
+    void initMovement2(void){
+      servo.write(START_ANGLE);
+      delay(3000);                       // wait for it to get there
+      for (int i=START_ANGLE; i<END_ANGLE; i++){         // loop through degrees going up
+        servo.write(i);
+        delay(10);
+        feedBack = getFeedback();        // subroutine smooths data
+        mappedPulse = map(i,START_ANGLE,END_ANGLE,lowEnd,highEnd);  // map degrees to setRange() readings
+        offset = mappedPulse - feedBack;            // resolution of mapped V actual feedback
+        printData(i);
+      }
+      for (int i=END_ANGLE; i>START_ANGLE; i--){            // loop through degrees going down
+          servo.write(i);
+          delay(10);
+          feedBack = getFeedback();
+          mappedPulse = map(i,START_ANGLE,END_ANGLE,lowEnd,highEnd);
+          offset = mappedPulse - feedBack;
+          printData(i);
+      }
+    }
+
+    void printData(int i){
+        Serial.print(i);
+        Serial.print("  =  ");
+        Serial.print(feedBack);
+        Serial.print(" ");
+        Serial.print(offset);
+        Serial.print(" ");
+        Serial.print(mappedPulse);
+        Serial.print(" --> ");
+        Serial.print(map((feedBack+offset),lowEnd,highEnd,START_ANGLE,END_ANGLE));
+        Serial.print(" DEVIATION: ");
+        Serial.println(i-map((feedBack+offset),lowEnd,highEnd,START_ANGLE,END_ANGLE));
+    }
+
     void initMovement(void){
       int increment = 10;
       for (int i = 0; i <= 180; i++) {
@@ -129,6 +179,53 @@ class SensorMotor
 
       // delay(10000);
     }
+
+    void setRange(void ){
+      servo.write(START_ANGLE);
+      delay(2000);              //wait for servo to get there
+      lowEnd = getFeedback();
+      servo.write(END_ANGLE);
+      delay(2000);              //wait for servo to get there
+      highEnd = getFeedback();
+      rangeTest = true;
+      Serial.print("START_ANGLE= ");
+      Serial.print(lowEnd);
+      Serial.print(" ");
+      Serial.print("END_ANGLE= ");
+      Serial.println(highEnd);
+
+    }
+
+    int getFeedback(void){
+        int mean;
+        int result;
+        int test;
+        boolean done;
+
+        for (int j=0; j<20; j++){
+          reading[j] = analogRead(0);    //get raw data from servo potentiometer
+          delay(3);
+        }                                // sort the readings low to high in array
+        done = false;              // clear sorting flag
+        while(done != true){       // simple swap sort, sorts numbers from lowest to highest
+        done = true;
+        for (int j=0; j<20; j++){
+          if (reading[j] > reading[j + 1]){     // sorting numbers here
+            test = reading[j + 1];
+            reading [j+1] = reading[j] ;
+            reading[j] = test;
+            done = false;
+           }
+         }
+       }
+        mean = 0;
+        for (int k=6; k<14; k++){        //discard the 6 highest and 6 lowest readings
+          mean += reading[k];
+        }
+        result = mean/8;                  //average useful readings
+        return(result);
+    }
+
     void moveServo(void){
       unsigned long currentLoopMillis = millis();
       timeSinceLastMove = currentLoopMillis - previousServoMillis;
