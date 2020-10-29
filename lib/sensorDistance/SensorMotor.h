@@ -9,12 +9,11 @@
 #include <Arduino.h>
 #include <Servo.h>
 
-#define  START_ANGLE    25.0
-#define  END_ANGLE      160.0
-#define ANGLE_RANGE     (END_ANGLE - START_ANGLE)
-#define TIME_TO_TRAVEL  605
-#define TIME_TO_WAIT  10
-#define ANGULAR_SPEED   (ANGLE_RANGE / TIME_TO_TRAVEL)
+#define  START_ANGLE      25.0
+#define  END_ANGLE        160.0
+#define ANGLE_RANGE       (END_ANGLE - START_ANGLE)
+#define TIME_TO_TRAVEL    605
+#define ANGULAR_SPEED     (ANGLE_RANGE / TIME_TO_TRAVEL)
 
 class SensorMotor
 {
@@ -43,17 +42,15 @@ class SensorMotor
   float time_between_servo_writes = angleAccuracy*(ANGULAR_SPEED);
 
   // Testing servo pot:
-  int feedBack;           //used to hold servo feedback value
-  int mappedPulse;        //used to hold the value mapped between servo range and degree range
-  int lowEnd;             //servo feedback at 0 degrees
-  int highEnd;            //servo feedback at 180 degrees
-  int reading[20];
-  int servoPin1 = 2;
-  int test1;               //general purpose int
-  int test2;
-  int offset = 0;
-  int noise = 50;
-  boolean rangeTest= false;
+  int lowEnd;                         // servo feedback at 0 degrees
+  int highEnd;                        // servo feedback at 180 degrees
+  float feedBack;                     // used to hold servo feedback value
+  static const int feedbackReadings = 20; // Readings for each feedback
+  const int  discardReadings = 6;    // Discarted readings
+  int reading[feedbackReadings];     // Array of readings for the same feedback
+  float offset = 0;
+  float angleFeedback;                // Feedback potentiometer pulse to angle
+  float mappedPulse;                  // Expected potentiometer feedback
 
 
   public:
@@ -64,25 +61,27 @@ class SensorMotor
     servoSpeed = servo_speed_ms;
     servoPos = START_ANGLE;
     time_between_servo_writes = angleAccuracy/(ANGULAR_SPEED);
-    // time_between_servo_writes = angleAccuracy*(ANGULAR_SPEED) + TIME_TO_WAIT;
+
     servo.attach(0); // Attaching Servo to D3
     // servo.write(servoPos);
-    servo.write(START_ANGLE);
+    servo.write(servoPos);
     // delay(2000);
 
     setRange();
 
-    // initMovement();
+    // testMovement();
 
     while (1) {
-      initMovement2();
+      testMovement2();
     }
 
   }
-    void initMovement2(void){
+
+    void testMovement2(void){
       servo.write(START_ANGLE);
       delay(3000);                       // wait for it to get there
-      for (int i=START_ANGLE; i<END_ANGLE; i++){         // loop through degrees going up
+      int increment = 1;
+      for (int i=START_ANGLE; i<END_ANGLE; i = i+increment){         // loop through degrees going up
         servo.write(i);
         delay(10);
         feedBack = getFeedback();        // subroutine smooths data
@@ -90,7 +89,7 @@ class SensorMotor
         offset = mappedPulse - feedBack;            // resolution of mapped V actual feedback
         printData(i);
       }
-      for (int i=END_ANGLE; i>START_ANGLE; i--){            // loop through degrees going down
+      for (int i=END_ANGLE; i>START_ANGLE; i = i-increment){            // loop through degrees going down
           servo.write(i);
           delay(10);
           feedBack = getFeedback();
@@ -101,20 +100,23 @@ class SensorMotor
     }
 
     void printData(int i){
-        Serial.print(i);
-        Serial.print("  =  ");
-        Serial.print(feedBack);
-        Serial.print(" ");
-        Serial.print(offset);
-        Serial.print(" ");
-        Serial.print(mappedPulse);
-        Serial.print(" --> ");
-        Serial.print(map((feedBack+offset),lowEnd,highEnd,START_ANGLE,END_ANGLE));
-        Serial.print(" DEVIATION: ");
-        Serial.println(i-map((feedBack+offset),lowEnd,highEnd,START_ANGLE,END_ANGLE));
+      Serial.print("Angle: ");
+      Serial.print(i);
+      Serial.print("  =  ");
+      Serial.print(feedBack);
+      Serial.print(" ");
+      Serial.print(offset);
+      Serial.print(" ");
+      Serial.print(mappedPulse);
+      Serial.print(" --> ");
+      angleFeedback = map((feedBack),lowEnd,highEnd,START_ANGLE,END_ANGLE);
+      Serial.print(angleFeedback);
+      Serial.print(" DEVIATION: ");
+      Serial.println(i - angleFeedback);
+
     }
 
-    void initMovement(void){
+    void testMovement(void){
       int increment = 10;
       for (int i = 0; i <= 180; i++) {
         for (int i = START_ANGLE; i <= END_ANGLE; i = i+increment) {
@@ -182,12 +184,12 @@ class SensorMotor
 
     void setRange(void ){
       servo.write(START_ANGLE);
-      delay(2000);              //wait for servo to get there
+      delay(2000);
       lowEnd = getFeedback();
       servo.write(END_ANGLE);
-      delay(2000);              //wait for servo to get there
+      delay(2000);
       highEnd = getFeedback();
-      rangeTest = true;
+
       Serial.print("START_ANGLE= ");
       Serial.print(lowEnd);
       Serial.print(" ");
@@ -196,35 +198,52 @@ class SensorMotor
 
     }
 
-    int getFeedback(void){
-        int mean;
-        int result;
-        int test;
-        boolean done;
+    float getFeedback(void){
+      float mean = 0;
+      float result;
+      int test;
+      boolean done;
 
-        for (int j=0; j<20; j++){
-          reading[j] = analogRead(0);    //get raw data from servo potentiometer
-          delay(3);
-        }                                // sort the readings low to high in array
-        done = false;              // clear sorting flag
-        while(done != true){       // simple swap sort, sorts numbers from lowest to highest
+      Serial.print("     Readings --> ");
+      // Get several servo potentiometer feedback measurements:
+      for (int j=0; j<feedbackReadings; j++){
+        reading[j] = analogRead(0);
+        Serial.print(reading[j]);
+        Serial.print(", ");
+        // delay(3);
+      }
+
+      // Sort the readings low to high in array:
+      done = false;
+      while(done != true){
         done = true;
-        for (int j=0; j<20; j++){
-          if (reading[j] > reading[j + 1]){     // sorting numbers here
+        for (int j=0; j<feedbackReadings; j++){
+          if (reading[j] > reading[j + 1]){
             test = reading[j + 1];
             reading [j+1] = reading[j] ;
             reading[j] = test;
             done = false;
-           }
-         }
-       }
-        mean = 0;
-        for (int k=6; k<14; k++){        //discard the 6 highest and 6 lowest readings
-          mean += reading[k];
+          }
         }
-        result = mean/8;                  //average useful readings
-        return(result);
+      }
+
+      // Discard the discardReadings highest and discardReadings lowest readings:
+      for (int k=discardReadings; k<(feedbackReadings-discardReadings); k++){
+        mean += reading[k];
+      }
+      // Average of readings:
+      result = mean/8;
+      Serial.print(" --> ");
+      Serial.println(result);
+
+      return(result);
     }
+
+
+    float getFeedbackAngle(void){
+      return map((getFeedback()),lowEnd,highEnd,START_ANGLE,END_ANGLE);
+    }
+
 
     void moveServo(void){
       unsigned long currentLoopMillis = millis();
