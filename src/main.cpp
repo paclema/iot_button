@@ -421,6 +421,7 @@ void loop() {
   // Serial.print(" servoPos: ");
   // Serial.println(servoPos);
 
+  sensorHead.moveServo();
   // Sensor reading:
   if((config.device.loop_sensor_time_ms != 0 ) && (currentLoopMillis - previousLoopMillis > config.device.loop_sensor_time_ms)) {
     previousLoopMillis = currentLoopMillis;
