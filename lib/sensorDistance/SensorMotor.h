@@ -69,7 +69,6 @@ class SensorMotor
     Serial.print(angleAccuracy/(ANGULAR_SPEED));
     Serial.print(" time_between_servo_writes:");
     Serial.println(time_between_servo_writes);
-    delay(10000);
 
     servo.attach(0); // Attaching Servo to D3
     servo.write(servoPos);
@@ -124,10 +123,10 @@ class SensorMotor
 
     void setRange(void ){
       servo.write(START_ANGLE);
-      delay(2000);
+      delay(TIME_TO_TRAVEL_RANGE*1.2);
       lowEnd = getFeedback();
       servo.write(END_ANGLE);
-      delay(2000);
+      delay(TIME_TO_TRAVEL_RANGE*1.2);
       highEnd = getFeedback();
 
       Serial.print("START_ANGLE= ");

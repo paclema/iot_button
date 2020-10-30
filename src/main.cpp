@@ -34,7 +34,7 @@ FtpServer ftpSrv;
 WrapperOTA ota;
 
 // Device configurations
-long previousLoopMillis = 0;
+long previousSensorLoopMillis = 0;
 long previousLoopMainMillis = 0;
 long previousMQTTPublishMillis = 0;
 
@@ -319,7 +319,6 @@ void setup() {
 
   Serial.println("###  Looping time\n");
 
-  delay(1000);
   previousLoopMainMillis = millis();
 
 }
@@ -423,8 +422,8 @@ void loop() {
 
   sensorHead.moveServo();
   // Sensor reading:
-  if((config.device.loop_sensor_time_ms != 0 ) && (currentLoopMillis - previousLoopMillis > config.device.loop_sensor_time_ms)) {
-    previousLoopMillis = currentLoopMillis;
+  if((config.device.loop_sensor_time_ms != 0 ) && (currentLoopMillis - previousSensorLoopMillis > config.device.loop_sensor_time_ms)) {
+    previousSensorLoopMillis = currentLoopMillis;
 
     sensorAngle = sensorHead.sensorMotorAngle();
 
