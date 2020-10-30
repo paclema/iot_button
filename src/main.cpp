@@ -34,7 +34,7 @@ FtpServer ftpSrv;
 WrapperOTA ota;
 
 // Device configurations
-long previousLoopMillis = 0;
+long previousSensorLoopMillis = 0;
 long previousLoopMainMillis = 0;
 long previousMQTTPublishMillis = 0;
 
@@ -319,7 +319,6 @@ void setup() {
 
   Serial.println("###  Looping time\n");
 
-  delay(1000);
   previousLoopMainMillis = millis();
 
 }
@@ -377,53 +376,14 @@ void loop() {
   unsigned long currentLoopMillis = millis();
 
   int loop_delay = currentLoopMillis - previousLoopMainMillis;
+  // There is usually a loop delay between 0-3ms. However, every mqtt publish message delays around 7ms the loop
   // Serial.print("Loop time: ");
   // Serial.println(loop_delay);
 
-
-  // int time_spent = (currentLoopMillis-previousServoMillis);
-  // int time_between_servo_writes = config.device.servo_speed_ms * config.device.angle_accuracy/60;
-  //
-  // if (time_spent >= time_between_servo_writes){
-  //   previousServoMillis = currentLoopMillis;
-  //   servoPos += servoIncrement;
-  //   servo.write(servoPos);
-  //   sensorAngle = servoPos;
-  //
-  //   if ((servoPos >= 180) || (servoPos <= 0)) // end of sweep
-  //   {
-  //     // reverse direction
-  //     servoIncrement = -servoIncrement;
-  //     reverseIncrement = -reverseIncrement;
-  //
-  //   }
-  // }
-  //
-  //
-  // // int angleIncrement = (config.device.servo_speed_ms*config.device.angle_accuracy*config.device.angle_accuracy/60)/time_spent;
-  // int angleIncrement = loop_delay*60/(config.device.servo_speed_ms);
-  // sensorAngle += (angleIncrement*reverseIncrement);
-
-  // sensorAngle = sensorHead.sensorMotorAngle();
-
-  // Serial.print("servo_speed_ms: ");
-  // Serial.print(config.device.servo_speed_ms);
-  // Serial.print(" angle_accuracy: ");
-  // Serial.print(config.device.angle_accuracy);
-  // Serial.print(" loop_delay: ");
-  // Serial.print(loop_delay);
-  // Serial.print(" time_spent: ");
-  // Serial.print(time_spent);
-  // Serial.print(" sensorAngle: ");
-  // Serial.print(sensorAngle);
-  // Serial.print(" angleIncrement: ");
-  // Serial.print(angleIncrement);
-  // Serial.print(" servoPos: ");
-  // Serial.println(servoPos);
-
+  sensorHead.moveServo();
   // Sensor reading:
-  if((config.device.loop_sensor_time_ms != 0 ) && (currentLoopMillis - previousLoopMillis > config.device.loop_sensor_time_ms)) {
-    previousLoopMillis = currentLoopMillis;
+  if((config.device.loop_sensor_time_ms != 0 ) && (currentLoopMillis - previousSensorLoopMillis > config.device.loop_sensor_time_ms)) {
+    previousSensorLoopMillis = currentLoopMillis;
 
     sensorAngle = sensorHead.sensorMotorAngle();
 

@@ -22,7 +22,6 @@ class SensorMotor
 
   Servo servo;
   float servoIncrement = 0;
-  // float servoPos = 0;
   float servoPos = START_ANGLE;
   int reverseIncrement = 1;
   float servoSpeed = 0;
@@ -69,7 +68,6 @@ class SensorMotor
     Serial.print(angleAccuracy/(ANGULAR_SPEED));
     Serial.print(" time_between_servo_writes:");
     Serial.println(time_between_servo_writes);
-    delay(10000);
 
     servo.attach(0); // Attaching Servo to D3
     servo.write(servoPos);
@@ -84,17 +82,17 @@ class SensorMotor
 
     void testMovement(void){
       servo.write(START_ANGLE);
-      delay(3000);                       // wait for it to get there
+      delay(3000);
       int increment = 1;
-      for (int i=START_ANGLE; i<END_ANGLE; i = i+increment){         // loop through degrees going up
+      for (int i=START_ANGLE; i<END_ANGLE; i = i+increment){
         servo.write(i);
         delay(10);
-        feedBack = getFeedback();        // subroutine smooths data
-        mappedPulse = map(i,START_ANGLE,END_ANGLE,lowEnd,highEnd);  // map degrees to setRange() readings
-        offset = mappedPulse - feedBack;            // resolution of mapped V actual feedback
+        feedBack = getFeedback();
+        mappedPulse = map(i,START_ANGLE,END_ANGLE,lowEnd,highEnd);
+        offset = mappedPulse - feedBack;
         printData(i);
       }
-      for (int i=END_ANGLE; i>START_ANGLE; i = i-increment){            // loop through degrees going down
+      for (int i=END_ANGLE; i>START_ANGLE; i = i-increment){
           servo.write(i);
           delay(10);
           feedBack = getFeedback();
@@ -124,10 +122,10 @@ class SensorMotor
 
     void setRange(void ){
       servo.write(START_ANGLE);
-      delay(2000);
+      delay(TIME_TO_TRAVEL_RANGE*1.2);
       lowEnd = getFeedback();
       servo.write(END_ANGLE);
-      delay(2000);
+      delay(TIME_TO_TRAVEL_RANGE*1.2);
       highEnd = getFeedback();
 
       Serial.print("START_ANGLE= ");
@@ -221,18 +219,18 @@ class SensorMotor
 
       float angle = getFeedbackAngle();
 
-      // Serial.print(" time_between_servo_writes: ");
-      // Serial.print(time_between_servo_writes);
-      Serial.print("timeSinceLastMove: ");
-      Serial.print(timeSinceLastMove);
-      Serial.print("\t");
-      Serial.print(" servoIncrement: ");
-      Serial.print(servoIncrement);
-      Serial.print("\t");
-      Serial.print("servoPos - angle: ");
-      Serial.print(servoPos);
-      Serial.print(" - ");
-      Serial.println(angle);
+      if (debug){
+        Serial.print("timeSinceLastMove: ");
+        Serial.print(timeSinceLastMove);
+        Serial.print("\t");
+        Serial.print(" servoIncrement: ");
+        Serial.print(servoIncrement);
+        Serial.print("\t");
+        Serial.print("servoPos - angle: ");
+        Serial.print(servoPos);
+        Serial.print(" - ");
+        Serial.println(angle);
+      }
 
 
       // return servoAngle;
