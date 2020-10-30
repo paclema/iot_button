@@ -4,6 +4,17 @@
 // Add pololu/VL53L1X @ ^1.0.1 lib_deps on platformio.ini
 // Lib documentation: https://github.com/pololu/vl53l1x-arduino
 
+
+
+// Pinout with D1 mini:
+//--------------------
+//
+// SDA -- D1
+// SCL -- D2
+// VIN -- 3.3V
+// GND -- GND
+
+
 #define  MAX_INIT_RETRIES    5
 
 VL53L1X sensor;
