@@ -22,7 +22,6 @@ class SensorMotor
 
   Servo servo;
   float servoIncrement = 0;
-  // float servoPos = 0;
   float servoPos = START_ANGLE;
   int reverseIncrement = 1;
   float servoSpeed = 0;
@@ -83,17 +82,17 @@ class SensorMotor
 
     void testMovement(void){
       servo.write(START_ANGLE);
-      delay(3000);                       // wait for it to get there
+      delay(3000);
       int increment = 1;
-      for (int i=START_ANGLE; i<END_ANGLE; i = i+increment){         // loop through degrees going up
+      for (int i=START_ANGLE; i<END_ANGLE; i = i+increment){
         servo.write(i);
         delay(10);
-        feedBack = getFeedback();        // subroutine smooths data
-        mappedPulse = map(i,START_ANGLE,END_ANGLE,lowEnd,highEnd);  // map degrees to setRange() readings
-        offset = mappedPulse - feedBack;            // resolution of mapped V actual feedback
+        feedBack = getFeedback();
+        mappedPulse = map(i,START_ANGLE,END_ANGLE,lowEnd,highEnd);
+        offset = mappedPulse - feedBack;
         printData(i);
       }
-      for (int i=END_ANGLE; i>START_ANGLE; i = i-increment){            // loop through degrees going down
+      for (int i=END_ANGLE; i>START_ANGLE; i = i-increment){
           servo.write(i);
           delay(10);
           feedBack = getFeedback();
@@ -220,18 +219,18 @@ class SensorMotor
 
       float angle = getFeedbackAngle();
 
-      // Serial.print(" time_between_servo_writes: ");
-      // Serial.print(time_between_servo_writes);
-      Serial.print("timeSinceLastMove: ");
-      Serial.print(timeSinceLastMove);
-      Serial.print("\t");
-      Serial.print(" servoIncrement: ");
-      Serial.print(servoIncrement);
-      Serial.print("\t");
-      Serial.print("servoPos - angle: ");
-      Serial.print(servoPos);
-      Serial.print(" - ");
-      Serial.println(angle);
+      if (debug){
+        Serial.print("timeSinceLastMove: ");
+        Serial.print(timeSinceLastMove);
+        Serial.print("\t");
+        Serial.print(" servoIncrement: ");
+        Serial.print(servoIncrement);
+        Serial.print("\t");
+        Serial.print("servoPos - angle: ");
+        Serial.print(servoPos);
+        Serial.print(" - ");
+        Serial.println(angle);
+      }
 
 
       // return servoAngle;
