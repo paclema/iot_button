@@ -4,28 +4,43 @@ import { FormsModule } from '@angular/forms';   // For Template Driven Forms
 import { ReactiveFormsModule } from '@angular/forms';   // For Reactive Forms
 
 
-import { AppRoutingModule } from './app-routing.module';
+import { AppRoutingModule, routingComponents } from './app-routing.module';
 import { AppComponent } from './app.component';
-import { ConfigTabsComponent } from './config-tabs/config-tabs.component';
+// import { ConfigTabsComponent } from './config-tabs/config-tabs.component';
+// import { DashboardComponent } from './dashboard/dashboard.component';
 
 import { KeyValueUnsortedPipe } from './key-value-unsorted.pipe';
 import { HttpClientModule } from '@angular/common/http';
 import { ReplaceUnderscorePipe } from './replace-underscore.pipe';
 
+// Nebular:
+import { NbThemeModule } from '@nebular/theme';
+import { NbSidebarModule, NbLayoutModule, NbMenuModule, NbIconModule, NbTabsetModule } from '@nebular/theme';
+import { NbEvaIconsModule } from '@nebular/eva-icons';
 
 @NgModule({
   declarations: [
     AppComponent,
-    ConfigTabsComponent,
+    // ConfigTabsComponent,
+    // DashboardComponent
     KeyValueUnsortedPipe,
-    ReplaceUnderscorePipe
+    ReplaceUnderscorePipe,
+    routingComponents
   ],
   imports: [
     BrowserModule,
     AppRoutingModule,
     HttpClientModule,
     FormsModule,
-    ReactiveFormsModule
+    ReactiveFormsModule,
+    NbThemeModule.forRoot(),
+    // NbThemeModule.forRoot({ name: 'dark' }),
+    // RouterModule.forRoot(routes, { useHash: true }), // RouterModule.forRoot(routes, { useHash: true }), if this is your app.module
+    NbLayoutModule,
+    NbSidebarModule.forRoot(), // NbSidebarModule.forRoot(), //if this is your app.module
+    NbMenuModule.forRoot(),
+    NbIconModule,
+    NbTabsetModule
   ],
   providers: [],
   bootstrap: [AppComponent]

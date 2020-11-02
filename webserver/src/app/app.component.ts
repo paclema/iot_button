@@ -1,4 +1,7 @@
 import { Component } from '@angular/core';
+import { NbMenuItem, NbIconModule } from '@nebular/theme';
+import { NbEvaIconsModule } from '@nebular/eva-icons';
+
 
 @Component({
   selector: 'app-root',
@@ -7,4 +10,19 @@ import { Component } from '@angular/core';
 })
 export class AppComponent {
   title = 'webserver';
+
+  items: NbMenuItem[] = [
+  {
+    title: 'Configuration',
+    // icon: 'person-outline',
+    // icon:  { icon: 'checkmark-outline', pack: 'eva' },
+    link: 'config-tabs',
+  },
+  {
+    title: 'Dashboard',
+    // icon: 'person-outline',
+    link: 'dashboard',
+  }
+];
+
 }

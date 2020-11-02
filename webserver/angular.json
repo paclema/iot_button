@@ -27,6 +27,8 @@
               "src/styles.css",
               "src/styles-app-loading.css",
               "node_modules/bootstrap/dist/css/bootstrap.min.css",
+              "node_modules/@nebular/theme/styles/prebuilt/default.css",
+              "node_modules/@nebular/theme/styles/prebuilt/dark.css"
             ],
             "scripts": [
               "node_modules/jquery/dist/jquery.js",
