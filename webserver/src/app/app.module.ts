@@ -17,6 +17,7 @@ import { ReplaceUnderscorePipe } from './replace-underscore.pipe';
 import { NbThemeModule } from '@nebular/theme';
 import { NbSidebarModule, NbLayoutModule, NbMenuModule, NbIconModule, NbTabsetModule } from '@nebular/theme';
 import { NbEvaIconsModule } from '@nebular/eva-icons';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
 @NgModule({
   declarations: [
@@ -33,14 +34,16 @@ import { NbEvaIconsModule } from '@nebular/eva-icons';
     HttpClientModule,
     FormsModule,
     ReactiveFormsModule,
-    NbThemeModule.forRoot(),
+    NbThemeModule.forRoot({ name: 'default' }),
     // NbThemeModule.forRoot({ name: 'dark' }),
     // RouterModule.forRoot(routes, { useHash: true }), // RouterModule.forRoot(routes, { useHash: true }), if this is your app.module
     NbLayoutModule,
     NbSidebarModule.forRoot(), // NbSidebarModule.forRoot(), //if this is your app.module
     NbMenuModule.forRoot(),
     NbIconModule,
-    NbTabsetModule
+    NbTabsetModule,
+    BrowserAnimationsModule,
+    NbEvaIconsModule
   ],
   providers: [],
   bootstrap: [AppComponent]

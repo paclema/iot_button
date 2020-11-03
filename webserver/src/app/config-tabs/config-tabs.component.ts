@@ -13,7 +13,7 @@ import { PasswordValidator }  from './shared/password.validator';
 @Component({
   selector: 'app-config-tabs',
   templateUrl: './config-tabs.component.html',
-  styleUrls: ['./config-tabs.component.css']
+  styleUrls: ['./config-tabs.component.scss']
 })
 export class ConfigTabsComponent implements OnInit {
 
