@@ -15,7 +15,7 @@ import { ReplaceUnderscorePipe } from './replace-underscore.pipe';
 
 // Nebular:
 import { NbThemeModule } from '@nebular/theme';
-import { NbSidebarModule, NbLayoutModule, NbMenuModule, NbIconModule, NbTabsetModule } from '@nebular/theme';
+import { NbSidebarModule, NbLayoutModule, NbMenuModule, NbIconModule, NbTabsetModule, NbCardModule } from '@nebular/theme';
 import { NbEvaIconsModule } from '@nebular/eva-icons';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
@@ -43,7 +43,8 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
     NbIconModule,
     NbTabsetModule,
     BrowserAnimationsModule,
-    NbEvaIconsModule
+    NbEvaIconsModule,
+    NbCardModule
   ],
   providers: [],
   bootstrap: [AppComponent]

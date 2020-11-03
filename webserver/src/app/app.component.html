@@ -3,7 +3,16 @@
     <!-- Company Name -->
     <!-- <title>IoT Button configuration</title> -->
     <!-- <h1>IoT Button configuration</h1> -->
-    <legend style="margin: 20px">IoT Button configuration</legend>
+    <div class="logo-container">
+      <a (click)="toggleSidebar()" href="#" class="sidebar-toggle">
+      <nb-icon icon="menu-2-outline"></nb-icon>
+      <a class="logo" href="#" (click)="navigateHome()"> 
+        <span>IoT Button configuration</span>
+        <!-- <legend style="margin: 20px">IoT Button configuration</legend> -->
+      </a>
+      </a>
+    </div>
+
   </nb-layout-header>
 
   <nb-sidebar>

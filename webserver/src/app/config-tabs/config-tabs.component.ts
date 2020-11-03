@@ -10,6 +10,10 @@ import { FormBuilder, Validators, FormGroup, FormArray }  from '@angular/forms';
 import { ForbiddenNameValidator }  from './shared/user-name.validator';
 import { PasswordValidator }  from './shared/password.validator';
 
+// Nebular:
+import { NbCardModule } from '@nebular/theme';
+
+
 @Component({
   selector: 'app-config-tabs',
   templateUrl: './config-tabs.component.html',
