@@ -16,6 +16,7 @@ WiFiClientSecure wifiClientSecure;    // To use with mqtt and certificates
 WiFiClient wifiClient;                // To use with mqtt without certificates
 PubSubClient mqttClient;
 long connection_time = millis();
+String mqttQueueString = "{[";
 
 // Configuration
 #include "WebConfigServer.h"
@@ -317,10 +318,10 @@ void setup() {
   sensorSetup();
   sensorHead.sensorMotorSetup(config.device.angle_accuracy, config.device.servo_speed_ms);
 
+
+
   Serial.println("###  Looping time\n");
-
   previousLoopMainMillis = millis();
-
 }
 
 void loop() {
@@ -390,27 +391,48 @@ void loop() {
     // If measure is not available, mqtt is not sent:
     if (sensorRead(sensorDistance)){
 
+      String base_topic_pub = "/" + config.mqtt.id_name + "/";
+      String topic_pub = base_topic_pub + "data";
+
+      String msg_pub ="{'angle':" + String(sensorAngle) + ", 'distance' :"+ String(sensorDistance) +"}";
+
+
+      mqttQueueString += msg_pub;
+      mqttQueueString += ",";
+
+
+
       // Publish mqtt sensor feedback:
       if((config.device.publish_time_ms != 0 ) && (currentLoopMillis - previousMQTTPublishMillis > config.device.publish_time_ms)) {
         previousMQTTPublishMillis = currentLoopMillis;
         // Here starts the MQTT publish loop configured:
 
-        String base_topic_pub = "/" + config.mqtt.id_name + "/";
-        String topic_pub = base_topic_pub + "data";
-
-        String msg_pub ="{'angle':" + String(sensorAngle) + ", 'distance' :"+ String(sensorDistance) +"}";
+        // String base_topic_pub = "/" + config.mqtt.id_name + "/";
+        // String topic_pub = base_topic_pub + "data";
+        //
+        // String msg_pub ="{'angle':" + String(sensorAngle) + ", 'distance' :"+ String(sensorDistance) +"}";
         if (sensorDistance != 0 ){
+          mqttQueueString += "}]";
+          // Serial.println(mqttQueueString);
+
           // String msg_pub ="{'persons':" + String(sensorDistance) + ", 'distance_1' :" + String(sensorDistance_1) + ", 'distance_2' :"+ String(sensorDistance_2)+" }";
-          mqttClient.publish(topic_pub.c_str(), msg_pub.c_str());
-          Serial.println("MQTT published: " + msg_pub + " -- loop: " + config.device.publish_time_ms);
+          // mqttClient.publish(topic_pub.c_str(), msg_pub.c_str());
+
+          mqttClient.setBufferSize((uint16_t)(mqttQueueString.length() + 100));
+          mqttClient.publish(topic_pub.c_str(), mqttQueueString.c_str(), mqttQueueString.length());
+          // Serial.println("MQTT published: " + msg_pub + " -- loop: " + config.device.publish_time_ms);
+
+          mqttQueueString = "{[";
+
+
         }
+
       }
 
     }
 
 
   }
-
 
   previousLoopMainMillis = currentLoopMillis;
 }
