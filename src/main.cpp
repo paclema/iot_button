@@ -16,7 +16,7 @@ WiFiClientSecure wifiClientSecure;    // To use with mqtt and certificates
 WiFiClient wifiClient;                // To use with mqtt without certificates
 PubSubClient mqttClient;
 long connection_time = millis();
-String mqttQueueString = "{[";
+String mqttQueueString = "{\"data\":[";
 
 // Configuration
 #include "WebConfigServer.h"
@@ -394,7 +394,7 @@ void loop() {
       String base_topic_pub = "/" + config.mqtt.id_name + "/";
       String topic_pub = base_topic_pub + "data";
 
-      String msg_pub ="{'angle':" + String(sensorAngle) + ", 'distance' :"+ String(sensorDistance) +"}";
+      String msg_pub ="{\"angle\":" + String(sensorAngle) + ", \"distance\" :"+ String(sensorDistance) +"}";
 
 
       mqttQueueString += msg_pub;
@@ -410,9 +410,9 @@ void loop() {
         // String base_topic_pub = "/" + config.mqtt.id_name + "/";
         // String topic_pub = base_topic_pub + "data";
         //
-        // String msg_pub ="{'angle':" + String(sensorAngle) + ", 'distance' :"+ String(sensorDistance) +"}";
+        // String msg_pub ="{\"angle\":" + String(sensorAngle) + ", \"distance\" :"+ String(sensorDistance) +"}";
         if (sensorDistance != 0 ){
-          mqttQueueString += "}]";
+          mqttQueueString += "]}";
           // Serial.println(mqttQueueString);
 
           // String msg_pub ="{'persons':" + String(sensorDistance) + ", 'distance_1' :" + String(sensorDistance_1) + ", 'distance_2' :"+ String(sensorDistance_2)+" }";
@@ -422,7 +422,7 @@ void loop() {
           mqttClient.publish(topic_pub.c_str(), mqttQueueString.c_str(), mqttQueueString.length());
           // Serial.println("MQTT published: " + msg_pub + " -- loop: " + config.device.publish_time_ms);
 
-          mqttQueueString = "{[";
+          mqttQueueString = "{\"data\":[";
 
 
         }

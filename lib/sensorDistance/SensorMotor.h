@@ -122,10 +122,10 @@ class SensorMotor
 
     void setRange(void ){
       servo.write(START_ANGLE);
-      delay(TIME_TO_TRAVEL_RANGE*1.2);
+      delay(TIME_TO_TRAVEL_RANGE*4);
       lowEnd = getFeedback();
       servo.write(END_ANGLE);
-      delay(TIME_TO_TRAVEL_RANGE*1.2);
+      delay(TIME_TO_TRAVEL_RANGE*4);
       highEnd = getFeedback();
 
       Serial.print("START_ANGLE= ");
