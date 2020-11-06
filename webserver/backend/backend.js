@@ -98,20 +98,34 @@ wss.on('connection', ws => {
     console.log('received: %s', message);
     // ws.send(`Hello, you sent -> ${message}`);
 
+    // console.log(typeof(message));
+    var messageObject;
+    try {
+      messageObject = JSON.parse(message);
+    } catch (e) {
+      return console.error(e);
+    }
+    console.log(messageObject.hasOwnProperty('broadcast'));
+
     // To send to all the listeners if a client send: 'broadcast:message'
-    const broadcastRegex = /^broadcast\:/;
-    if (broadcastRegex.test(message)) {
-      message = message.replace(broadcastRegex, '');
+    // const broadcastRegex = /^broadcast\:/;
+    // if (broadcastRegex.test(message)) {
+      // message = message.replace(broadcastRegex, '');
+
+    if (messageObject.hasOwnProperty('broadcast')) {
 
       //send back the message to the other clients
       wss.clients.forEach(client => {
         if (client != ws) {
-          client.send(`Hello, broadcast message -> ${message}`);
+          // client.send(`Hello, broadcast message -> ${message}`);
+          ws.send(message);
+
         }
       });
 
     } else {
-        ws.send(`Hello, you sent -> ${message}`);
+      // ws.send(`Hello, you sent -> ${message}`);
+        ws.send(message);
     }
   });
 
