@@ -1,1 +1,11 @@
+<nb-card class="col-md-3">
 <p>dashboard works!</p>
+<button (click)="sendMessage()">Send</button>
+<button (click)="sendMessageBroadcast()">Send Broadcast</button>
+</nb-card>
+
+<nb-card>
+  <ng-container *ngFor="let data of dashboardData | keyvalue : returnZero; first as isFirst; index as index">
+    <strong>{{ data.key }}:</strong>{{ data.value }}
+  </ng-container>
+</nb-card>
