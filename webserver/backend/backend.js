@@ -68,6 +68,7 @@ console.log('Websockets running on localhost:' + PORT_WEBSOCKETS);
 
 
 wss.on('connection', ws => {
+  console.log('Client connected');
 
   // setInterval(function (){
     //   // const data = '{"hello": "world"}'
