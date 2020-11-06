@@ -66,7 +66,23 @@ app.listen(PORT, function(req, res){
 const wss = new WebSocket.Server({ port: PORT_WEBSOCKETS });
 console.log('Websockets running on localhost:' + PORT_WEBSOCKETS);
 
+
 wss.on('connection', ws => {
+
+  // setInterval(function (){
+    //   // const data = '{"hello": "world"}'
+    //   const data = '{"data": [{"TradeId": "1","TradeDate": "11/02/2016","BuySell": "Sell","Notional": "50000000","Coupon": "500","Currency": "EUR","Ticker": "LINDE","ShortName": "Linde AG","MaturityDate": "20/03/2023","Sector": "Basic Materials","Trader": "Yael Rich","Status": "Pending"}]}'
+    //   console.log('Sending data %s', data);
+    //   wss.emit('message', data)
+    // }, 500);
+
+  const id = setInterval(function () {
+  ws.send(JSON.stringify(process.memoryUsage()), function () {
+      //
+      // Ignore errors.
+      //
+    });
+  }, 1000);
 
   ws.isAlive = true;
 
@@ -107,6 +123,7 @@ wss.on('connection', ws => {
   // Socket closed:
   ws.on('close', ws=> {
     console.log('Socket closed: %s', ws);
+    clearInterval(id);
   });
 
 });
