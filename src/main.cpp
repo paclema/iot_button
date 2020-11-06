@@ -391,15 +391,9 @@ void loop() {
     // If measure is not available, mqtt is not sent:
     if (sensorRead(sensorDistance)){
 
-      String base_topic_pub = "/" + config.mqtt.id_name + "/";
-      String topic_pub = base_topic_pub + "data";
 
       String msg_pub ="{\"angle\":" + String(sensorAngle) + ", \"distance\" :"+ String(sensorDistance) +"}";
-
-
       mqttQueueString += msg_pub;
-      mqttQueueString += ",";
-
 
 
       // Publish mqtt sensor feedback:
@@ -411,25 +405,25 @@ void loop() {
         // String topic_pub = base_topic_pub + "data";
         //
         // String msg_pub ="{\"angle\":" + String(sensorAngle) + ", \"distance\" :"+ String(sensorDistance) +"}";
-        if (sensorDistance != 0 ){
           mqttQueueString += "]}";
-          // Serial.println(mqttQueueString);
+          Serial.println(mqttQueueString);
 
           // String msg_pub ="{'persons':" + String(sensorDistance) + ", 'distance_1' :" + String(sensorDistance_1) + ", 'distance_2' :"+ String(sensorDistance_2)+" }";
           // mqttClient.publish(topic_pub.c_str(), msg_pub.c_str());
 
+          String base_topic_pub = "/" + config.mqtt.id_name + "/";
+          String topic_pub = base_topic_pub + "data";
           mqttClient.setBufferSize((uint16_t)(mqttQueueString.length() + 100));
           mqttClient.publish(topic_pub.c_str(), mqttQueueString.c_str(), mqttQueueString.length());
           // Serial.println("MQTT published: " + msg_pub + " -- loop: " + config.device.publish_time_ms);
 
           mqttQueueString = "{\"data\":[";
-
-
-        }
-
+      } else {
+        mqttQueueString += ",";
       }
 
     }
+
 
 
   }
