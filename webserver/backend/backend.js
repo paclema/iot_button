@@ -1,8 +1,12 @@
 const express = require('express')
 const bodyParser = require('body-parser')
 const cors = require('cors')
+const WebSocket = require('ws');
 
 const PORT = 3000;
+const PORT_WEBSOCKETS = 3001;
+
+
 
 const app = express();
 
@@ -53,3 +57,68 @@ app.post('/gpio', function(req, res){
 app.listen(PORT, function(req, res){
   console.log("Server running on localhost:" + PORT);
 });
+
+
+
+
+// Websockets:
+
+const wss = new WebSocket.Server({ port: PORT_WEBSOCKETS });
+console.log('Websockets running on localhost:' + PORT_WEBSOCKETS);
+
+wss.on('connection', ws => {
+
+  ws.isAlive = true;
+
+  // Socket pong:
+  ws.on('pong', () => {
+      ws.isAlive = true;
+  });
+
+  // New Socket message:
+  ws.on('message', message => {
+    //log the received message and send it back to the client
+    console.log('received: %s', message);
+    // ws.send(`Hello, you sent -> ${message}`);
+
+    // To send to all the listeners if a client send: 'broadcast:message'
+    const broadcastRegex = /^broadcast\:/;
+    if (broadcastRegex.test(message)) {
+      message = message.replace(broadcastRegex, '');
+
+      //send back the message to the other clients
+      wss.clients.forEach(client => {
+        if (client != ws) {
+          client.send(`Hello, broadcast message -> ${message}`);
+        }
+      });
+
+    } else {
+        ws.send(`Hello, you sent -> ${message}`);
+    }
+  });
+
+  // Error Socket:
+  ws.on('error', error => {
+    console.log('received error: %s', error);
+    ws.send(`There was an error -> ${error}`);
+  });
+
+  // Socket closed:
+  ws.on('close', ws=> {
+    console.log('Socket closed: %s', ws);
+  });
+
+});
+
+
+// Handle broken WebSocket connections:
+setInterval(() => {
+    wss.clients.forEach( ws => {
+
+        if (!ws.isAlive) return ws.terminate();
+
+        ws.isAlive = false;
+        ws.ping(null, false, true);
+    });
+}, 10000);
