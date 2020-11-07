@@ -4,7 +4,7 @@ const cors = require('cors')
 const WebSocket = require('ws');
 
 const PORT = 3000;
-const PORT_WEBSOCKETS = 3001;
+const PORT_WEBSOCKETS = 81;
 
 
 
