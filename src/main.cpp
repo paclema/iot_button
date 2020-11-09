@@ -41,44 +41,9 @@ long previousMainLoopMillis = 0;
 
 
 // Websocket server:
-#include <WebSocketsServer.h>
-WebSocketsServer webSocket = WebSocketsServer(81);
-unsigned int counter = 0;
+#include <WrapperWebSockets.h>
+WrapperWebSockets ws;
 
-
-void webSocketEvent(uint8_t num, WStype_t type, uint8_t * payload, size_t length) {
-
-    switch(type) {
-        case WStype_DISCONNECTED:
-            Serial.printf("[%u] Disconnected!\n", num);
-            break;
-        case WStype_CONNECTED: {
-            IPAddress ip = webSocket.remoteIP(num);
-            Serial.printf("[%u] Connected from %d.%d.%d.%d url: %s\n", num, ip[0], ip[1], ip[2], ip[3], payload);
-
-            // send message to client
-            webSocket.sendTXT(num, "{\"Connected\": true}");
-        }
-            break;
-        case WStype_TEXT:
-            Serial.printf("[%u] get Text: %s\n", num, payload);
-
-            if(payload[0] == '#') {
-                // we get RGB data
-
-                // decode rgb data
-                uint32_t rgb = (uint32_t) strtol((const char *) &payload[1], NULL, 16);
-
-            //     analogWrite(LED_RED, ((rgb >> 16) & 0xFF));
-            //     analogWrite(LED_GREEN, ((rgb >> 8) & 0xFF));
-            //     analogWrite(LED_BLUE, ((rgb >> 0) & 0xFF));
-            // }
-
-            break;
-    }
-  }
-
-}
 
 void networkRestart(void){
   if(config.status() == CONFIG_LOADED){
@@ -336,12 +301,7 @@ void setup() {
     Serial.println("Flash Chip configuration ok.\n");
   }
 
-
-  Serial.println("Starting Websocket server...\n");
-
-  // start webSocket server
-  webSocket.begin();
-  webSocket.onEvent(webSocketEvent);
+  ws.init();
 
   Serial.println("###  Looping time\n");
 }
@@ -367,7 +327,7 @@ void loop() {
   if (config.services.ota) ota.handle();
   if (config.services.ftp.enabled) ftpSrv.handleFTP();
 
-  webSocket.loop();
+  ws.handle();
 
   if (config.services.deep_sleep.enabled){
     // long time_now = millis();
@@ -390,21 +350,9 @@ void loop() {
   }
 
   if( (currentLoopMillis - previousWSMillis > 1000)) {
-    counter++;
-    bool ping = (counter % 2);
-    int i = webSocket.connectedClients(ping);
-    Serial.printf("%d Connected websocket clients ping: %d\n", i, ping);
-    // To send msg to all connected clients:
-    // webSocket.broadcastTXT("message here");
-    // To send msg to specific client id:
-
-    String msg_ws ="{\"heap_free\": " + String(GET_FREE_HEAP) + ", "+\
-                    "\"loop_delay\": " + String(currentLoopMillis - previousMainLoopMillis) +\
-             "}";
-
-    Serial.println(msg_ws.c_str());
-    webSocket.sendTXT(i-1, msg_ws.c_str());
+    ws.publishClients();
     previousWSMillis = currentLoopMillis;
+
   }
 
 
