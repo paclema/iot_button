@@ -5,7 +5,7 @@ String getHeapFree(void ){
 };
 
 void WrapperWebSockets::init(void) {
-  Serial.println("Starting Websocket server...");
+  // Serial.println("Starting Websocket server...");
 
   // start webSocket server
   webSocket.begin();
@@ -76,7 +76,8 @@ void WrapperWebSockets::publishClients(void) {
   };
 
   // Serial.println(msg_ws.c_str());
-  webSocket.sendTXT(i-1, msg_ws.c_str());
+  // webSocket.sendTXT(i-1, msg_ws.c_str());
+  webSocket.sendTXT(0, msg_ws.c_str());
 
 };
 
@@ -92,15 +93,15 @@ bool WrapperWebSockets::addObjectToPublish(String key, String (*valueFunction)()
     this->listObjets[listObjetsIndex] = key;
     this->listObjetFunctions[listObjetsIndex] = valueFunction;
     this->listObjetsIndex++;
-    Serial.print("Added WebSocket msg object[");
-    Serial.print(this->listObjetsIndex);
-    Serial.println("]: " + key);
+    // Serial.print("Added WebSocket msg object[");
+    // Serial.print(this->listObjetsIndex);
+    // Serial.println("]: " + key);
 
     return true;
   } else {
-    Serial.print("NOT added WebSocket msg object[");
-    Serial.print(this->listObjetsIndex);
-    Serial.println("]: " + key);
+    // Serial.print("NOT added WebSocket msg object[");
+    // Serial.print(this->listObjetsIndex);
+    // Serial.println("]: " + key);
 
     return false;
   }

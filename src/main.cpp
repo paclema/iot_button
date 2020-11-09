@@ -1,6 +1,7 @@
 #include <Arduino.h>
 
 #define DEBUG_ESP_CORE
+#define ENABLE_SERIAL_DEBUG true
 
 // Used for light sleep
 extern "C" {
@@ -40,10 +41,14 @@ long previousMQTTPublishMillis = 0;
 long previousWSMillis = 0;
 long previousMainLoopMillis = 0;
 
-
 // Websocket server:
 #include <WrapperWebSockets.h>
 WrapperWebSockets ws;
+
+String getLoopTime(){
+  return String(currentLoopMillis - previousMainLoopMillis);
+}
+
 
 
 void networkRestart(void){
@@ -78,7 +83,6 @@ void networkRestart(void){
 
 }
 
-
 void enableServices(void){
   Serial.println("--- Services: ");
 
@@ -93,6 +97,11 @@ void enableServices(void){
     ftpSrv.begin(config.services.ftp.user,config.services.ftp.password);
     Serial.println("   - FTP -> enabled");
   } else Serial.println("   - FTP -> disabled");
+
+  if (config.services.webSockets.enabled){
+    ws.init();
+    Serial.println("   - WebSockets -> enabled");
+  } else Serial.println("   - WebSockets -> disabled");
 
   if (config.services.deep_sleep.enabled){
     // We will enable it on the loop function
@@ -120,7 +129,6 @@ void enableServices(void){
   Serial.println("");
 
 }
-
 
 void callbackMQTT(char* topic, byte* payload, unsigned int length) {
   Serial.print("Message arrived [");
@@ -258,7 +266,6 @@ void reconnectMQTT() {
   }
 }
 
-
 void reconnect(void) {
   //delay(1000);
   Serial.print("--- Free heap: "); Serial.println(ESP.getFreeHeap());
@@ -277,14 +284,10 @@ void reconnect(void) {
 
 }
 
-String getLoopTime(){
-  return String(currentLoopMillis - previousMainLoopMillis);
-}
-
 
 void setup() {
   Serial.begin(115200);
-  Serial.setDebugOutput(true);
+  Serial.setDebugOutput(ENABLE_SERIAL_DEBUG);
 
   reconnect();
 
@@ -306,8 +309,8 @@ void setup() {
     Serial.println("Flash Chip configuration ok.\n");
   }
 
-  ws.init();
-  ws.addObjectToPublish("loop", getLoopTime);
+  // Configure some Websockets object to publish to webapp dashboard:
+  if (config.services.webSockets.enabled) ws.addObjectToPublish("loop", getLoopTime);
 
   Serial.println("###  Looping time\n");
 }
@@ -332,9 +335,13 @@ void loop() {
   // Services loop:
   if (config.services.ota) ota.handle();
   if (config.services.ftp.enabled) ftpSrv.handleFTP();
-
-  ws.handle();
-
+  if (config.services.webSockets.enabled){
+    ws.handle();
+    if(currentLoopMillis - previousWSMillis > config.services.webSockets.publish_time_ms) {
+      ws.publishClients();
+      previousWSMillis = currentLoopMillis;
+    }
+  }
   if (config.services.deep_sleep.enabled){
     // long time_now = millis();
     if (millis() > connection_time + (config.services.deep_sleep.sleep_delay*1000)){
@@ -355,12 +362,7 @@ void loop() {
     }
   }
 
-  if( (currentLoopMillis - previousWSMillis > 1000)) {
-    ws.publishClients();
 
-    previousWSMillis = currentLoopMillis;
-
-  }
 
 
   // Main Loop:

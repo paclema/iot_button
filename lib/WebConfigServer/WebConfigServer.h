@@ -61,6 +61,11 @@ public:
     String password;
   };
 
+  struct WebSockets {
+    bool enabled;
+    int publish_time_ms;
+  };
+
   struct DeepSleep {
     bool enabled;
     String mode;
@@ -76,8 +81,9 @@ public:
   };
 
   struct Services {
-    FTP ftp;
     bool ota;
+    FTP ftp;
+    WebSockets webSockets;
     DeepSleep deep_sleep;
     LightSleep light_sleep;
   } services;

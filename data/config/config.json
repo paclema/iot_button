@@ -32,12 +32,16 @@
     ]
   },
   "services": {
+    "OTA": true,
     "FTP": {
       "enabled": true,
       "user": "paclema",
       "password": "paclema"
     },
-    "OTA": true,
+    "WebSockets": {
+      "enabled": true,
+      "publish_time_ms": 100
+    },
     "deep_sleep": {
       "enabled": false,
       "mode": "WAKE_RF_DEFAULT",
