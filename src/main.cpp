@@ -34,6 +34,7 @@ FtpServer ftpSrv;
 WrapperOTA ota;
 
 // Device configurations
+unsigned long currentLoopMillis = 0;
 long previousLoopMillis = 0;
 long previousMQTTPublishMillis = 0;
 long previousWSMillis = 0;
@@ -276,6 +277,10 @@ void reconnect(void) {
 
 }
 
+String getLoopTime(){
+  return String(currentLoopMillis - previousMainLoopMillis);
+}
+
 
 void setup() {
   Serial.begin(115200);
@@ -302,13 +307,14 @@ void setup() {
   }
 
   ws.init();
+  ws.addObjectToPublish("loop", getLoopTime);
 
   Serial.println("###  Looping time\n");
 }
 
 void loop() {
 
-  unsigned long currentLoopMillis = millis();
+  currentLoopMillis = millis();
 
   // Reconnection loop:
   // if (WiFi.status() != WL_CONNECTED) {
@@ -351,6 +357,7 @@ void loop() {
 
   if( (currentLoopMillis - previousWSMillis > 1000)) {
     ws.publishClients();
+
     previousWSMillis = currentLoopMillis;
 
   }

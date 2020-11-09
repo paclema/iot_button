@@ -11,8 +11,10 @@ void WrapperWebSockets::init(void) {
   webSocket.begin();
   webSocket.onEvent(webSocketEvent);
 
-  listObjets[0] = "heap_free";
-  listObjetFunctions[0] = getHeapFree;
+  // listObjets[0] = "heap_free";
+  // listObjetFunctions[0] = getHeapFree;
+  // listObjetsIndex++;
+  this->addObjectToPublish("heap_free", getHeapFree);
 
 };
 
@@ -58,22 +60,48 @@ void WrapperWebSockets::publishClients(void) {
   numClients++;
   bool ping = (numClients % 2);
   int i = webSocket.connectedClients(ping);
-  Serial.printf("%d Connected websocket clients ping: %d\n", i, ping);
+  // Serial.printf("%d Connected websocket clients ping: %d\n", i, ping);
   // To send msg to all connected clients:
   // webSocket.broadcastTXT("message here");
   // To send msg to specific client id:
+  // webSocket.sendTXT(i-1, msg_ws.c_str());
 
-  // String msg_ws ="{\"heap_free\": " + String(GET_FREE_HEAP) + ", "+\
-  // "\"loop_delay\": " + String(currentLoopMillis - previousMainLoopMillis) +\
-  "}";
-  String msg_ws ="{\""+ listObjets[0] + "\": " + (*listObjetFunctions)[0]() +"}";
+  String msg_ws = "{";
 
+  for (int i = 0; i <= this->listObjetsIndex-1; i++) {
+    msg_ws +="\""+ this->listObjets[i] + "\": " + (*this->listObjetFunctions[i])();
+    if (this->listObjetsIndex-1 != i) msg_ws += " , ";
+    else msg_ws += "}";
 
-  Serial.println(msg_ws.c_str());
+  };
+
+  // Serial.println(msg_ws.c_str());
   webSocket.sendTXT(i-1, msg_ws.c_str());
 
 };
 
+
 void WrapperWebSockets::handle(void) {
   webSocket.loop();
+};
+
+
+bool WrapperWebSockets::addObjectToPublish(String key, String (*valueFunction)()) {
+
+  if (this->listObjetsIndex+1 <= MAX_LIST_OBJECT_FUNCTIONS){
+    this->listObjets[listObjetsIndex] = key;
+    this->listObjetFunctions[listObjetsIndex] = valueFunction;
+    this->listObjetsIndex++;
+    Serial.print("Added WebSocket msg object[");
+    Serial.print(this->listObjetsIndex);
+    Serial.println("]: " + key);
+
+    return true;
+  } else {
+    Serial.print("NOT added WebSocket msg object[");
+    Serial.print(this->listObjetsIndex);
+    Serial.println("]: " + key);
+
+    return false;
+  }
 };
