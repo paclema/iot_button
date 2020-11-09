@@ -5,7 +5,7 @@ String getHeapFree(void ){
 };
 
 void WrapperWebSockets::init(void) {
-  Serial.println("Starting Websocket server...\n");
+  Serial.println("Starting Websocket server...");
 
   // start webSocket server
   webSocket.begin();
