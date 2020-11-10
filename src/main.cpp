@@ -53,6 +53,9 @@ String getRSSI(){
   return String(WiFi.RSSI());
 }
 
+String getHeapFragmentation(){ return String(ESP.getHeapFragmentation() );}
+
+
 
 void networkRestart(void){
   if(config.status() == CONFIG_LOADED){
@@ -290,6 +293,7 @@ void reconnect(void) {
 
 void setup() {
   Serial.begin(115200);
+  // Enable wifi diagnostic:
   Serial.setDebugOutput(ENABLE_SERIAL_DEBUG);
 
   reconnect();
@@ -316,6 +320,8 @@ void setup() {
   if (config.services.webSockets.enabled){
     ws.addObjectToPublish("RSSI", getRSSI);
     ws.addObjectToPublish("loop", getLoopTime);
+    ws.addObjectToPublish("Heap_Fragmentation", getHeapFragmentation);
+
   }
 
   Serial.println("###  Looping time\n");
