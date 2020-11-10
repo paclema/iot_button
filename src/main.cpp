@@ -40,8 +40,8 @@ long previousLoopMainMillis = 0;
 long previousMQTTPublishMillis = 0;
 
 // Distance sensor:
-#include "SensorMotor.h"
-SensorMotor sensorHead;
+#include "RadarMotor.h"
+RadarMotor sensorHead;
 
 // Choose one sensor library:
 // #include "sensorVL53L0X.h"
@@ -316,7 +316,7 @@ void setup() {
 
   // Device configs:
   sensorSetup();
-  sensorHead.sensorMotorSetup(config.device.angle_accuracy, config.device.servo_speed_ms);
+  sensorHead.setup(config.device.angle_accuracy, config.device.servo_speed_ms);
 
 
 
@@ -386,7 +386,7 @@ void loop() {
   if((config.device.loop_sensor_time_ms != 0 ) && (currentLoopMillis - previousSensorLoopMillis > config.device.loop_sensor_time_ms)) {
     previousSensorLoopMillis = currentLoopMillis;
 
-    sensorAngle = sensorHead.sensorMotorAngle();
+    sensorAngle = sensorHead.getFeedbackAngle();
 
     // If measure is not available, mqtt is not sent:
     if (sensorRead(sensorDistance)){

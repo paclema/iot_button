@@ -1,10 +1,10 @@
+#ifndef RadarMotor_h
+#define RadarMotor_h
 /*
-  SensorMotor.h - Library for move the sensor head
+RadarMotor.h - Library for move the sensor head
 
 
 */
-#ifndef SensorMotor_h
-#define SensorMotor_h
 
 #include <Arduino.h>
 #include <Servo.h>
@@ -16,8 +16,8 @@
 #define ANGULAR_SPEED         (ANGLE_RANGE / TIME_TO_TRAVEL_RANGE)
 #define MIN_MS_PER_GRAD       (TIME_TO_TRAVEL_RANGE / ANGLE_RANGE)
 
-class SensorMotor
-{
+class RadarMotor{
+
   private:
 
   Servo servo;
@@ -46,8 +46,8 @@ class SensorMotor
   boolean debug = false;
 
   public:
-  void sensorMotor(void);
-  void sensorMotorSetup(float angle_accuracy, float servo_speed_ms){
+  RadarMotor(void);
+  void setup(float angle_accuracy, float servo_speed_ms){
     servoIncrement = angle_accuracy;
     angleAccuracy = angle_accuracy;
     servoSpeed = servo_speed_ms/60;
@@ -212,7 +212,7 @@ class SensorMotor
 
     };
 
-    float sensorMotorAngle(void){
+    float RadarMotorAngle(void){
       unsigned long currentLoopMillis = millis();
 
       // moveServo();
