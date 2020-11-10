@@ -140,7 +140,22 @@
     }
 
     float RadarMotor::getFeedbackAngle(void){
-      return map((getFeedback()),lowEnd,highEnd,START_ANGLE,END_ANGLE);
+
+      float angle = map((getFeedback()),lowEnd,highEnd,START_ANGLE,END_ANGLE);
+      if (debug){
+        Serial.print("timeSinceLastMove: ");
+        Serial.print(timeSinceLastMove);
+        Serial.print("\t");
+        Serial.print(" servoIncrement: ");
+        Serial.print(servoIncrement);
+        Serial.print("\t");
+        Serial.print("servoPos - angle: ");
+        Serial.print(servoPos);
+        Serial.print(" - ");
+        Serial.println(angle);
+      }
+
+      return angle;
     }
 
 
@@ -166,34 +181,6 @@
 
         servo.write(servoPos);
       }
-
-
-    };
-
-    float RadarMotor::radarMotorAngle(void){
-      unsigned long currentLoopMillis = millis();
-
-      // moveServo();
-
-      float angle = getFeedbackAngle();
-
-      if (debug){
-        Serial.print("timeSinceLastMove: ");
-        Serial.print(timeSinceLastMove);
-        Serial.print("\t");
-        Serial.print(" servoIncrement: ");
-        Serial.print(servoIncrement);
-        Serial.print("\t");
-        Serial.print("servoPos - angle: ");
-        Serial.print(servoPos);
-        Serial.print(" - ");
-        Serial.println(angle);
-      }
-
-
-      // return servoAngle;
-      return angle;
-
 
 
     };

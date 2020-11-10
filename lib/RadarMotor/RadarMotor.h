@@ -52,13 +52,12 @@ class RadarMotor{
 
   void testMovement(void);
   void printData(int i);
-  void setRange(void );
+  void setRange(void);
 
   float getFeedback(void);
   float getFeedbackAngle(void);
 
   void moveServo(void);
-  float radarMotorAngle(void);
 
 };
 
