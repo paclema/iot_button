@@ -49,6 +49,9 @@ String getLoopTime(){
   return String(currentLoopMillis - previousMainLoopMillis);
 }
 
+String getRSSI(){
+  return String(WiFi.RSSI());
+}
 
 
 void networkRestart(void){
@@ -310,7 +313,10 @@ void setup() {
   }
 
   // Configure some Websockets object to publish to webapp dashboard:
-  if (config.services.webSockets.enabled) ws.addObjectToPublish("loop", getLoopTime);
+  if (config.services.webSockets.enabled){
+    ws.addObjectToPublish("RSSI", getRSSI);
+    ws.addObjectToPublish("loop", getLoopTime);
+  }
 
   Serial.println("###  Looping time\n");
 }
