@@ -19,6 +19,9 @@ import { NbSidebarModule, NbLayoutModule, NbMenuModule, NbIconModule, NbTabsetMo
 import { NbEvaIconsModule } from '@nebular/eva-icons';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
+import { ChartsModule } from 'ng2-charts';
+
+
 @NgModule({
   declarations: [
     AppComponent,
@@ -44,7 +47,8 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
     NbTabsetModule,
     BrowserAnimationsModule,
     NbEvaIconsModule,
-    NbCardModule
+    NbCardModule,
+    ChartsModule
   ],
   providers: [],
   bootstrap: [AppComponent]
