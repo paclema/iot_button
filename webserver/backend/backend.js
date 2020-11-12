@@ -83,7 +83,13 @@ wss.on('connection', ws => {
   //     // Ignore errors.
   //     //
   //   });
-    ws.send('{"heap_free":' + Math.floor(Math.random() * (22000 - 18000) + 18000) + ' }');
+  ws.send('{"heap_free":' + Math.floor(Math.random() * (22000 - 18000) + 18000)+
+        ', "heap_free2":' + Math.floor(Math.random() * (22000 - 18000) + 18000)+
+        ', "heap_free3":' + Math.floor(Math.random() * (22000 - 18000) + 18000)+
+        ', "heap_free4":' + Math.floor(Math.random() * (22000 - 18000) + 18000)+
+        ', "heap_free5":' + Math.floor(Math.random() * (22000 - 18000) + 18000)+
+        ', "heap_free6":' + Math.floor(Math.random() * (22000 - 18000) + 18000) + '}');
+  // ws.send('{"heap_free2":' + Math.floor(Math.random() * (22000 - 18000) + 18000) + ' }');
 
   }, 100);
 

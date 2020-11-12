@@ -33,7 +33,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
   public lineChartMaxlength = 100;
   public lineChartData: ChartDataSets[] = [
-    { data: [], label: 'Series A' , yAxisID: 'y-axis-0' },
+    // { data: [], label: 'Series A' , yAxisID: 'y-axis-0' },
     // { data: [28, 48, 40, 19, 86, 27, 90], label: 'Series B' },
     // { data: [180, 480, 770, 90, 1000, 270, 400], label: 'Series C', yAxisID: 'y-axis-1' }
   ];
@@ -94,33 +94,58 @@ export class DashboardComponent implements OnInit, OnDestroy {
     // },
     // responsiveAnimationDuration: 0 // animation duration after a resize
   };
-  public lineChartColors: Color[] = [
-    { // red
-      backgroundColor: 'rgba(255,0,0,0.3)',
-      borderColor: 'red',
-      pointBackgroundColor: 'rgba(148,159,177,1)',
+  public lineChartColorsBase: Color[] = [
+    { // Blue Violet Color Wheel
+      backgroundColor: 'rgba(84,13,110,0.3)',
+      borderColor: 'rgba(84,13,110,1)',
+      pointBackgroundColor: 'rgba(84,13,110,1)',
       pointBorderColor: '#fff',
       pointHoverBackgroundColor: '#fff',
-      pointHoverBorderColor: 'rgba(148,159,177,0.8)'
+      pointHoverBorderColor: 'rgba(84,13,110,0.8)'
     },
-    { // grey
-      backgroundColor: 'rgba(148,159,177,0.2)',
-      borderColor: 'rgba(148,159,177,1)',
-      pointBackgroundColor: 'rgba(148,159,177,1)',
+    { // Paradise Pink
+      backgroundColor: 'rgba(238,66,102,0.3)',
+      borderColor: 'rgba(238,66,102,1)',
+      pointBackgroundColor: 'rgba(238,66,102,1)',
       pointBorderColor: '#fff',
       pointHoverBackgroundColor: '#fff',
-      pointHoverBorderColor: 'rgba(148,159,177,0.8)'
+      pointHoverBorderColor: 'rgba(238,66,102,0.8)'
     },
-    { // dark grey
-      backgroundColor: 'rgba(77,83,96,0.2)',
-      borderColor: 'rgba(77,83,96,1)',
-      pointBackgroundColor: 'rgba(77,83,96,1)',
+    { // Sunglow
+      backgroundColor: 'rgba(255,210,63,0.3)',
+      borderColor: 'rgba(255,210,63,1)',
+      pointBackgroundColor: 'rgba(255,210,63,1)',
       pointBorderColor: '#fff',
       pointHoverBackgroundColor: '#fff',
-      pointHoverBorderColor: 'rgba(77,83,96,1)'
+      pointHoverBorderColor: 'rgba(255,210,63,0.8)'
+    },
+    { // Caribbean Green
+      backgroundColor: 'rgba(59,206,172,0.3)',
+      borderColor: 'rgba(59,206,172,1)',
+      pointBackgroundColor: 'rgba(59,206,172,1)',
+      pointBorderColor: '#fff',
+      pointHoverBackgroundColor: '#fff',
+      pointHoverBorderColor: 'rgba(59,206,172,0.8)'
+    },
+    { // GO Green
+      backgroundColor: 'rgba(14,173,105,0.3)',
+      borderColor: 'rgba(14,173,105,1)',
+      pointBackgroundColor: 'rgba(14,173,105,1)',
+      pointBorderColor: '#fff',
+      pointHoverBackgroundColor: '#fff',
+      pointHoverBorderColor: 'rgba(14,173,105,0.8)'
     }
+    // { // red
+    //   backgroundColor: 'rgba(255,0,0,0.3)',
+    //   borderColor: 'red',
+    //   pointBackgroundColor: 'rgba(148,159,177,1)',
+    //   pointBorderColor: '#fff',
+    //   pointHoverBackgroundColor: '#fff',
+    //   pointHoverBorderColor: 'rgba(148,159,177,0.8)'
+    // },
   ];
-  public lineChartLegend = false;
+  public lineChartColors: Color[] = [];
+  public lineChartLegend = true;
   public lineChartType: ChartType = 'line';
   public lineChartPlugins = [pluginAnnotations];
 
@@ -129,10 +154,9 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
   constructor() {
     for (let i = 0; i < this.lineChartMaxlength+1; i++) {
-      // const element = array[i];
       this.lineChartLabels.push(i.toString());
-
     }
+    this.lineChartColors[0] = this.lineChartColorsBase[0];
   }
 
   ngOnInit(): void {
@@ -145,15 +169,32 @@ export class DashboardComponent implements OnInit, OnDestroy {
          //     this.dashboardData = JSON.parse(msg);
          // }
             this.dashboardData = msg;
-            // console.log(msg["rss"]);
-            // console.log(this.lineChartData[0].data.length);
 
-            if (this.lineChartData[0].data.length >= this.lineChartMaxlength+1)
-              this.lineChartData[0].data = this.lineChartData[0].data.slice(1);
+            // Update Chart line points:
+            let index = 0;
+            for (let key in this.dashboardData) {
 
-            this.lineChartData[0].data.push(msg["heap_free"]);
+              // If there is a new object received to add a new cahrt line:
+              if (typeof(this.lineChartData[index]) == "undefined"){
+                console.log('find!');
+                this.lineChartData.push({ data: [], label: key , yAxisID: 'y-axis-0' } )
+
+                console.log(index);
+                this.lineChartColors[index] = this.lineChartColorsBase[index%this.lineChartColorsBase.length];
+              }
+              this.lineChartData[index].label = key;
+
+              // Move to the right the list of points
+              if (this.lineChartData[index].data.length >= this.lineChartMaxlength+1)
+                this.lineChartData[index].data = this.lineChartData[index].data.slice(1);
+              this.lineChartData[index].data.push(this.dashboardData[key]);
+              // this.lineChartLabels.push(`Label ${this.lineChartLabels.length}`);
+              index++;
+            }
+
+
+
             this.chart.update();
-            // this.lineChartLabels.push(`Label ${this.lineChartLabels.length}`);
 
        },
        err => console.log(err), // Called if at any point WebSocket API signals some kind of error.
