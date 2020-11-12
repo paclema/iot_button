@@ -78,12 +78,14 @@ wss.on('connection', ws => {
     // }, 500);
 
   const id = setInterval(function () {
-  ws.send(JSON.stringify(process.memoryUsage()), function () {
-      //
-      // Ignore errors.
-      //
-    });
-  }, 1000);
+  // ws.send(JSON.stringify(process.memoryUsage()), function () {
+  //     //
+  //     // Ignore errors.
+  //     //
+  //   });
+    ws.send('{"heap_free":' + Math.floor(Math.random() * (22000 - 18000) + 18000) + ' }');
+
+  }, 100);
 
   ws.isAlive = true;
 
