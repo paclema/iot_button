@@ -104,7 +104,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
       pointHoverBorderColor: 'rgba(148,159,177,0.8)'
     }
   ];
-  public lineChartLegend = true;
+  public lineChartLegend = false;
   public lineChartType: ChartType = 'line';
   public lineChartPlugins = [pluginAnnotations];
 
@@ -179,10 +179,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
     console.log(event, active);
   }
 
-  public hideOne(): void {
-    const isHidden = this.chart.isDatasetHidden(1);
-    this.chart.hideDataset(1, !isHidden);
-  }
 
   public pushOne(): void {
     this.lineChartData.forEach((x, i) => {

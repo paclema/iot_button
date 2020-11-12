@@ -1,45 +1,51 @@
-<nb-card class="col-md-3">
-<p>dashboard works!</p>
-<button (click)="sendMessage()">Send</button>
-<button (click)="sendMessageBroadcast()">Send Broadcast</button>
-</nb-card>
 
-<nb-card>
-  <ng-container *ngFor="let data of dashboardData | keyvalue : returnZero; first as isFirst; index as index">
-    <strong>{{ data.key }}:</strong>{{ data.value }}
-  </ng-container>
-</nb-card>
+<div class="row">
 
-<nb-card>
-  <div class="flex">
-  <div class="flex-item">
-    <div style="display: block;">
-    <canvas baseChart width="400" height="400"
-                [datasets]="lineChartData"
-                [labels]="lineChartLabels"
-                [options]="lineChartOptions"
-                [colors]="lineChartColors"
-                [legend]="lineChartLegend"
-                [chartType]="lineChartType"
-                [plugins]="lineChartPlugins"
-                (chartHover)="chartHovered($event)"
-                (chartClick)="chartClicked($event)"></canvas>
-    </div>
+  <div class="col-xxxl-3 col-xxl-4 col-lg-4 col-md-6">
+    <nb-card>
+      <nb-card-header>Websockets comunication</nb-card-header>
+      <button (click)="sendMessage()">Send</button>
+      <button (click)="sendMessageBroadcast()">Send Broadcast</button>
+    </nb-card>
   </div>
-  <div class="flex-item">
-    <table class="table table-responsive table-condensed">
-      <tr>
-        <th *ngFor="let label of lineChartLabels">{{label}}</th>
-      </tr>
-      <tr *ngFor="let d of lineChartData; let i=index" [class]="'line-'+i">
-        <td *ngFor="let label of lineChartLabels; let j=index">{{d && d.data[j]}}</td>
-      </tr>
-    </table>
-    <button mat-button mat-raised-button color="primary" (click)="randomize()">Randomize</button>
-    <button mat-button mat-raised-button color="primary" (click)="pushOne()">Push</button>
-    <button mat-button mat-raised-button color="primary" (click)="changeColor()">Recolor</button>
-    <button mat-button mat-raised-button color="primary" (click)="hideOne()">Toggle Series B</button>
-    <button mat-button mat-raised-button color="primary" (click)="changeLabel()">Change Label</button>
+
+  <div class="col-xxxl-3 col-xxl-4 col-lg-8 col-md-6">
+    <nb-card>
+      <nb-card-header>Websockets received</nb-card-header>
+      <ng-container *ngFor="let data of dashboardData | keyvalue : returnZero; first as isFirst; index as index">
+        <span class="col-md-10" style="white-space: nowrap"><strong >{{ data.key }}:</strong> {{ data.value }}</span>
+
+      </ng-container>
+    </nb-card>
   </div>
+
+
+  <div class="col-xxxl-12 col-xxl-12 col-md-12">
+    <nb-card >
+      <nb-card-header>Charts</nb-card-header>
+
+        <div style="display: block;">
+          <!-- <canvas baseChart width="600" height="600" -->
+          <canvas baseChart height="50"
+                    [datasets]="lineChartData"
+                    [labels]="lineChartLabels"
+                    [options]="lineChartOptions"
+                    [colors]="lineChartColors"
+                    [legend]="lineChartLegend"
+                    [chartType]="lineChartType"
+                    [plugins]="lineChartPlugins"
+                    (chartHover)="chartHovered($event)"
+                    (chartClick)="chartClicked($event)"></canvas>
+        </div>
+
+        <div class="flex-item">
+
+          <button mat-button mat-raised-button color="primary" (click)="randomize()">Randomize</button>
+          <button mat-button mat-raised-button color="primary" (click)="pushOne()">Push</button>
+          <button mat-button mat-raised-button color="primary" (click)="changeColor()">Recolor</button>
+          <button mat-button mat-raised-button color="primary" (click)="changeLabel()">Change Label</button>
+        </div>
+    </nb-card>
+  </div>
+
 </div>
-</nb-card>
