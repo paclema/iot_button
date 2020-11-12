@@ -318,8 +318,8 @@ void setup() {
 
   // Configure some Websockets object to publish to webapp dashboard:
   if (config.services.webSockets.enabled){
-    ws.addObjectToPublish("RSSI", getRSSI);
     ws.addObjectToPublish("loop", getLoopTime);
+    ws.addObjectToPublish("RSSI", getRSSI);
     ws.addObjectToPublish("Heap_Fragmentation", getHeapFragmentation);
 
   }

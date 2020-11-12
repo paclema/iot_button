@@ -77,7 +77,8 @@ void WrapperWebSockets::publishClients(void) {
 
   // Serial.println(msg_ws.c_str());
   // webSocket.sendTXT(i-1, msg_ws.c_str());
-  webSocket.sendTXT(0, msg_ws.c_str());
+  // webSocket.sendTXT(0, msg_ws.c_str());
+  webSocket.broadcastTXT(msg_ws.c_str());
 
 };
 
