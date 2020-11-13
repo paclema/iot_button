@@ -21,12 +21,11 @@
 
 
   <div class="col-xxxl-12 col-xxl-12 col-md-12">
-    <nb-card >
+    <nb-card>
       <nb-card-header>Realt time data</nb-card-header>
-
         <div style="display: block;">
           <!-- <canvas baseChart width="600" height="600" -->
-          <canvas baseChart height="50"
+          <canvas baseChart  height="80"
                     [datasets]="lineChartData"
                     [labels]="lineChartLabels"
                     [options]="lineChartOptions"
@@ -37,14 +36,6 @@
                     (chartHover)="chartHovered($event)"
                     (chartClick)="chartClicked($event)"></canvas>
         </div>
-
-        <!-- <div class="flex-item">
-          <button mat-button mat-raised-button color="primary" (click)="randomize()">Randomize</button>
-          <button mat-button mat-raised-button color="primary" (click)="pushOne()">Push</button>
-          <button mat-button mat-raised-button color="primary" (click)="changeColor()">Recolor</button>
-          <button mat-button mat-raised-button color="primary" (click)="changeLabel()">Change Label</button>
-        </div> -->
-
     </nb-card>
   </div>
 
