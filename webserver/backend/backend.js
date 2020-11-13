@@ -1,8 +1,12 @@
 const express = require('express')
 const bodyParser = require('body-parser')
 const cors = require('cors')
+const WebSocket = require('ws');
 
 const PORT = 3000;
+const PORT_WEBSOCKETS = 81;
+
+
 
 const app = express();
 
@@ -53,3 +57,108 @@ app.post('/gpio', function(req, res){
 app.listen(PORT, function(req, res){
   console.log("Server running on localhost:" + PORT);
 });
+
+
+
+
+// Websockets:
+
+const wss = new WebSocket.Server({ port: PORT_WEBSOCKETS });
+console.log('Websockets running on localhost:' + PORT_WEBSOCKETS);
+
+
+wss.on('connection', ws => {
+  console.log('Client connected');
+
+  // setInterval(function (){
+    //   // const data = '{"hello": "world"}'
+    //   const data = '{"data": [{"TradeId": "1","TradeDate": "11/02/2016","BuySell": "Sell","Notional": "50000000","Coupon": "500","Currency": "EUR","Ticker": "LINDE","ShortName": "Linde AG","MaturityDate": "20/03/2023","Sector": "Basic Materials","Trader": "Yael Rich","Status": "Pending"}]}'
+    //   console.log('Sending data %s', data);
+    //   wss.emit('message', data)
+    // }, 500);
+
+  const id = setInterval(function () {
+  // ws.send(JSON.stringify(process.memoryUsage()), function () {
+  //     //
+  //     // Ignore errors.
+  //     //
+  //   });
+  ws.send('{"heap_free":' + Math.floor(Math.random() * (22000 - 18000) + 18000)+
+        ', "heap_free2":' + Math.floor(Math.random() * (22000 - 18000) + 18000)+
+        ', "heap_free3":' + Math.floor(Math.random() * (22000 - 18000) + 18000)+
+        ', "heap_free4":' + Math.floor(Math.random() * (22000 - 18000) + 18000)+
+        ', "heap_free5":' + Math.floor(Math.random() * (22000 - 18000) + 18000)+
+        ', "heap_free6":' + Math.floor(Math.random() * (22000 - 18000) + 18000) + '}');
+  // ws.send('{"heap_free2":' + Math.floor(Math.random() * (22000 - 18000) + 18000) + ' }');
+
+  }, 100);
+
+  ws.isAlive = true;
+
+  // Socket pong:
+  ws.on('pong', () => {
+      ws.isAlive = true;
+  });
+
+  // New Socket message:
+  ws.on('message', message => {
+    //log the received message and send it back to the client
+    console.log('received: %s', message);
+    // ws.send(`Hello, you sent -> ${message}`);
+
+    // console.log(typeof(message));
+    var messageObject;
+    try {
+      messageObject = JSON.parse(message);
+    } catch (e) {
+      return console.error(e);
+    }
+    console.log(messageObject.hasOwnProperty('broadcast'));
+
+    // To send to all the listeners if a client send: 'broadcast:message'
+    // const broadcastRegex = /^broadcast\:/;
+    // if (broadcastRegex.test(message)) {
+      // message = message.replace(broadcastRegex, '');
+
+    if (messageObject.hasOwnProperty('broadcast')) {
+
+      //send back the message to the other clients
+      wss.clients.forEach(client => {
+        if (client != ws) {
+          // client.send(`Hello, broadcast message -> ${message}`);
+          ws.send(message);
+
+        }
+      });
+
+    } else {
+      // ws.send(`Hello, you sent -> ${message}`);
+        ws.send(message);
+    }
+  });
+
+  // Error Socket:
+  ws.on('error', error => {
+    console.log('received error: %s', error);
+    ws.send(`There was an error -> ${error}`);
+  });
+
+  // Socket closed:
+  ws.on('close', ws=> {
+    console.log('Socket closed: %s', ws);
+    clearInterval(id);
+  });
+
+});
+
+
+// Handle broken WebSocket connections:
+setInterval(() => {
+    wss.clients.forEach( ws => {
+
+        if (!ws.isAlive) return ws.terminate();
+
+        ws.isAlive = false;
+        ws.ping(null, false, true);
+    });
+}, 10000);
