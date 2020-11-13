@@ -115,12 +115,15 @@ void WebConfigServer::parseConfig(const JsonDocument& doc){
 
 
     // Services object:
+    // OTA
+    services.ota = doc["services"]["OTA"] | false;
     // FTP
     services.ftp.enabled = doc["services"]["FTP"]["enabled"] | false;
     services.ftp.user = doc["services"]["FTP"]["user"] | "admin";
     services.ftp.password = doc["services"]["FTP"]["password"] | "admin";
-    // OTA
-    services.ota = doc["services"]["OTA"] | false;
+    // WebSockets
+    services.webSockets.enabled = doc["services"]["WebSockets"]["enabled"] | false;
+    services.webSockets.publish_time_ms = doc["services"]["WebSockets"]["publish_time_ms"] | 100;
     // DeepSleep
     services.deep_sleep.enabled = doc["services"]["deep_sleep"]["enabled"] | false;
     services.deep_sleep.mode = doc["services"]["deep_sleep"]["mode"] | "WAKE_RF_DEFAULT";

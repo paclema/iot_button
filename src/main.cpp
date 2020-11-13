@@ -1,6 +1,7 @@
 #include <Arduino.h>
 
 #define DEBUG_ESP_CORE
+#define ENABLE_SERIAL_DEBUG true
 
 // Used for light sleep
 extern "C" {
@@ -35,9 +36,27 @@ FtpServer ftpSrv;
 WrapperOTA ota;
 
 // Device configurations
+unsigned long currentLoopMillis = 0;
+long previousLoopMillis = 0;
 long previousSensorLoopMillis = 0;
 long previousLoopMainMillis = 0;
 long previousMQTTPublishMillis = 0;
+long previousWSMillis = 0;
+long previousMainLoopMillis = 0;
+
+// Websocket server:
+#include <WrapperWebSockets.h>
+WrapperWebSockets ws;
+
+String getLoopTime(){
+  return String(currentLoopMillis - previousMainLoopMillis);
+}
+
+String getRSSI(){
+  return String(WiFi.RSSI());
+}
+
+String getHeapFragmentation(){ return String(ESP.getHeapFragmentation() );}
 
 // Distance sensor:
 #include "RadarMotor.h"
@@ -62,25 +81,26 @@ void networkRestart(void){
   if(config.status() == CONFIG_LOADED){
     // Config loaded correctly
     if (config.network.ssid_name!=NULL && config.network.ssid_password!=NULL){
-        WiFi.hostname(config.network.hostname);
-        // Connect to Wi-Fi
-        // WiFi.mode(WIFI_STA);
-        WiFi.mode(WIFI_AP_STA);
+      // Configure device hostname:
+      WiFi.hostname(config.network.hostname);
+      // Connect to Wi-Fi
+      // WiFi.mode(WIFI_STA);
+      WiFi.mode(WIFI_AP_STA);
 
-        // Access point config:
-        WiFi.softAP(config.network.ap_name,config.network.ap_password, false);
-        IPAddress myIP = WiFi.softAPIP();
-        Serial.print(config.network.ap_name);Serial.print(" AP IP address: ");
-        Serial.println(myIP);
+      // Access point config:
+      WiFi.softAP(config.network.ap_name,config.network.ap_password, false);
+      IPAddress myIP = WiFi.softAPIP();
+      Serial.print(config.network.ap_name);Serial.print(" AP IP address: ");
+      Serial.println(myIP);
 
-        // Wifi client config:
-        WiFi.begin(config.network.ssid_name, config.network.ssid_password);
-        Serial.print("Connecting to ");Serial.print(config.network.ssid_name);
-        while (WiFi.status() != WL_CONNECTED) {
-          delay(300);
-          Serial.print(".");
-        }
-        Serial.println("");
+      // Wifi client config:
+      WiFi.begin(config.network.ssid_name, config.network.ssid_password);
+      Serial.print("Connecting to ");Serial.print(config.network.ssid_name);
+      while (WiFi.status() != WL_CONNECTED) {
+        delay(300);
+        Serial.print(".");
+      }
+      Serial.println("");
     }
   }
 
@@ -88,7 +108,6 @@ void networkRestart(void){
   Serial.println(WiFi.localIP());
 
 }
-
 
 void enableServices(void){
   Serial.println("--- Services: ");
@@ -104,6 +123,11 @@ void enableServices(void){
     ftpSrv.begin(config.services.ftp.user,config.services.ftp.password);
     Serial.println("   - FTP -> enabled");
   } else Serial.println("   - FTP -> disabled");
+
+  if (config.services.webSockets.enabled){
+    ws.init();
+    Serial.println("   - WebSockets -> enabled");
+  } else Serial.println("   - WebSockets -> disabled");
 
   if (config.services.deep_sleep.enabled){
     // We will enable it on the loop function
@@ -131,7 +155,6 @@ void enableServices(void){
   Serial.println("");
 
 }
-
 
 void callbackMQTT(char* topic, byte* payload, unsigned int length) {
   // Serial.print("Message arrived [");
@@ -269,7 +292,6 @@ void reconnectMQTT() {
   }
 }
 
-
 void reconnect(void) {
   //delay(1000);
   Serial.print("--- Free heap: "); Serial.println(ESP.getFreeHeap());
@@ -291,7 +313,8 @@ void reconnect(void) {
 
 void setup() {
   Serial.begin(115200);
-  Serial.setDebugOutput(true);
+  // Enable wifi diagnostic:
+  Serial.setDebugOutput(ENABLE_SERIAL_DEBUG);
 
   reconnect();
 
@@ -318,14 +341,20 @@ void setup() {
   sensorSetup();
   sensorHead.setup(config.device.angle_accuracy, config.device.servo_speed_ms);
 
+  // Configure some Websockets object to publish to webapp dashboard:
+  if (config.services.webSockets.enabled){
+    ws.addObjectToPublish("loop", getLoopTime);
+    ws.addObjectToPublish("RSSI", getRSSI);
+    ws.addObjectToPublish("Heap_Fragmentation", getHeapFragmentation);
 
+  }
 
   Serial.println("###  Looping time\n");
   previousLoopMainMillis = millis();
 }
 
 void loop() {
-
+  currentLoopMillis = millis();
   //  ----------------------------------------------
   //
   // Config services Loop:
@@ -347,7 +376,13 @@ void loop() {
   // Services loop:
   if (config.services.ota) ota.handle();
   if (config.services.ftp.enabled) ftpSrv.handleFTP();
-
+  if (config.services.webSockets.enabled){
+    ws.handle();
+    if(currentLoopMillis - previousWSMillis > config.services.webSockets.publish_time_ms) {
+      ws.publishClients();
+      previousWSMillis = currentLoopMillis;
+    }
+  }
   if (config.services.deep_sleep.enabled){
     // long time_now = millis();
     if (millis() > connection_time + (config.services.deep_sleep.sleep_delay*1000)){
@@ -370,16 +405,11 @@ void loop() {
 
 
 
-  //  ----------------------------------------------
-  //
-  // Main Loop:
-  //  ----------------------------------------------
-  unsigned long currentLoopMillis = millis();
 
-  int loop_delay = currentLoopMillis - previousLoopMainMillis;
-  // There is usually a loop delay between 0-3ms. However, every mqtt publish message delays around 7ms the loop
-  // Serial.print("Loop time: ");
-  // Serial.println(loop_delay);
+  // Main Loop:
+  if((config.device.loop_time_ms != 0 ) && (currentLoopMillis - previousLoopMillis > config.device.loop_time_ms)) {
+    previousLoopMillis = currentLoopMillis;
+    // Here starts the device loop configured:
 
   sensorHead.moveServo();
   // Sensor reading:
