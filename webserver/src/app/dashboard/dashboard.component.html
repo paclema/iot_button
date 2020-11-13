@@ -4,8 +4,8 @@
   <div class="col-xxxl-3 col-xxl-4 col-lg-4 col-md-6">
     <nb-card>
       <nb-card-header>Websockets comunication</nb-card-header>
-      <button (click)="sendMessage()">Send</button>
-      <button (click)="sendMessageBroadcast()">Send Broadcast</button>
+      <button nbButton outline status="primary" (click)="sendMessage()">Send</button>
+      <button nbButton outline status="primary" (click)="sendMessageBroadcast()">Send Broadcast</button>
     </nb-card>
   </div>
 
@@ -22,7 +22,10 @@
 
   <div class="col-xxxl-12 col-xxl-12 col-md-12">
     <nb-card>
-      <nb-card-header>Realt time data</nb-card-header>
+      <nb-card-header>
+        Realt time data
+        <button nbButton outline status="primary" size="tiny" shape="round" (click)="hideAll()">{{!this.labelsHidden ? 'hide all' : 'show all'}}</button>
+      </nb-card-header>
         <div style="display: block;">
           <!-- <canvas baseChart width="600" height="600" -->
           <canvas baseChart  height="80"

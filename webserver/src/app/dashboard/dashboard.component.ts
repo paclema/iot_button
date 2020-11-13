@@ -1,7 +1,7 @@
 import { Component, OnInit, OnDestroy, ViewChild } from '@angular/core';
 import { webSocket } from "rxjs/webSocket";
 
-import { NbCardModule } from '@nebular/theme';
+import { NbCardModule, NbButtonModule, NbToggleModule } from '@nebular/theme';
 
 import { ChartDataSets, ChartOptions, ChartType } from 'chart.js';
 import { Color, BaseChartDirective, Label } from 'ng2-charts';
@@ -30,6 +30,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
   // dashboardData: JSON;
   dashboardData = {};
+  labelsHidden: boolean = false;
 
   public lineChartMaxlength = 100;
   public lineChartData: ChartDataSets[] = [
@@ -234,6 +235,13 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
   public chartHovered({ event, active }: { event: MouseEvent, active: {}[] }): void {
     console.log(event, active);
+  }
+
+  public hideAll(): void {
+    this.labelsHidden= !this.labelsHidden;
+    for (let index = 0; index < this.lineChartData.length; index++) {
+      this.chart.hideDataset(index, this.labelsHidden);
+    }
   }
 
 
