@@ -60,10 +60,13 @@
   },
   "device": {
     "track_restart_counter": true,
-    "angle_accuracy": 5,
-    "servo_speed_ms/60": 800,
-    "loop_sensor_time_ms": 15,
-    "publish_time_ms":15
+    "loop_time_ms": 20,
+    "publish_time_ms":100
+  },
+  "radar": {
+    "enable_motor": true,
+    "angle_accuracy": 1,
+    "servo_speed_ms/60": 600
   },
   "info": {
     "restart_counter": 0,

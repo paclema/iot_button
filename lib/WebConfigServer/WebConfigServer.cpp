@@ -106,11 +106,11 @@ void WebConfigServer::parseConfig(const JsonDocument& doc){
     mqtt.cert_file= doc["mqtt"]["cert_file"] | "certs/client.crt";
     mqtt.key_file= doc["mqtt"]["key_file"] | "certs/client.key";
     mqtt.ca_file= doc["mqtt"]["ca_file"] | "server_address";
-    for (int i = 0; i < doc["mqtt"]["pub_topic"].size(); i++) { //Iterate through results
+    for (unsigned int i = 0; i < doc["mqtt"]["pub_topic"].size(); i++) { //Iterate through results
       // mqtt.pub_topic[i] = doc["mqtt"]["pub_topic"][i];  //Implicit cast
       mqtt.pub_topic[i] = doc["mqtt"]["pub_topic"][i].as<String>(); //Explicit cast
     }
-    for (int i = 0; i < doc["mqtt"]["sub_topic"].size(); i++)
+    for (unsigned int i = 0; i < doc["mqtt"]["sub_topic"].size(); i++)
       mqtt.sub_topic[i] = doc["mqtt"]["sub_topic"][i].as<String>();
 
 
@@ -127,7 +127,7 @@ void WebConfigServer::parseConfig(const JsonDocument& doc){
     // DeepSleep
     services.deep_sleep.enabled = doc["services"]["deep_sleep"]["enabled"] | false;
     services.deep_sleep.mode = doc["services"]["deep_sleep"]["mode"] | "WAKE_RF_DEFAULT";
-    for (int i = 0; i < doc["services"]["deep_sleep"]["mode_options"].size(); i++) { //Iterate through results
+    for (unsigned int i = 0; i < doc["services"]["deep_sleep"]["mode_options"].size(); i++) { //Iterate through results
       services.deep_sleep.mode_options[i] = doc["services"]["deep_sleep"]["mode_options"][i].as<String>(); //Explicit cast
     }
     services.deep_sleep.sleep_time = doc["services"]["deep_sleep"]["sleep_time"] | 10;
@@ -135,16 +135,20 @@ void WebConfigServer::parseConfig(const JsonDocument& doc){
     // LightSleep
     services.light_sleep.enabled = doc["services"]["light_sleep"]["enabled"] | false;
     services.light_sleep.mode = doc["services"]["light_sleep"]["mode"] | "LIGHT_SLEEP_T";
-    for (int i = 0; i < doc["services"]["light_sleep"]["mode_options"].size(); i++) { //Iterate through results
+    for (unsigned int i = 0; i < doc["services"]["light_sleep"]["mode_options"].size(); i++) { //Iterate through results
       services.light_sleep.mode_options[i] = doc["services"]["light_sleep"]["mode_options"][i].as<String>(); //Explicit cast
     }
 
     // Device object:
     device.track_restart_counter = doc["device"]["track_restart_counter"] | true;
-    device.angle_accuracy = doc["device"]["angle_accuracy"];
-    device.servo_speed_ms = doc["device"]["servo_speed_ms/60"];
     device.loop_time_ms = doc["device"]["loop_time_ms"];
     device.publish_time_ms = doc["device"]["publish_time_ms"];
+
+
+    // Radar object:
+    radar.enable_motor = doc["radar"]["enable_motor"] | false;
+    radar.angle_accuracy = doc["radar"]["angle_accuracy"];
+    radar.servo_speed_ms = doc["radar"]["servo_speed_ms/60"];
 
 
     // Info object:

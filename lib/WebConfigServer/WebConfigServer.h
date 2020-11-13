@@ -92,12 +92,17 @@ public:
 
   struct Device {
     bool track_restart_counter;
-    float angle_accuracy;
-    float servo_speed_ms;
     int loop_time_ms;
     int publish_time_ms;
 
   } device;
+
+  struct Radar {
+    bool enable_motor;
+    float angle_accuracy;
+    float servo_speed_ms;
+
+  } radar;
 
   struct Info {
     int restart_counter;

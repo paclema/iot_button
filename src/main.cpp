@@ -341,7 +341,7 @@ void setup() {
 
   // Device configs:
   sensorSetup();
-  sensorHead.setup(config.device.angle_accuracy, config.device.servo_speed_ms);
+  sensorHead.setup(config.radar.angle_accuracy, config.radar.servo_speed_ms);
 
   // Configure some Websockets object to publish to webapp dashboard:
   if (config.services.webSockets.enabled){
@@ -419,7 +419,7 @@ void loop() {
   //  ----------------------------------------------
   //
 
-  sensorHead.moveServo();
+  if (config.radar.enable_motor) sensorHead.moveServo();
 
   if((config.device.loop_time_ms != 0 ) && (currentLoopMillis - previousLoopMillis > config.device.loop_time_ms)) {
 
@@ -437,7 +437,7 @@ void loop() {
         // Here starts the MQTT publish loop configured:
 
           mqttQueueString += "]}";
-          
+
           String base_topic_pub = "/" + config.mqtt.id_name + "/";
           String topic_pub = base_topic_pub + "data";
           mqttClient.setBufferSize((uint16_t)(mqttQueueString.length() + 100));
