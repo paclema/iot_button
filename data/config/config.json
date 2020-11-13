@@ -7,7 +7,7 @@
     "ip_address": "192.168.1.2",
     "subnet": "255.255.255.0",
     "dns_Server": "192.168.1.1",
-    "hostname": "iotbutton.lan"
+    "hostname": "iotdevice"
   },
   "mqtt": {
     "server": "broker.ddns.net",
@@ -32,12 +32,16 @@
     ]
   },
   "services": {
+    "OTA": true,
     "FTP": {
       "enabled": true,
       "user": "paclema",
       "password": "paclema"
     },
-    "OTA": true,
+    "WebSockets": {
+      "enabled": true,
+      "publish_time_ms": 100
+    },
     "deep_sleep": {
       "enabled": false,
       "mode": "WAKE_RF_DEFAULT",
