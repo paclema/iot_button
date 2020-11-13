@@ -143,7 +143,7 @@ void WebConfigServer::parseConfig(const JsonDocument& doc){
     device.track_restart_counter = doc["device"]["track_restart_counter"] | true;
     device.angle_accuracy = doc["device"]["angle_accuracy"];
     device.servo_speed_ms = doc["device"]["servo_speed_ms/60"];
-    device.loop_sensor_time_ms = doc["device"]["loop_sensor_time_ms"];
+    device.loop_time_ms = doc["device"]["loop_time_ms"];
     device.publish_time_ms = doc["device"]["publish_time_ms"];
 
 

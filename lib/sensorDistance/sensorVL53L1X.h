@@ -15,7 +15,7 @@
 // GND -- GND
 
 
-#define  MAX_INIT_RETRIES    5
+#define  MAX_INIT_RETRIES    20
 
 VL53L1X sensor;
 
@@ -38,7 +38,7 @@ void sensorSetup(void){
 
 
 	if (initRetries <= MAX_INIT_RETRIES) {
-		Serial.println("VL53L1X initialised!");
+		Serial.println("\t --> VL53L1X initialized!");
 		// Use long distance mode and allow up to 50000 us (50 ms) for a measurement.
 	  // You can change these settings to adjust the performance of the sensor, but
 	  // the minimum timing budget is 20 ms for short distance mode and 33 ms for
@@ -56,7 +56,7 @@ void sensorSetup(void){
 	  sensor.startContinuous(20);
 
 	} else {
-		Serial.println("VL53L1X not initialised!");
+		Serial.println("\t -->VL53L1X NOT initialized!");
 		}
 }
 

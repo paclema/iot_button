@@ -13,7 +13,7 @@
 // Don't forget to change the capacity to match your requirements.
 // Use arduinojson.org/assistant to compute the capacity.
 #define CONFIG_FILE "/config/config.json"
-#define CONFIG_JSON_SIZE 3000
+#define CONFIG_JSON_SIZE 4000
 #define MQTT_TOPIC_MAX_SIZE_LIST 10
 #define JSON_MAX_SIZE_LIST 6
 
@@ -94,7 +94,7 @@ public:
     bool track_restart_counter;
     float angle_accuracy;
     float servo_speed_ms;
-    int loop_sensor_time_ms;
+    int loop_time_ms;
     int publish_time_ms;
 
   } device;

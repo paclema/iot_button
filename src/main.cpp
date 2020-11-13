@@ -16,7 +16,7 @@ extern "C" {
 WiFiClientSecure wifiClientSecure;    // To use with mqtt and certificates
 WiFiClient wifiClient;                // To use with mqtt without certificates
 PubSubClient mqttClient;
-long connection_time = millis();
+unsigned long connection_time = millis();
 String mqttQueueString = "{\"data\":[";
 
 // Configuration
@@ -37,19 +37,17 @@ WrapperOTA ota;
 
 // Device configurations
 unsigned long currentLoopMillis = 0;
-long previousLoopMillis = 0;
-long previousSensorLoopMillis = 0;
-long previousLoopMainMillis = 0;
-long previousMQTTPublishMillis = 0;
-long previousWSMillis = 0;
-long previousMainLoopMillis = 0;
+unsigned long previousLoopMillis = 0;
+unsigned long previousLoopMainMillis = 0;
+unsigned long previousMQTTPublishMillis = 0;
+unsigned long previousWSMillis = 0;
 
 // Websocket server:
 #include <WrapperWebSockets.h>
 WrapperWebSockets ws;
 
 String getLoopTime(){
-  return String(currentLoopMillis - previousMainLoopMillis);
+  return String(currentLoopMillis - previousLoopMainMillis);
 }
 
 String getRSSI(){
@@ -57,6 +55,10 @@ String getRSSI(){
 }
 
 String getHeapFragmentation(){ return String(ESP.getHeapFragmentation() );}
+String mqttState(){ return String(mqttClient.state() );}
+String mqttBufferSize(){ return String(mqttClient.getBufferSize() );}
+
+
 
 // Distance sensor:
 #include "RadarMotor.h"
@@ -162,7 +164,7 @@ void callbackMQTT(char* topic, byte* payload, unsigned int length) {
   // Serial.print("] ");
 
   char buff[length + 1];
-  for (int i = 0; i < length; i++) {
+  for (unsigned int i = 0; i < length; i++) {
     //Serial.print((char)payload[i]);
     buff[i] = (char)payload[i];
   }
@@ -346,10 +348,16 @@ void setup() {
     ws.addObjectToPublish("loop", getLoopTime);
     ws.addObjectToPublish("RSSI", getRSSI);
     ws.addObjectToPublish("Heap_Fragmentation", getHeapFragmentation);
+    ws.addObjectToPublish("mqtt_state", mqttState);
+    ws.addObjectToPublish("mqtt_buffer_size", mqttBufferSize);
+
 
   }
 
+
+
   Serial.println("###  Looping time\n");
+
   previousLoopMainMillis = millis();
 }
 
@@ -405,16 +413,15 @@ void loop() {
 
 
 
-
-  // Main Loop:
-  if((config.device.loop_time_ms != 0 ) && (currentLoopMillis - previousLoopMillis > config.device.loop_time_ms)) {
-    previousLoopMillis = currentLoopMillis;
-    // Here starts the device loop configured:
+  //  ----------------------------------------------
+  //
+  //  Main Loop:
+  //  ----------------------------------------------
+  //
 
   sensorHead.moveServo();
-  // Sensor reading:
-  if((config.device.loop_sensor_time_ms != 0 ) && (currentLoopMillis - previousSensorLoopMillis > config.device.loop_sensor_time_ms)) {
-    previousSensorLoopMillis = currentLoopMillis;
+
+  if((config.device.loop_time_ms != 0 ) && (currentLoopMillis - previousLoopMillis > config.device.loop_time_ms)) {
 
     sensorAngle = sensorHead.getFeedbackAngle();
 
@@ -425,38 +432,25 @@ void loop() {
       String msg_pub ="{\"angle\":" + String(sensorAngle) + ", \"distance\" :"+ String(sensorDistance) +"}";
       mqttQueueString += msg_pub;
 
-
       // Publish mqtt sensor feedback:
       if((config.device.publish_time_ms != 0 ) && (currentLoopMillis - previousMQTTPublishMillis > config.device.publish_time_ms)) {
-        previousMQTTPublishMillis = currentLoopMillis;
         // Here starts the MQTT publish loop configured:
 
-        // String base_topic_pub = "/" + config.mqtt.id_name + "/";
-        // String topic_pub = base_topic_pub + "data";
-        //
-        // String msg_pub ="{\"angle\":" + String(sensorAngle) + ", \"distance\" :"+ String(sensorDistance) +"}";
           mqttQueueString += "]}";
-          Serial.println(mqttQueueString);
-
-          // String msg_pub ="{'persons':" + String(sensorDistance) + ", 'distance_1' :" + String(sensorDistance_1) + ", 'distance_2' :"+ String(sensorDistance_2)+" }";
-          // mqttClient.publish(topic_pub.c_str(), msg_pub.c_str());
-
+          
           String base_topic_pub = "/" + config.mqtt.id_name + "/";
           String topic_pub = base_topic_pub + "data";
           mqttClient.setBufferSize((uint16_t)(mqttQueueString.length() + 100));
           mqttClient.publish(topic_pub.c_str(), mqttQueueString.c_str(), mqttQueueString.length());
-          // Serial.println("MQTT published: " + msg_pub + " -- loop: " + config.device.publish_time_ms);
+          // Serial.println("MQTT published: " + mqttQueueString);
 
           mqttQueueString = "{\"data\":[";
+          previousMQTTPublishMillis = currentLoopMillis;
       } else {
         mqttQueueString += ",";
       }
-
     }
-
-
-
+    previousLoopMillis = currentLoopMillis;
   }
-
   previousLoopMainMillis = currentLoopMillis;
 }
