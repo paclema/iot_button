@@ -169,24 +169,33 @@
             <ng-container *ngIf="typeConfig(configparam.value.value) == 'object' ">
               <div formGroupName="{{configparam.key}}" id='{{configparam.key}}' class="form-group col-md-3">
 
-                <nb-card>
-                  <nb-card-header>{{configparam.key.charAt(0).toUpperCase() + (configparam.key.slice(1) | replaceUnderscore)}}</nb-card-header>
+                <nb-card accent="info" status="basic">
                   <!-- {{log(configTabsForm.get(tabname.key.configparam))}} -->
                   <ng-container *ngFor="let nestedconfigparam of configTabsForm['controls'][tabname.key]['controls'][configparam.key]['controls'] | keyvalue : returnZero; first as isFirst; index as index">
-                    <div >
-                      <!-- {{nestedconfigparam.key }}
-                      {{nestedconfigparam.value.value }} -->
 
-                      <label class="control-label col-md-12 font-weight-bold" for={{nestedconfigparam.key}}>{{nestedconfigparam.key.charAt(0).toUpperCase() + (nestedconfigparam.key.slice(1) | replaceUnderscore)}}</label>
-                       <div id='{{tabname.key + "_" + configparam.key + "_" + nestedconfigparam.key + "_input"}}' class="col-md-12">
-                        <input  id='{{configparam.key + "_" + nestedconfigparam.key}}' [class.is-invalid]="nestedconfigparam.value.invalid && nestedconfigparam.value.touched"
-                        name={{nestedconfigparam.key}} type="{{nestedconfigparam.key.includes('password') ? 'password' : 'text'}}"
-                        placeholder={{nestedconfigparam.key}} class="form-control input-md" value="{{nestedconfigparam.value.value}}"
-                        formControlName="{{nestedconfigparam.key}}">
-                        <small class="text-danger" [class.d-none]="nestedconfigparam.value.valid || nestedconfigparam.value.untouched">{{nestedconfigparam.key}} is required</small>
-                      </div>
+                    <ng-container *ngIf="isFirst; else elseBlock">
+                      <nb-card-header>
+                        <nb-toggle formControlName="{{nestedconfigparam.key}}" labelPosition="left">
+                          {{configparam.key.charAt(0).toUpperCase() + (configparam.key.slice(1) | replaceUnderscore)}}
+                        </nb-toggle>
+                      </nb-card-header>
+                    </ng-container>
 
-                    </div>
+                    <ng-template #elseBlock>
+                        <!-- {{nestedconfigparam.key }}
+                        {{nestedconfigparam.value.value }} -->
+                        <nb-card-body>
+                        <label class="control-label font-weight-bold" for={{nestedconfigparam.key}}>{{nestedconfigparam.key.charAt(0).toUpperCase() + (nestedconfigparam.key.slice(1) | replaceUnderscore)}}</label>
+                         <div id='{{tabname.key + "_" + configparam.key + "_" + nestedconfigparam.key + "_input"}}' >
+                          <input  id='{{configparam.key + "_" + nestedconfigparam.key}}' [class.is-invalid]="nestedconfigparam.value.invalid && nestedconfigparam.value.touched"
+                          name={{nestedconfigparam.key}} type="{{nestedconfigparam.key.includes('password') ? 'password' : 'text'}}"
+                          placeholder={{nestedconfigparam.key}} class="form-control input-md" value="{{nestedconfigparam.value.value}}"
+                          formControlName="{{nestedconfigparam.key}}">
+                          <small class="text-danger" [class.d-none]="nestedconfigparam.value.valid || nestedconfigparam.value.untouched">{{nestedconfigparam.key}} is required</small>
+                        </div>
+                        </nb-card-body>
+                    </ng-template>
+
                   </ng-container>
                 </nb-card>
               </div>
