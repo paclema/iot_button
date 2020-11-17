@@ -302,7 +302,24 @@ export class ConfigTabsComponent implements OnInit {
       let newTabForm = this.fb.group({});
       for(let ind in configTabs[tab]) {
         // newTabForm.addControl(ind, this.fb.control(configTabs[tab][ind]));
-        newTabForm.addControl(ind, this.fb.control(configTabs[tab][ind], Validators.required));
+        // if(this.isArray(configTabs[tab][ind]))
+        // console.log('ind:'+ ind + ' -> ' + configTabs[tab][ind] + ' -> '+ this.isObject(configTabs[tab][ind]));
+
+        // If the value is another nested object, create another FormGroup with FormControls for each key:
+        if(this.isObject(configTabs[tab][ind])){
+          // console.log('ind:'+ ind + ' -> ' + configTabs[tab][ind] + ' is an obejct-> '+ this.isObject(configTabs[tab][ind]));
+          let nestedConfigForm = this.fb.group({});
+          for(let ind2 in configTabs[tab][ind]) {
+            // Create nested FormControls with validator:
+            nestedConfigForm.addControl(ind2, this.fb.control(configTabs[tab][ind][ind2], Validators.required));
+          }
+          // Add the nested FormGroup to the tab FormGroup:
+          newTabForm.addControl(ind, nestedConfigForm);
+
+        } else {
+          newTabForm.addControl(ind, this.fb.control(configTabs[tab][ind], Validators.required));
+        }
+
       }
       // console.log('newTabForm: ');
       // console.log(newTabForm);
@@ -325,7 +342,12 @@ export class ConfigTabsComponent implements OnInit {
   isNumber(val): boolean { return typeof val === 'number'; }
   isString(val): boolean { return typeof val === 'string'; }
   isBoolean(val): boolean { return typeof val === 'boolean'; }
-  isObject(val): boolean { return typeof val === 'object'; }
+  isArray(val): boolean {
+    if (Array.isArray(val)) return true;
+    return false; }
+  isObject(val): boolean {
+    if (Array.isArray(val)) return false
+    return typeof val === 'object'; }
   isFile(key): boolean {
     if (key.includes("file")) {
       return true;
@@ -343,6 +365,8 @@ export class ConfigTabsComponent implements OnInit {
       return 'string';
     } else if (this.isBoolean(obj)) {
       return 'boolean';
+    } else if (this.isArray(obj)) {
+      return 'array';
     } else if (this.isObject(obj)) {
       return 'object';
     } else
