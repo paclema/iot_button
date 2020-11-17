@@ -97,11 +97,35 @@ public:
 
   } device;
 
-  struct Radar {
-    bool enable_motor;
+  struct RadarMotor {
+    bool enabled;
     float angle_accuracy;
     float servo_speed_ms;
+  };
 
+  struct HCSR04 {
+    bool enabled;
+    float time_budget_ms;
+  };
+
+  struct Vl53l1X {
+    bool enabled;
+    float time_budget_ms;
+    String distance_mode;
+    String distance_mode_options[JSON_MAX_SIZE_LIST];
+  };
+
+  struct ROI {
+    bool enabled;
+    int zones;
+
+  };
+
+  struct Radar {
+    RadarMotor motor;
+    HCSR04 hcsr04;
+    Vl53l1X vl53l1x;
+    ROI roi;
   } radar;
 
   struct Info {

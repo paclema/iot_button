@@ -111,6 +111,37 @@ void networkRestart(void){
 
 }
 
+void enableRadarServices(void){
+  Serial.println("--- Radar: ");
+
+  // Motor:
+  if (config.radar.motor.enabled){
+    Serial.println("   - Motor -> enabled");
+  } else Serial.println("   - Motor -> disabled");
+  sensorHead.setup(config.radar.motor.angle_accuracy, config.radar.motor.servo_speed_ms);
+
+  // HCSR04 sensor:
+  if (config.radar.hcsr04.enabled){
+    // sensorSetup();
+    Serial.println("   - HCSR04 -> enabled");
+  } else Serial.println("   - HCSR04 -> disabled");
+
+  // VL53L1X sensor:
+  if (config.radar.vl53l1x.enabled){
+    Serial.println("   - VL53L1X -> enabled");
+    sensorSetup();
+  } else Serial.println("   - VL53L1X -> disabled");
+
+  // ROI VL53L1X sensor:
+  if (config.radar.roi.enabled){
+    Serial.println("   - ROI -> enabled");
+  } else Serial.println("   - ROI -> disabled");
+
+
+  Serial.println("");
+
+}
+
 void enableServices(void){
   Serial.println("--- Services: ");
 
@@ -305,6 +336,9 @@ void reconnect(void) {
   // Enable services:
   enableServices();
 
+  // Enable Radar services:
+  enableRadarServices();
+
   // Configure MQTT broker:
   initMQTT();
   if (config.mqtt.reconnect_mqtt)
@@ -339,9 +373,6 @@ void setup() {
   }
 
 
-  // Device configs:
-  sensorSetup();
-  sensorHead.setup(config.radar.angle_accuracy, config.radar.servo_speed_ms);
 
   // Configure some Websockets object to publish to webapp dashboard:
   if (config.services.webSockets.enabled){
@@ -353,7 +384,6 @@ void setup() {
 
 
   }
-
 
 
   Serial.println("###  Looping time\n");
@@ -412,15 +442,16 @@ void loop() {
   }
 
 
+  // Radar services loop:
+  if (config.radar.motor.enabled) sensorHead.moveServo();
+
+
 
   //  ----------------------------------------------
   //
   //  Main Loop:
   //  ----------------------------------------------
   //
-
-  if (config.radar.enable_motor) sensorHead.moveServo();
-
   if((config.device.loop_time_ms != 0 ) && (currentLoopMillis - previousLoopMillis > config.device.loop_time_ms)) {
 
     sensorAngle = sensorHead.getFeedbackAngle();

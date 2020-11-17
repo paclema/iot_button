@@ -16,7 +16,7 @@
     }
     time_between_servo_writes = angleAccuracy * servoSpeed;
 
-    Serial.print("MIN_MS_PER_GRAD:");
+    Serial.print("\tMIN_MS_PER_GRAD:");
     Serial.print(MIN_MS_PER_GRAD);
     Serial.print(" servoSpeed:");
     Serial.print(servoSpeed);
@@ -86,12 +86,13 @@
       delay(TIME_TO_TRAVEL_RANGE*4);
       highEnd = getFeedback();
 
-      Serial.print("START_ANGLE= ");
-      Serial.print(lowEnd);
-      Serial.print(" ");
-      Serial.print("END_ANGLE= ");
-      Serial.println(highEnd);
-
+      if (debug){
+        Serial.print("START_ANGLE= ");
+        Serial.print(lowEnd);
+        Serial.print(" ");
+        Serial.print("END_ANGLE= ");
+        Serial.println(highEnd);
+      }
     }
 
     float RadarMotor::getFeedback(void){

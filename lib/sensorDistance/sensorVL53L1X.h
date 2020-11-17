@@ -26,7 +26,7 @@ void sensorSetup(void){
   Wire.setClock(400000); // use 400 kHz I2C
 
 	sensor.setTimeout(500);
-	Serial.println("Initialising VL53L1X sensor");
+	Serial.println("\tInitialising VL53L1X sensor");
 
 	int initRetries = 0;
 	while (!sensor.init() && initRetries <= MAX_INIT_RETRIES) {

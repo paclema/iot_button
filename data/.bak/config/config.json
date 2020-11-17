@@ -69,9 +69,30 @@
     "publish_time_ms":100
   },
   "radar": {
-    "enable_motor": true,
-    "angle_accuracy": 1,
-    "servo_speed_ms/60": 600
+    "motor":{
+      "enabled": false,
+      "angle_accuracy": 1,
+      "servo_speed_ms/60": 600
+    },
+    "HCSR04":{
+      "enabled": false,
+      "time_budget_ms": 50
+    },
+    "vl53l1x": {
+      "enabled": true,
+      "time_budget_ms": 20,
+      "distance_mode": "Short",
+      "distance_mode_options": [
+        "Short",
+        "Medium",
+        "Long",
+        "Unknown"
+      ]
+    },
+    "ROI": {
+      "enabled": false,
+      "zones" : 4
+    }
   },
   "info": {
     "restart_counter": 0,
