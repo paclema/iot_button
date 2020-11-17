@@ -152,17 +152,52 @@
               </div>
             </ng-container>
 
-            <ng-container *ngIf="typeConfig(configparam.value.value) == 'object' ">
+            <ng-container *ngIf="typeConfig(configparam.value.value) == 'array' ">
               <div id='{{tabname.key + "_" + configparam.key + "_form"}}' class="form-group col-md-3">
                 <label class="control-label col-md-12 font-weight-bold" for={{tabname.key}}>{{configparam.key.charAt(0).toUpperCase() + (configparam.key.slice(1) | replaceUnderscore)}}</label>
                 <div id='{{tabname.key + "_" + configparam.key + "_input"}}' class="col-md-12">
                   <input [readonly]="tabname.key.toLowerCase() == 'info' ? 'readonly' : null" id={{configparam.key}}
                   [class.is-invalid]="configparam.value.invalid && configparam.value.touched"
                   name={{configparam.key}} type="{{configparam.key.includes('password') ? 'password' : 'text'}}"
-                  placeholder={{configparam.key}} class="form-control input-md" value="{{configparam.value.value | json}}"
+                  placeholder={{configparam.key}} class="form-control input-md" value={{configparam.value}}
                   formControlName="{{configparam.key}}">
                   <small class="text-danger" [class.d-none]="configparam.value.valid || configparam.value.untouched">{{configparam.key}} is required</small>
                 </div>
+              </div>
+            </ng-container>
+
+            <ng-container *ngIf="typeConfig(configparam.value.value) == 'object' ">
+              <div formGroupName="{{configparam.key}}" id='{{configparam.key}}' class="form-group col-md-3">
+
+                <nb-card accent="info" status="basic">
+                  <!-- {{log(configTabsForm.get(tabname.key.configparam))}} -->
+                  <ng-container *ngFor="let nestedconfigparam of configTabsForm['controls'][tabname.key]['controls'][configparam.key]['controls'] | keyvalue : returnZero; first as isFirst; index as index">
+
+                    <ng-container *ngIf="isFirst; else elseBlock">
+                      <nb-card-header>
+                        <nb-toggle formControlName="{{nestedconfigparam.key}}" labelPosition="left">
+                          {{configparam.key.charAt(0).toUpperCase() + (configparam.key.slice(1) | replaceUnderscore)}}
+                        </nb-toggle>
+                      </nb-card-header>
+                    </ng-container>
+
+                    <ng-template #elseBlock>
+                        <!-- {{nestedconfigparam.key }}
+                        {{nestedconfigparam.value.value }} -->
+                        <nb-card-body>
+                        <label class="control-label font-weight-bold" for={{nestedconfigparam.key}}>{{nestedconfigparam.key.charAt(0).toUpperCase() + (nestedconfigparam.key.slice(1) | replaceUnderscore)}}</label>
+                         <div id='{{tabname.key + "_" + configparam.key + "_" + nestedconfigparam.key + "_input"}}' >
+                          <input  id='{{configparam.key + "_" + nestedconfigparam.key}}' [class.is-invalid]="nestedconfigparam.value.invalid && nestedconfigparam.value.touched"
+                          name={{nestedconfigparam.key}} type="{{nestedconfigparam.key.includes('password') ? 'password' : 'text'}}"
+                          placeholder={{nestedconfigparam.key}} class="form-control input-md" value="{{nestedconfigparam.value.value}}"
+                          formControlName="{{nestedconfigparam.key}}">
+                          <small class="text-danger" [class.d-none]="nestedconfigparam.value.valid || nestedconfigparam.value.untouched">{{nestedconfigparam.key}} is required</small>
+                        </div>
+                        </nb-card-body>
+                    </ng-template>
+
+                  </ng-container>
+                </nb-card>
               </div>
             </ng-container>
 
@@ -197,7 +232,7 @@
 </div>
 
 <!-- Alerts -->
-<ng-container *ngIf="errorMsgPost"><hr /><div class="alert alert-danger fixed-bottom alert-dismissible fade show"
+<ng-container *ngIf="errorMsgPost"><div class="alert alert-danger fixed-bottom alert-dismissible fade show"
     role="alert" style="width:50%; "><strong>Error: </strong>{{errorMsgPost}}
     <button type="button" class="close" data-dismiss="alert" aria-label="Close">
       <span aria-hidden="true">&times;</span>
@@ -205,7 +240,7 @@
     </div>
 </ng-container>
 
-<ng-container *ngIf="dataMsgPost"><hr /><div class="alert alert-success fixed-bottom alert-dismissible fade show"
+<ng-container *ngIf="dataMsgPost"><div class="alert alert-success fixed-bottom alert-dismissible fade show"
     role="alert" style="width:50%; "><strong>Msg: </strong>{{dataMsgPost.message}}
     <button type="button" class="close" data-dismiss="alert" aria-label="Close">
       <span aria-hidden="true">&times;</span>
