@@ -7,6 +7,10 @@ float originX = 0;
 float originY = 0;
 
 float maxDistance = 1200;
+float angleSensorFOV = 27/2;
+
+boolean shadowFOV = true;
+
 
 int angle, dist;
 
@@ -38,7 +42,7 @@ void setup() {
 void draw() {
 
                             //for the blur effect
-  fill(0,1);              //colour,opacity
+  fill(0,5);              //colour,opacity
   noStroke();
   rect(0, 0, width, height*0.93);
 
@@ -47,6 +51,7 @@ void draw() {
   rect(0,height*0.93,width,height);
 
   drawRadar();
+  if (shadowFOV) drawTriangle(angle, dist);
   drawLine(angle, dist);
   drawObject(angle, dist);
   drawText();
@@ -194,6 +199,30 @@ void drawLine(int angle, int dist) {
 
 }
 
+void drawTriangle(int angle, int dist) {
+
+    pushMatrix();
+
+    // strokeWeight(3);
+    stroke(0,0,255);
+    // translate(width/2,height-height*0.06);
+    translate(originX,originY);
+
+    float map_distance=map(dist, 0, maxDistance, 0, width/2);
+    float posX_a=(cos(radians(angle-angleSensorFOV)))*width/2;
+    float posY_a=(sin(radians(angle-angleSensorFOV)))*width/2;
+
+    float posX_b=(cos(radians(angle+angleSensorFOV)))*width/2;
+    float posY_b=(sin(radians(angle+angleSensorFOV)))*width/2;
+
+
+    fill(0, 0, 255);
+    triangle(0,0,posX_a,-posY_a, posX_b, -posY_b );
+
+
+    popMatrix();
+
+}
 
 void drawObject(int angle, int dist) {
 
