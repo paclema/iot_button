@@ -456,6 +456,9 @@ void loop() {
 
     sensorAngle = sensorHead.getFeedbackAngle();
 
+    // Serial.println(getSensorRange());
+    printSensorStatus();
+
     // If measure is not available, mqtt is not sent:
     if (sensorRead(sensorDistance)){
 
