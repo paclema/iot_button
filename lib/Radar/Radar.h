@@ -45,6 +45,7 @@ public:
   void printStatus(void);
   float getPosition(void);
   bool getDistance(float &distance);
+  bool getPoints(float *distances, float *angles);
 
 
 };

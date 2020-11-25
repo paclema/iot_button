@@ -35,6 +35,9 @@ void Radar::parseWebConfig(JsonObjectConst configObject){
   // this->roi.enabled = configObject["ROI"]["enabled"] | false;
   // this->roi.zones = configObject["ROI"]["zones"];
 
+  // After new configurations, reconfigure the radar objects to apply new changes:
+  Radar::enableRadarServices();
+
 
 };
 
@@ -87,11 +90,24 @@ void Radar::printStatus(void){
 
 
 float Radar::getPosition(void){
-  return motor.getFeedbackAngle();
+  return this->motor.getFeedbackAngle();
 };
 
 
 bool Radar::getDistance(float &distance){
-  // return sensorRead(distance);
-  return sensorDistance.sensorRead(distance);
+  return this->sensorDistance.sensorRead(distance);
+};
+
+
+bool Radar::getPoints(float *distances, float *angles){
+  // Depending the sensorDistance type we can get several distances each time
+  // Construct here the list to pass back to the main()
+  float angle = this->motor.getFeedbackAngle();
+  float distance;
+  int sizeDistances = this->sensorDistance.sensorRead(distance);
+  // float distancesNew[sizeDistances];
+  // float anglesNew[sizeDistances];
+
+  if (sizeDistances >= 0) return true;
+  else return false;
 };
