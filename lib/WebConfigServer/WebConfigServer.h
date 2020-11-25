@@ -3,6 +3,9 @@
 
 #include <Arduino.h>
 
+#include <LinkedList.h>
+#include "IWebConfig.h"
+
 #include <ESP8266WebServer.h>
 #include <FS.h>
 
@@ -19,6 +22,7 @@
 
 #define CONFIG_LOADED "loaded"
 #define CONFIG_NOT_LOADED "not_loaded"
+
 
 
 class WebConfigServer {
@@ -145,7 +149,14 @@ public:
 
   String status(void) { return config_status;};
 
+  void addConfig(IWebConfig* config, String nameObject);
+
+
 private:
+
+  LinkedList<IWebConfig*> configs = LinkedList<IWebConfig*>();
+  
+  void parseIWebConfig(const JsonDocument& doc);
 
   String formatBytes(size_t bytes);
 
