@@ -143,26 +143,7 @@ void WebConfigServer::parseConfig(const JsonDocument& doc){
     device.track_restart_counter = doc["device"]["track_restart_counter"] | true;
     device.loop_time_ms = doc["device"]["loop_time_ms"];
     device.publish_time_ms = doc["device"]["publish_time_ms"];
-
-
-    // Radar object:
-    radar.motor.enabled = doc["radar"]["motor"]["enabled"] | false;
-    radar.motor.angle_accuracy = doc["radar"]["motor"]["angle_accuracy"];
-    radar.motor.servo_speed_ms = doc["radar"]["motor"]["servo_speed_ms/60"];
-
-    radar.hcsr04.enabled = doc["radar"]["HCSR04"]["enabled"] | true;
-    radar.hcsr04.time_budget_ms = doc["radar"]["HCSR04"]["time_budget_ms"];
-
-    radar.vl53l1x.enabled = doc["radar"]["vl53l1x"]["enabled"] | true;
-    radar.vl53l1x.time_budget_ms = doc["radar"]["vl53l1x"]["time_budget_ms"];
-    radar.vl53l1x.distance_mode = doc["radar"]["vl53l1x"]["distance_mode"] | "Short" ;
-    for (unsigned int i = 0; i < doc["radar"]["vl53l1x"]["distance_mode_options"].size(); i++) { //Iterate through results
-      radar.vl53l1x.distance_mode_options[i] = doc["radar"]["vl53l1x"]["distance_mode_options"][i].as<String>(); //Explicit cast
-    }
-
-    radar.roi.enabled = doc["radar"]["ROI"]["enabled"] | false;
-    radar.roi.zones = doc["radar"]["ROI"]["zones"];
-
+    
 
     // Info object:
     info.restart_counter = doc["info"]["ftp"]["enabled"] | false;

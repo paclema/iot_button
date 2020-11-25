@@ -60,22 +60,10 @@ String mqttBufferSize(){ return String(mqttClient.getBufferSize() );}
 
 
 
-// Distance sensor:
-#include "RadarMotor.h"
-RadarMotor sensorHead;
-
-// Choose one sensor library:
-// #include "sensorVL53L0X.h"
-#include "sensorVL53L1X.h"
-// #include "sensorHCSR04.h"
-
-// #include "sensorVL53L1X_ROI.h"
-
-
-float sensorAngle=0;
-float sensorDistance=0;
-float sensorDistance_1=0;
-float sensorDistance_2=0;
+// Radar:
+#include "Radar.h"
+// Radar *radar =  new radar("radar");
+Radar radar;
 
 
 
@@ -108,37 +96,6 @@ void networkRestart(void){
 
   // Print Local IP Address
   Serial.println(WiFi.localIP());
-
-}
-
-void enableRadarServices(void){
-  Serial.println("--- Radar: ");
-
-  // Motor:
-  if (config.radar.motor.enabled){
-    Serial.println("   - Motor -> enabled");
-  } else Serial.println("   - Motor -> disabled");
-  sensorHead.setup(config.radar.motor.angle_accuracy, config.radar.motor.servo_speed_ms);
-
-  // HCSR04 sensor:
-  if (config.radar.hcsr04.enabled){
-    // sensorSetup();
-    Serial.println("   - HCSR04 -> enabled");
-  } else Serial.println("   - HCSR04 -> disabled");
-
-  // VL53L1X sensor:
-  if (config.radar.vl53l1x.enabled){
-    Serial.println("   - VL53L1X -> enabled");
-    sensorSetup();
-  } else Serial.println("   - VL53L1X -> disabled");
-
-  // ROI VL53L1X sensor:
-  if (config.radar.roi.enabled){
-    Serial.println("   - ROI -> enabled");
-  } else Serial.println("   - ROI -> disabled");
-
-
-  Serial.println("");
 
 }
 
@@ -329,6 +286,9 @@ void reconnect(void) {
   //delay(1000);
   Serial.print("--- Free heap: "); Serial.println(ESP.getFreeHeap());
 
+  // Add radar object into WebConfigServer IWebCOnfig object list to parse its configurations from config.json
+  config.addConfig(&radar, "radar");
+
   config.begin();
   networkRestart();
   config.configureServer(&server);
@@ -337,7 +297,7 @@ void reconnect(void) {
   enableServices();
 
   // Enable Radar services:
-  enableRadarServices();
+  radar.enableRadarServices();
 
   // Configure MQTT broker:
   initMQTT();
@@ -443,7 +403,7 @@ void loop() {
 
 
   // Radar services loop:
-  if (config.radar.motor.enabled) sensorHead.moveServo();
+  radar.loop();
 
 
 
@@ -454,16 +414,17 @@ void loop() {
   //
   if((config.device.loop_time_ms != 0 ) && (currentLoopMillis - previousLoopMillis > config.device.loop_time_ms)) {
 
-    sensorAngle = sensorHead.getFeedbackAngle();
-
-    // Serial.println(getSensorRange());
-    printSensorStatus();
-
-    // If measure is not available, mqtt is not sent:
-    if (sensorRead(sensorDistance)){
+    float radarAngle = 0;
+    float radarDistance = 0;
+    radarAngle = radar.getPosition();
+    radar.printStatus();
 
 
-      String msg_pub ="{\"angle\":" + String(sensorAngle) + ", \"distance\" :"+ String(sensorDistance) +"}";
+    // If radar measure is not available, mqtt is not sent:
+    if (radar.getDistance(radarDistance)){
+
+
+      String msg_pub ="{\"angle\":" + String(radarAngle) + ", \"distance\" :"+ String(radarDistance) +"}";
       mqttQueueString += msg_pub;
 
       // Publish mqtt sensor feedback:

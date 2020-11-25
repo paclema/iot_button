@@ -79,6 +79,7 @@
     },
     "vl53l1x": {
       "enabled": true,
+      "debug": true,
       "time_budget_ms": 20,
       "distance_mode": "Short",
       "distance_mode_options": [

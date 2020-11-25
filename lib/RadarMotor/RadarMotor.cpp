@@ -5,10 +5,8 @@
   };
 
 
-  void RadarMotor::setup(float angle_accuracy, float servo_speed_ms){
-    servoIncrement = angle_accuracy;
-    angleAccuracy = angle_accuracy;
-    servoSpeed = servo_speed_ms/60;
+  void RadarMotor::setup(){
+    servoIncrement = angleAccuracy;
     servoPos = START_ANGLE;
 
     if (servoSpeed <= MIN_MS_PER_GRAD){

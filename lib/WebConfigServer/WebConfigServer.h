@@ -41,8 +41,6 @@ public:
     String subnet;
     String dns_server;
     String hostname;
-
-
   } network;
 
   struct Mqtt {
@@ -98,45 +96,12 @@ public:
     bool track_restart_counter;
     int loop_time_ms;
     int publish_time_ms;
-
   } device;
-
-  struct RadarMotor {
-    bool enabled;
-    float angle_accuracy;
-    float servo_speed_ms;
-  };
-
-  struct HCSR04 {
-    bool enabled;
-    float time_budget_ms;
-  };
-
-  struct Vl53l1X {
-    bool enabled;
-    float time_budget_ms;
-    String distance_mode;
-    String distance_mode_options[JSON_MAX_SIZE_LIST];
-  };
-
-  struct ROI {
-    bool enabled;
-    int zones;
-
-  };
-
-  struct Radar {
-    RadarMotor motor;
-    HCSR04 hcsr04;
-    Vl53l1X vl53l1x;
-    ROI roi;
-  } radar;
 
   struct Info {
     int restart_counter;
     String fw_version;
     String repo;
-
   } info;
 
 
@@ -155,7 +120,7 @@ public:
 private:
 
   LinkedList<IWebConfig*> configs = LinkedList<IWebConfig*>();
-  
+
   void parseIWebConfig(const JsonDocument& doc);
 
   String formatBytes(size_t bytes);

@@ -15,7 +15,6 @@
     "user_name": "user_name",
     "user_password": "user_password",
     "port": 1883,
-    "id_name": "iot-button",
     "reconnect_mqtt": false,
     "enable_user_and_pass": true,
     "enable_certificates": false,
@@ -80,6 +79,7 @@
     },
     "vl53l1x": {
       "enabled": true,
+      "debug": true,
       "time_budget_ms": 20,
       "distance_mode": "Short",
       "distance_mode_options": [

@@ -24,8 +24,6 @@ class RadarMotor{
   float servoIncrement = 0;
   float servoPos = START_ANGLE;
   int reverseIncrement = 1;
-  float servoSpeed = 0;
-  float angleAccuracy = 0;
 
   long previousServoMillis = 0;
   int timeSinceLastMove = 0;
@@ -46,9 +44,13 @@ class RadarMotor{
   boolean debug = false;
 
   public:
+  bool enabled;
+  float angleAccuracy = 0;
+  float servoSpeed = 0;
+
   RadarMotor(void);
 
-  void setup(float angle_accuracy, float servo_speed_ms);
+  void setup();
 
   void testMovement(void);
   void printData(int i);
