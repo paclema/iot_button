@@ -169,8 +169,9 @@ void WebConfigServer::parseIWebConfig(const JsonDocument& doc){
   IWebConfig *config ;
   for(int i = 0; i < configs.size(); i++){
     config = configs.get(i);
-
-    config->parseWebConfig(doc);
+    // JsonObjectConst configObject = doc[config->nameConfigObject];
+    // config->parseWebConfig(configObject);
+    config->parseWebConfig(doc[config->nameConfigObject]);
     Serial.print("IWebConfig Object parsed for: ");
     Serial.println(config->nameConfigObject);
 

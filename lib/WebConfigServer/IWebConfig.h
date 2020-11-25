@@ -11,7 +11,7 @@ class IWebConfig {
 public:
   String nameConfigObject;
 
-  virtual void parseWebConfig(const JsonDocument& doc) =0;
+  virtual void parseWebConfig(JsonObjectConst configObject) = 0;
 
   // virtual void parseWebConfig(const JsonDocument& doc){
     //   Serial.println("parsing on BaseObject...");
