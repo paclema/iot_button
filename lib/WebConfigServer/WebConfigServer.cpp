@@ -154,6 +154,30 @@ void WebConfigServer::parseConfig(const JsonDocument& doc){
 }
 
 
+void WebConfigServer::addConfig(IWebConfig* config, String nameObject){
+  config->nameConfigObject = nameObject;
+  this->configs.add(config);
+  Serial.print("IWebConfig Object added for: ");
+  Serial.println(config->nameConfigObject);
+};
+
+
+void WebConfigServer::parseIWebConfig(const JsonDocument& doc){
+  Serial.print("List IWebConfig Objects size: ");
+  Serial.println(configs.size());
+
+  IWebConfig *config ;
+  for(int i = 0; i < configs.size(); i++){
+    config = configs.get(i);
+
+    config->parseWebConfig(doc);
+    Serial.print("IWebConfig Object parsed for: ");
+    Serial.println(config->nameConfigObject);
+
+  }
+};
+
+
 // Loads the configuration from a file
 void WebConfigServer::loadConfigurationFile(const char *filename){
   // Open file for reading
@@ -170,7 +194,10 @@ void WebConfigServer::loadConfigurationFile(const char *filename){
     Serial.println(F("Failed to read file, using default configuration"));
 
   // Parse file to Config struct object:
-  parseConfig(doc);
+  WebConfigServer::parseConfig(doc);
+
+  // Parse file to IWebConfig objects:
+  WebConfigServer::parseIWebConfig(doc);
 
   // Close the file (Curiously, File's destructor doesn't close the file)
   file.close();
@@ -365,11 +392,14 @@ void WebConfigServer::configureServer(ESP8266WebServer *server){
     serializeJsonPretty(doc, Serial);
     Serial.println("");
 
-    // Parse file to Config struct object to update internal config:
-    parseConfig(doc);
+    // Parse file to Config struct object:
+    WebConfigServer::parseConfig(doc);
+
+    // Parse file to IWebConfig objects:
+    WebConfigServer::parseIWebConfig(doc);
 
     // Save the config file with new configuration:
-    saveWebConfigurationFile(CONFIG_FILE,doc);
+    WebConfigServer::saveWebConfigurationFile(CONFIG_FILE,doc);
 
     server->send ( 200, "text/json", "{\"message\": \"Configurations saved\"}" );
 
