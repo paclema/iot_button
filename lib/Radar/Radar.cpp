@@ -43,7 +43,7 @@ void Radar::parseWebConfig(JsonObjectConst configObject){
 
     // As VL53L1X with or whithout use different libraries, we have to remove
     // the VL53L1X_ROI object if it was created and create a VL53L1X one:
-    removeDistanceSensor("VL53L1X_ROI");
+    // removeDistanceSensor("VL53L1X_ROI");
     DistSensor *distanceSensor = getDistanceSensor("VL53L1X");
 
     distanceSensor->enabled = configObject["vl53l1x"]["enabled"] | true;
@@ -67,7 +67,7 @@ void Radar::parseWebConfig(JsonObjectConst configObject){
 
     // As VL53L1X with or whithout use different libraries, we have to remove
     // the VL53L1X object if it was created and create a VL53L1X_ROI one:
-    removeDistanceSensor("VL53L1X");
+    // removeDistanceSensor("VL53L1X");
     DistSensor *distanceSensor = getDistanceSensor("VL53L1X_ROI");
 
     distanceSensor->enabled = configObject["ROI"]["enabled"] | true;
@@ -207,6 +207,8 @@ void Radar::removeDistanceSensor(String name){
   int sensorId = Radar::getDistanceSensorsId(name);
   if (sensorId != -1){
     // This sensor is not in distanceSensors list
-    this->distanceSensors.remove(sensorId);
+    distanceSensorTemp = this->distanceSensors.remove(sensorId);
+    distanceSensorTemp = NULL;
+    delete distanceSensorTemp;
   }
 };
