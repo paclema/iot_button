@@ -1,11 +1,11 @@
-#include "SensorDistance.h"
+#include "DistSensorVL53L1X.h"
 
 
-SensorDistance::SensorDistance(void) {
+DistSensorVL53L1X::DistSensorVL53L1X(void) {
 };
 
 
-void SensorDistance::setup(void){
+void DistSensorVL53L1X::setup(void){
 
   Wire.begin();
   Wire.setClock(400000); // use 400 kHz I2C
@@ -52,7 +52,7 @@ void SensorDistance::setup(void){
 }
 
 
-bool SensorDistance::sensorRead(float &distance){
+bool DistSensorVL53L1X::sensorRead(float &distance){
 
   if (this->sensor.dataReady()){
     bool blocking = false;
@@ -69,12 +69,12 @@ bool SensorDistance::sensorRead(float &distance){
 }
 
 
-String SensorDistance::getSensorRange(void){
+String DistSensorVL53L1X::getSensorRange(void){
   return String(this->sensor.rangeStatusToString(this->sensor.ranging_data.range_status));
 }
 
 
-void SensorDistance::printSensorStatus(void){
+void DistSensorVL53L1X::printSensorStatus(void){
   Serial.print("range: ");
   Serial.print(this->sensor.ranging_data.range_mm);
   Serial.print("\tstatus: ");

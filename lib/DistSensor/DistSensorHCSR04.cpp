@@ -1,35 +1,22 @@
-#include <Arduino.h>
+#include "DistSensorHCSR04.h"
 
 
-// Pinout with D1 mini:
-//--------------------
-//
-// Echo -- D8
-// Trigger -- D7
-// VCC -- 5V
-// GND -- GND
+DistSensorHCSR04::DistSensorHCSR04(void) {
+};
 
 
-#define echoPin D8
-#define trigPin D7
+void DistSensorHCSR04::setup(void){
 
-long duration; // Duration used to calculate distance
-long previousSensorReadMillis = 0;
-int sensorReadTimingBudget = 50;
-
-boolean debug = false;
-
-
-void sensorSetup(void){
-
-	pinMode(trigPin, OUTPUT);
+  pinMode(trigPin, OUTPUT);
 	pinMode(echoPin, INPUT);
+  Serial.print("\t --> HCSR04 initialized!");
 
 }
 
-bool sensorRead(float &distance){
 
-	unsigned long currentLoopMillis = millis();
+bool DistSensorHCSR04::sensorRead(float &distance){
+
+  unsigned long currentLoopMillis = millis();
 
 	if ((currentLoopMillis-previousSensorReadMillis) >= sensorReadTimingBudget) {
 		previousSensorReadMillis = currentLoopMillis;
@@ -41,7 +28,7 @@ bool sensorRead(float &distance){
 		duration = pulseIn(echoPin, HIGH);
 		//Calculate the distance (in cm) based on the speed of sound.
 		distance = 10*duration/58.2;
-		
+
 		if (debug){
 			Serial.print(" duration: ");
 			Serial.print(duration);
@@ -53,4 +40,15 @@ bool sensorRead(float &distance){
 		return true;
 	}
 	return false;
+}
+
+
+String DistSensorHCSR04::getSensorRange(void){
+  // return String(this->sensor.rangeStatusToString(this->sensor.ranging_data.range_status));
+  return "Not implemented for DistSensorHCSR04";
+}
+
+
+void DistSensorHCSR04::printSensorStatus(void){
+  Serial.println("Not implemented for DistSensorHCSR04");
 }
