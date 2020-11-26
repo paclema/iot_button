@@ -3,12 +3,14 @@
 
 #define JSON_MAX_SIZE_LIST 6
 
-
+#include <LinkedList.h>
 #include "IWebConfig.h"
 
 #include "RadarMotor.h"
-#include "SensorDistance.h"
-// #include "sensorVL53L1X.h"
+#include "DistSensor.h"
+#include "DistSensorFactory.h"
+
+#include "DistSensorVL53L1X.h"
 
 
 class Radar: public IWebConfig {
@@ -16,21 +18,8 @@ class Radar: public IWebConfig {
 public:
 
   RadarMotor motor;
-  SensorDistance sensorDistance;
-
-
-
-  struct HCSR04 {
-    bool enabled;
-    float time_budget_ms;
-  } hcsr04;
-
-
-  struct ROI {
-    bool enabled;
-    int zones;
-  } roi;
-
+  DistSensorVL53L1X sensorDistance;
+  LinkedList<DistSensor*> distanceSensors = LinkedList<DistSensor*>();
 
 
 
@@ -46,6 +35,10 @@ public:
   float getPosition(void);
   bool getDistance(float &distance);
   bool getPoints(float *distances, float *angles);
+
+  int getDistanceSensorsId(String name);
+  DistSensor* getDistanceSensor(String name);
+  void removeDistanceSensor(String name);
 
 
 };

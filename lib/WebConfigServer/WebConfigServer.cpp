@@ -143,7 +143,7 @@ void WebConfigServer::parseConfig(const JsonDocument& doc){
     device.track_restart_counter = doc["device"]["track_restart_counter"] | true;
     device.loop_time_ms = doc["device"]["loop_time_ms"];
     device.publish_time_ms = doc["device"]["publish_time_ms"];
-    
+
 
     // Info object:
     info.restart_counter = doc["info"]["ftp"]["enabled"] | false;
@@ -389,9 +389,9 @@ void WebConfigServer::configureServer(ESP8266WebServer *server){
 
     // JsonObject network = doc["network"];
 
-    Serial.print("JSON POST: ");
-    serializeJsonPretty(doc, Serial);
-    Serial.println("");
+    // Serial.print("JSON POST: ");
+    // serializeJsonPretty(doc, Serial);
+    // Serial.println("");
 
     // Parse file to Config struct object:
     WebConfigServer::parseConfig(doc);
@@ -402,7 +402,9 @@ void WebConfigServer::configureServer(ESP8266WebServer *server){
     // Save the config file with new configuration:
     WebConfigServer::saveWebConfigurationFile(CONFIG_FILE,doc);
 
-    server->send ( 200, "text/json", "{\"message\": \"Configurations saved\"}" );
+    String response = "{\"message\": \"Configurations saved\"}";
+    server->send ( 200, "text/json", response );
+    Serial.println("JSON POST: " + response);
 
   });
 
