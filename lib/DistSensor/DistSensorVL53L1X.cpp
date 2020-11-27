@@ -41,16 +41,16 @@ void DistSensorVL53L1X::setup(void){
     else if (this->distance_mode == "Long") sensor.setDistanceMode(VL53L1X::Long);
     else if (this->distance_mode == "Unknown") sensor.setDistanceMode(VL53L1X::Medium);
     // sensor.setMeasurementTimingBudget(50000);
-    sensor.setMeasurementTimingBudget(this->time_budget_ms*1000);
+    sensor.setMeasurementTimingBudget(this->timeBudget*1000);
 
     // Start continuous readings at a rate of one measurement every 50 ms (the
     // inter-measurement period). This period should be at least as long as the
     // timing budget.
     // sensor.startContinuous(50);
-    sensor.startContinuous(this->time_budget_ms);
+    sensor.startContinuous(this->timeBudget);
 
     Serial.print(" Mode: " + this->distance_mode);
-    Serial.println("; Time budget: " + String(this->time_budget_ms));
+    Serial.println("; Time budget: " + String(this->timeBudget));
 
 
   } else {

@@ -31,7 +31,7 @@ public:
     }
 
 
-    if (sensor->debug) Serial.println("DistSensorFactory creates DistSensor: " + name);
+    if (sensor->isDebug()) Serial.println("DistSensorFactory creates DistSensor: " + name);
     // Preprocessing setups before returning the sensor object:
     sensor->setName(name);
     sensor->setup();

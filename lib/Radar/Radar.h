@@ -10,17 +10,13 @@
 #include "DistSensor.h"
 #include "DistSensorFactory.h"
 
-#include "DistSensorVL53L1X.h"
-
 
 class Radar: public IWebConfig {
 
 public:
 
   RadarMotor motor;
-  DistSensorVL53L1X sensorDistance;
   LinkedList<DistSensor*> distanceSensors = LinkedList<DistSensor*>();
-
 
 
   Radar(void);

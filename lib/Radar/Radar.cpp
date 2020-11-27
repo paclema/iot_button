@@ -28,12 +28,12 @@ void Radar::parseWebConfig(JsonObjectConst configObject){
     Serial.println("\tHCSR04 must be created");
 
     DistSensor *distanceSensor = getDistanceSensor("HCSR04");
-    distanceSensor->enabled = configObject["HCSR04"]["enabled"] | true;
-    distanceSensor->time_budget_ms = configObject["HCSR04"]["time_budget_ms"];
+    distanceSensor->setEnable(configObject["HCSR04"]["enabled"] | false);
+    distanceSensor->setTimeBudget(configObject["HCSR04"]["time_budget_ms"]);
 
   } else {
     Serial.println("\tHCSR04 must be removed");
-    // removeDistanceSensor("HCSR04");
+    removeDistanceSensor("HCSR04");
   }
 
 
@@ -43,12 +43,12 @@ void Radar::parseWebConfig(JsonObjectConst configObject){
 
     // As VL53L1X with or whithout use different libraries, we have to remove
     // the VL53L1X_ROI object if it was created and create a VL53L1X one:
-    // removeDistanceSensor("VL53L1X_ROI");
+    removeDistanceSensor("VL53L1X_ROI");
     DistSensor *distanceSensor = getDistanceSensor("VL53L1X");
 
-    distanceSensor->enabled = configObject["vl53l1x"]["enabled"] | true;
-    distanceSensor->debug = configObject["vl53l1x"]["debug"] | false;
-    distanceSensor->time_budget_ms = configObject["vl53l1x"]["time_budget_ms"];
+    distanceSensor->setEnable(configObject["vl53l1x"]["enabled"] | false);
+    distanceSensor->setDebug(configObject["vl53l1x"]["debug"] | false);
+    distanceSensor->setTimeBudget(configObject["vl53l1x"]["time_budget_ms"]);
     // distanceSensor->distance_mode = configObject["vl53l1x"]["distance_mode"] | "Short" ;
     // for (unsigned int i = 0; i < configObject["vl53l1x"]["distance_mode_options"].size(); i++) { //Iterate through results
     //   distanceSensor->distance_mode_options[i] = configObject["vl53l1x"]["distance_mode_options"][i].as<String>(); //Explicit cast
@@ -56,7 +56,7 @@ void Radar::parseWebConfig(JsonObjectConst configObject){
 
   } else {
     Serial.println("\tvl53l1x must be removed");
-    // removeDistanceSensor("VL53L1X");
+    removeDistanceSensor("VL53L1X");
 
   }
 
@@ -67,24 +67,19 @@ void Radar::parseWebConfig(JsonObjectConst configObject){
 
     // As VL53L1X with or whithout use different libraries, we have to remove
     // the VL53L1X object if it was created and create a VL53L1X_ROI one:
-    // removeDistanceSensor("VL53L1X");
+    removeDistanceSensor("VL53L1X");
     DistSensor *distanceSensor = getDistanceSensor("VL53L1X_ROI");
 
-    distanceSensor->enabled = configObject["ROI"]["enabled"] | true;
-    distanceSensor->debug = configObject["vl53l1x"]["debug"] | false;
-    distanceSensor->time_budget_ms = configObject["vl53l1x"]["time_budget_ms"];
+    distanceSensor->setEnable(configObject["ROI"]["enabled"] | false);
+    distanceSensor->setDebug(configObject["vl53l1x"]["debug"] | false);
+    distanceSensor->setTimeBudget(configObject["vl53l1x"]["time_budget_ms"]);
     // distanceSensor->zones = configObject["ROI"]["zones"];
 
   } else {
     Serial.println("\tROI must be removed");
-    // removeDistanceSensor("VL53L1X_ROI");
+    removeDistanceSensor("VL53L1X_ROI");
 
   }
-
-
-
-  // After new configurations, reconfigure the radar objects to apply new changes:
-  //Radar::enableRadarServices();
 
 
   // Distance sensors object:
@@ -104,26 +99,21 @@ void Radar::enableRadarServices(void){
   } else Serial.println("   - Motor -> disabled");
   this->motor.setup();
 
-  /*
-  // HCSR04 sensor:
-  if (this->hcsr04.enabled){
-    // sensorSetup();
-    Serial.println("   - HCSR04 -> enabled");
-  } else Serial.println("   - HCSR04 -> disabled");
+  // Distance sensors:
+  DistSensor *sensorTemp ;
+  for(int i = 0; i < distanceSensors.size(); i++){
+    sensorTemp = distanceSensors.get(i);
+    String nameSensor = sensorTemp->getName();
+    Serial.print("   - ");
+    Serial.print(nameSensor);
+    Serial.print(" -> ");
+    if (sensorTemp->isEnabled()) Serial.print("enabled");
+    else Serial.print("disabled");
+    if (sensorTemp->isDebug()) Serial.print(" with debug");
+    Serial.println();
+  }
 
-  // VL53L1X sensor:
-  if (this->sensorDistance.enabled){
-    Serial.println("   - VL53L1X -> enabled");
-    this->sensorDistance.setup();
-  } else Serial.println("   - VL53L1X -> disabled");
-
-  // ROI VL53L1X sensor:
-  if (this->roi.enabled){
-    Serial.println("   - ROI -> enabled");
-  } else Serial.println("   - ROI -> disabled");
-  */
-
-  Serial.println("");
+  Serial.println();
 
 };
 
@@ -206,9 +196,9 @@ void Radar::removeDistanceSensor(String name){
   // Check if the sensor is in distanceSensors list to remove it:
   int sensorId = Radar::getDistanceSensorsId(name);
   if (sensorId != -1){
-    // This sensor is not in distanceSensors list
+    // This sensor is in distanceSensors list
     distanceSensorTemp = this->distanceSensors.remove(sensorId);
-    distanceSensorTemp = NULL;
     delete distanceSensorTemp;
+    distanceSensorTemp = NULL;
   }
 };

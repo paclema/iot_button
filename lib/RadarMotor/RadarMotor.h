@@ -41,7 +41,7 @@ class RadarMotor{
   float offset = 0;
   float angleFeedback;                // Feedback potentiometer pulse to angle
   float mappedPulse;                  // Expected potentiometer feedback
-  boolean debug = false;
+  bool debug = false;
 
   public:
   bool enabled;
@@ -60,6 +60,9 @@ class RadarMotor{
   float getFeedbackAngle(void);
 
   void moveServo(void);
+
+  void setDebug(bool d){ this->debug = d; };
+  bool isDebug(void){ return this->debug; };
 
 };
 

@@ -24,7 +24,7 @@ bool DistSensorHCSR04::sensorRead(float &distance){
 
   unsigned long currentLoopMillis = millis();
 
-	if ((currentLoopMillis-previousSensorReadMillis) >= this->time_budget_ms) {
+	if ((currentLoopMillis-previousSensorReadMillis) >= this->timeBudget) {
 		previousSensorReadMillis = currentLoopMillis;
 		digitalWrite(trigPin, LOW);
 		delayMicroseconds(2);

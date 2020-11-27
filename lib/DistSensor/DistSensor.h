@@ -8,13 +8,16 @@
 
 class DistSensor {
 
-public:
+protected:
 
   bool enabled;
   bool debug = false;
-  float time_budget_ms;
+  float timeBudget;
 
   String name = "none";
+
+
+public:
 
   virtual ~DistSensor() {}
   virtual void setup(void) = 0;
@@ -23,13 +26,14 @@ public:
   virtual void printSensorStatus(void) = 0;
   virtual void free() = 0;
 
-  void setName(String name){
-    this->name = name;
-  };
+  void setName(String name){ this->name = name; };
+  void setEnable(bool e){ this->enabled = e; };
+  void setDebug(bool d){ this->debug = d; };
+  void setTimeBudget(float t){ this->timeBudget = t; };
 
-  String getName(void){
-    return this->name;
-  };
+  String getName(void){ return this->name; };
+  bool isEnabled(void){ return this->enabled; };
+  bool isDebug(void){ return this->debug; };
 
 };
 #endif
