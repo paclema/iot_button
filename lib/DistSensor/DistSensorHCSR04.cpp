@@ -15,7 +15,7 @@ void DistSensorHCSR04::setup(void){
 
   pinMode(trigPin, OUTPUT);
 	pinMode(echoPin, INPUT);
-  Serial.print("\t --> HCSR04 initialized!");
+  if (this->debug) Serial.print("\t --> HCSR04 initialized!");
 
 }
 
@@ -35,7 +35,7 @@ bool DistSensorHCSR04::sensorRead(float &distance){
 		//Calculate the distance (in cm) based on the speed of sound.
 		distance = 10*duration/58.2;
 
-		if (debug){
+		if (this->debug){
 			Serial.print(" duration: ");
 			Serial.print(duration);
 			Serial.print(" distance: ");

@@ -18,28 +18,32 @@ void Radar::parseWebConfig(JsonObjectConst configObject){
 
 
   // Radar IWebConfig object:
+  this->debug = configObject["debug"] | false;
+
+  // Radar motor:
   this->motor.enabled = configObject["motor"]["enabled"] | false;
   this->motor.angleAccuracy = configObject["motor"]["angle_accuracy"];
   this->motor.servoSpeed = float(configObject["motor"]["servo_speed_ms/60"])/60;
+  this->motor.setDebug(configObject["motor"]["debug"] | false);
 
 
   // HCSR04 sensor:
   if (configObject["HCSR04"]["enabled"]){
-    Serial.println("\tHCSR04 must be created");
+    if (this->debug) Serial.println("\tHCSR04 must be created");
 
     DistSensor *distanceSensor = getDistanceSensor("HCSR04");
     distanceSensor->setEnable(configObject["HCSR04"]["enabled"] | false);
     distanceSensor->setTimeBudget(configObject["HCSR04"]["time_budget_ms"]);
 
   } else {
-    Serial.println("\tHCSR04 must be removed");
+    if (this->debug) Serial.println("\tHCSR04 must be removed");
     removeDistanceSensor("HCSR04");
   }
 
 
   // VL53L1X sensor:
   if (configObject["vl53l1x"]["enabled"]){
-    Serial.println("\tvl53l1x must be created");
+    if (this->debug) Serial.println("\tvl53l1x must be created");
 
     // As VL53L1X with or whithout use different libraries, we have to remove
     // the VL53L1X_ROI object if it was created and create a VL53L1X one:
@@ -55,7 +59,7 @@ void Radar::parseWebConfig(JsonObjectConst configObject){
     // }
 
   } else {
-    Serial.println("\tvl53l1x must be removed");
+    if (this->debug) Serial.println("\tvl53l1x must be removed");
     removeDistanceSensor("VL53L1X");
 
   }
@@ -63,7 +67,7 @@ void Radar::parseWebConfig(JsonObjectConst configObject){
 
   // VL53L1X with ROI sensor:
   if (configObject["ROI"]["enabled"]){
-    Serial.println("\tROI must be created");
+    if (this->debug) Serial.println("\tROI must be created");
 
     // As VL53L1X with or whithout use different libraries, we have to remove
     // the VL53L1X object if it was created and create a VL53L1X_ROI one:
@@ -76,16 +80,17 @@ void Radar::parseWebConfig(JsonObjectConst configObject){
     // distanceSensor->zones = configObject["ROI"]["zones"];
 
   } else {
-    Serial.println("\tROI must be removed");
+    if (this->debug) Serial.println("\tROI must be removed");
     removeDistanceSensor("VL53L1X_ROI");
 
   }
 
 
   // Distance sensors object:
-  Serial.print("List distanceSensors Objects size: ");
-  Serial.println(distanceSensors.size());
-
+  if (this->debug) {
+    Serial.print("List distanceSensors Objects size: ");
+    Serial.println(distanceSensors.size());
+  }
 
 };
 
@@ -120,7 +125,6 @@ void Radar::enableRadarServices(void){
 
 void Radar::loop(void){
   if (this->motor.enabled) motor.moveServo();
-
 };
 
 
@@ -168,7 +172,7 @@ int Radar::getDistanceSensorsId(String name){
       return i;
     }
   }
-  // Serial.println("NOT FOUND!: " + name);
+  if (this->debug) Serial.println("NOT FOUND!: DistSensor " + name);
   // If name sensor is not in distanceSensors, return -1:
   return -1;
 };

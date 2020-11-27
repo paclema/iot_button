@@ -70,15 +70,17 @@
   "radar": {
     "motor":{
       "enabled": false,
+      "debug": false,
       "angle_accuracy": 1,
       "servo_speed_ms/60": 600
     },
     "HCSR04":{
       "enabled": false,
+      "debug": false,
       "time_budget_ms": 50
     },
     "vl53l1x": {
-      "enabled": true,
+      "enabled": false,
       "debug": true,
       "time_budget_ms": 20,
       "distance_mode": "Short",
@@ -92,7 +94,8 @@
     "ROI": {
       "enabled": false,
       "zones" : 4
-    }
+    },
+    "debug": false
   },
   "info": {
     "restart_counter": 0,

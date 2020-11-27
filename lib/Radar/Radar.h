@@ -13,6 +13,10 @@
 
 class Radar: public IWebConfig {
 
+private:
+  
+  bool debug = false;
+
 public:
 
   RadarMotor motor;
@@ -36,6 +40,8 @@ public:
   DistSensor* getDistanceSensor(String name);
   void removeDistanceSensor(String name);
 
+  void setDebug(bool d){ this->debug = d; };
+  bool isDebug(void){ return this->debug; };
 
 };
 #endif

@@ -157,23 +157,21 @@ void WebConfigServer::parseConfig(const JsonDocument& doc){
 void WebConfigServer::addConfig(IWebConfig* config, String nameObject){
   config->nameConfigObject = nameObject;
   this->configs.add(config);
-  Serial.print("IWebConfig Object added for: ");
-  Serial.println(config->nameConfigObject);
+  // Serial.print("IWebConfig Object added for: ");
+  // Serial.println(config->nameConfigObject);
 };
 
 
 void WebConfigServer::parseIWebConfig(const JsonDocument& doc){
-  Serial.print("List IWebConfig Objects size: ");
-  Serial.println(configs.size());
+  // Serial.print("List IWebConfig Objects size: ");
+  // Serial.println(configs.size());
 
   IWebConfig *config ;
   for(int i = 0; i < configs.size(); i++){
     config = configs.get(i);
-    // JsonObjectConst configObject = doc[config->nameConfigObject];
-    // config->parseWebConfig(configObject);
     config->parseWebConfig(doc[config->nameConfigObject]);
-    Serial.print("IWebConfig Object parsed for: ");
-    Serial.println(config->nameConfigObject);
+    // Serial.print("IWebConfig Object parsed for: ");
+    // Serial.println(config->nameConfigObject);
 
   }
 };
