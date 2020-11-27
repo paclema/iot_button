@@ -28,21 +28,21 @@ public:
 
   Adafruit_VL53L0X sensor = Adafruit_VL53L0X();
 
-  // bool enabled;
-  // bool debug = false;
-  // float time_budget_ms;
   String distance_mode;
   String distance_mode_options[JSON_MAX_SIZE_LIST]; //["Short", "Medium", "Long", "Unknown"]
 
 
   DistSensorVL53L0X(void);
-  ~DistSensorVL53L0X(){};
+  ~DistSensorVL53L0X();
 
 
   void setup(void);
   bool sensorRead(float &distance);
   String getSensorRange(void);
   void printSensorStatus(void);
+
+  void free() { if (this->debug) Serial.println("\t\t\tfree DistSensorVL53L0X"); delete this; }
+
 
 };
 #endif

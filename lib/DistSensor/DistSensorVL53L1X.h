@@ -27,21 +27,21 @@ public:
 
   VL53L1X sensor;
 
-  // bool enabled;
-  // bool debug = false;
-  // float time_budget_ms;
   String distance_mode;
   String distance_mode_options[JSON_MAX_SIZE_LIST]; //["Short", "Medium", "Long", "Unknown"]
 
 
   DistSensorVL53L1X(void);
-  ~DistSensorVL53L1X(){};
+  ~DistSensorVL53L1X();
 
 
   void setup(void);
   bool sensorRead(float &distance);
   String getSensorRange(void);
   void printSensorStatus(void);
+
+  void free() { if (this->debug) Serial.println("\t\t\tfree DistSensorVL53L1X"); delete this; }
+
 
 };
 #endif

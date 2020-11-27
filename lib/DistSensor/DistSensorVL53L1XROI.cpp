@@ -2,6 +2,12 @@
 
 
 DistSensorVL53L1XROI::DistSensorVL53L1XROI(void) {
+  if (this->debug) Serial.println("\t\tCreating DistSensorVL53L1XROI");
+};
+
+
+DistSensorVL53L1XROI::~DistSensorVL53L1XROI(void) {
+  if (this->debug) Serial.println("\t\tDestroying DistSensorVL53L1XROI");
 };
 
 

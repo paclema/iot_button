@@ -79,21 +79,21 @@ public:
 
   int rangeThresholdCounter_mm = 600;
 
-  // bool enabled;
-  // bool debug = false;
-  // float time_budget_ms;
   // String distance_mode;
   // String distance_mode_options[JSON_MAX_SIZE_LIST]; //["Short", "Medium", "Long", "Unknown"]
 
 
   DistSensorVL53L1XROI(void);
-  ~DistSensorVL53L1XROI(){};
+  ~DistSensorVL53L1XROI();
 
   void setup(void);
   bool sensorRead(float &distance);
   int sensorRead(void);
   String getSensorRange(void);
   void printSensorStatus(void);
+
+  void free() { if (this->debug) Serial.println("\t\t\tfree DistSensorVL53L1XROI");  delete this; }
+
 
   void checkDev(VL53L1_DEV Dev) {
   	uint16_t wordData;

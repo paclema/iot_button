@@ -15,7 +15,6 @@ public:
 
     DistSensor *sensor = NULL;
     const char * name_cchar = name.c_str();
-    Serial.println("DistSensorFactory creates DistSensor: " + name);
 
 
     if (strcmp(name_cchar, "VL53L1X_ROI") == 0) {
@@ -27,11 +26,12 @@ public:
     } else if (strcmp(name_cchar, "HCSR04") == 0){
       sensor = new DistSensorHCSR04;
     } else {
-      Serial.println("ERROR:Invalid distance sensor selected");
+      Serial.println("ERROR DistSensorFactory: Invalid distance sensor selected");
       return NULL;
     }
 
 
+    if (sensor->debug) Serial.println("DistSensorFactory creates DistSensor: " + name);
     // Preprocessing setups before returning the sensor object:
     sensor->setName(name);
     sensor->setup();

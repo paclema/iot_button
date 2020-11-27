@@ -2,6 +2,13 @@
 
 
 DistSensorVL53L1X::DistSensorVL53L1X(void) {
+  if (this->debug) Serial.println("\t\tCreating DistSensorVL53L1X");
+
+};
+
+
+DistSensorVL53L1X::~DistSensorVL53L1X(void) {
+  if (this->debug) Serial.println("\t\tDestroying DistSensorVL53L1X");
 };
 
 

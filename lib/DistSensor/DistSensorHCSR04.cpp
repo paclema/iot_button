@@ -2,6 +2,12 @@
 
 
 DistSensorHCSR04::DistSensorHCSR04(void) {
+  if (this->debug) Serial.println("\t\tCreating DistSensorHCSR04");
+};
+
+
+DistSensorHCSR04::~DistSensorHCSR04(void) {
+  if (this->debug) Serial.println("\t\tDestroying DistSensorHCSR04");
 };
 
 
@@ -18,7 +24,7 @@ bool DistSensorHCSR04::sensorRead(float &distance){
 
   unsigned long currentLoopMillis = millis();
 
-	if ((currentLoopMillis-previousSensorReadMillis) >= sensorReadTimingBudget) {
+	if ((currentLoopMillis-previousSensorReadMillis) >= this->time_budget_ms) {
 		previousSensorReadMillis = currentLoopMillis;
 		digitalWrite(trigPin, LOW);
 		delayMicroseconds(2);
