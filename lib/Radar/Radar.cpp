@@ -53,10 +53,6 @@ void Radar::parseWebConfig(JsonObjectConst configObject){
     distanceSensor->setEnable(configObject["vl53l1x"]["enabled"] | false);
     distanceSensor->setDebug(configObject["vl53l1x"]["debug"] | false);
     distanceSensor->setTimeBudget(configObject["vl53l1x"]["time_budget_ms"]);
-    // distanceSensor->distance_mode = configObject["vl53l1x"]["distance_mode"] | "Short" ;
-    // for (unsigned int i = 0; i < configObject["vl53l1x"]["distance_mode_options"].size(); i++) { //Iterate through results
-    //   distanceSensor->distance_mode_options[i] = configObject["vl53l1x"]["distance_mode_options"][i].as<String>(); //Explicit cast
-    // }
 
   } else {
     if (this->debug) Serial.println("\tvl53l1x must be removed");
@@ -77,13 +73,21 @@ void Radar::parseWebConfig(JsonObjectConst configObject){
     distanceSensor->setEnable(configObject["ROI"]["enabled"] | false);
     distanceSensor->setDebug(configObject["vl53l1x"]["debug"] | false);
     distanceSensor->setTimeBudget(configObject["vl53l1x"]["time_budget_ms"]);
-    // distanceSensor->zones = configObject["ROI"]["zones"];
 
   } else {
     if (this->debug) Serial.println("\tROI must be removed");
     removeDistanceSensor("VL53L1X_ROI");
 
   }
+
+
+  // For each DistSensor call parseWebConfig() to configure specific sensor configs:
+  DistSensor *sensorTemp ;
+  for(int i = 0; i < distanceSensors.size(); i++){
+    sensorTemp = distanceSensors.get(i);
+    sensorTemp->parseWebConfig(configObject);
+  }
+
 
   // Setup again Distance sensors:
   Radar::setupDistSensors();

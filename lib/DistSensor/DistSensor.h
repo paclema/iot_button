@@ -2,6 +2,7 @@
 #define DistSensor_H
 
 #define JSON_MAX_SIZE_LIST 6
+#include <ArduinoJson.h>
 
 #include <Arduino.h>
 #include <Wire.h>
@@ -30,6 +31,8 @@ public:
   void setEnable(bool e){ this->enabled = e; };
   void setDebug(bool d){ this->debug = d; };
   void setTimeBudget(float t){ this->timeBudget = t; };
+
+  virtual void parseWebConfig(JsonObjectConst configObject) = 0;
 
   String getName(void){ return this->name; };
   bool isEnabled(void){ return this->enabled; };

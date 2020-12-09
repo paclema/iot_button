@@ -137,3 +137,14 @@ String DistSensorVL53L1XROI::getSensorRange(void){
 void DistSensorVL53L1XROI::printSensorStatus(void){
   Serial.println("Not implemented for DistSensorVL53L1XROI");
 }
+
+
+void DistSensorVL53L1XROI::parseWebConfig(JsonObjectConst configObject){
+
+  this->distance_mode = configObject["vl53l1x"]["distance_mode"] | "Short" ;
+  // for (unsigned int i = 0; i < configObject["vl53l1x"]["distance_mode_options"].size(); i++) { //Iterate through results
+  //   this->distance_mode_options[i] = configObject["vl53l1x"]["distance_mode_options"][i].as<String>(); //Explicit cast
+  // }
+  this->zones = configObject["ROI"]["zones"];
+
+}

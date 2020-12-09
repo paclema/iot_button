@@ -43,6 +43,8 @@ public:
 
   void free() { if (this->debug) Serial.println("\t\t\tfree DistSensorVL53L0X"); delete this; }
 
+  void parseWebConfig(JsonObjectConst configObject);
+
 
 };
 #endif

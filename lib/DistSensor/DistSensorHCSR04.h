@@ -37,5 +37,8 @@ public:
 
   void free() { if (this->debug) Serial.println("\t\t\tfree DistSensorHCSR04");  delete this; }
 
+  void parseWebConfig(JsonObjectConst configObject);
+
+
 };
 #endif

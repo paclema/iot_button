@@ -58,3 +58,8 @@ String DistSensorHCSR04::getSensorRange(void){
 void DistSensorHCSR04::printSensorStatus(void){
   Serial.println("Not implemented for DistSensorHCSR04");
 }
+
+
+void DistSensorHCSR04::parseWebConfig(JsonObjectConst configObject){
+
+}

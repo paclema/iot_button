@@ -67,6 +67,10 @@ public:
   VL53L1_Dev_t		sensor;
   VL53L1_DEV			Dev = &sensor;
 
+  String distance_mode;
+  String distance_mode_options[JSON_MAX_SIZE_LIST]; //["Short", "Medium", "Long", "Unknown"]
+  int zones = 0;
+
   // Two ROI configurations
   VL53L1_UserRoi_t	roiConfig1 = { 12, 15, 15, 0 };
   VL53L1_UserRoi_t	roiConfig2 = { 0, 15, 3, 0 };
@@ -94,6 +98,7 @@ public:
 
   void free() { if (this->debug) Serial.println("\t\t\tfree DistSensorVL53L1XROI");  delete this; }
 
+  void parseWebConfig(JsonObjectConst configObject);
 
   void checkDev(VL53L1_DEV Dev) {
   	uint16_t wordData;
