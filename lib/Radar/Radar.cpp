@@ -85,6 +85,9 @@ void Radar::parseWebConfig(JsonObjectConst configObject){
 
   }
 
+  // Setup again Distance sensors:
+  Radar::setupDistSensors();
+
 
   // Distance sensors object:
   if (this->debug) {
@@ -105,6 +108,12 @@ void Radar::enableRadarServices(void){
   this->motor.setup();
 
   // Distance sensors:
+  Radar::setupDistSensors();
+
+};
+
+
+void Radar::setupDistSensors(void){
   DistSensor *sensorTemp ;
   for(int i = 0; i < distanceSensors.size(); i++){
     sensorTemp = distanceSensors.get(i);
@@ -116,12 +125,12 @@ void Radar::enableRadarServices(void){
     else Serial.print("disabled");
     if (sensorTemp->isDebug()) Serial.print(" with debug");
     Serial.println();
+    sensorTemp->setup();
   }
 
   Serial.println();
 
 };
-
 
 void Radar::loop(void){
   if (this->motor.enabled) motor.moveServo();

@@ -14,7 +14,7 @@
 class Radar: public IWebConfig {
 
 private:
-  
+
   bool debug = false;
 
 public:
@@ -29,6 +29,7 @@ public:
   void parseWebConfig(JsonObjectConst configObject);
 
   void enableRadarServices(void);
+  void setupDistSensors(void);
   void loop(void);
 
   void printStatus(void);
