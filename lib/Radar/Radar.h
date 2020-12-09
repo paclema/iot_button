@@ -17,11 +17,19 @@ private:
 
   bool debug = false;
 
+  struct RPoint {
+    float angle;
+    float distance;
+    float fov_angle;
+  };
+
 public:
 
   RadarMotor motor;
   LinkedList<DistSensor*> distanceSensors = LinkedList<DistSensor*>();
 
+  RPoint rPoints[20];
+  int rPointsSize = 0;
 
   Radar(void);
   Radar(String name);
@@ -35,7 +43,8 @@ public:
   void printStatus(void);
   float getPosition(void);
   bool getDistance(float &distance);
-  bool getPoints(float *distances, float *angles);
+  bool readPoints(void);
+  String getJsonPoints(void);
 
   int getDistanceSensorsId(String name);
   DistSensor* getDistanceSensor(String name);

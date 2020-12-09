@@ -59,11 +59,11 @@ void DistSensorVL53L1X::setup(void){
 }
 
 
-bool DistSensorVL53L1X::sensorRead(float &distance){
+bool DistSensorVL53L1X::sensorRead(float *distance){
 
   if (this->sensor.dataReady()){
     bool blocking = false;
-    distance = this->sensor.read(blocking);
+    distance[0] = this->sensor.read(blocking);
     // Serial.print(distance);
     if (this->sensor.timeoutOccurred()){
       // Serial.print(" TIMEOUT");

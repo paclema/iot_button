@@ -57,7 +57,7 @@ void DistSensorVL53L0X::setup(void){
 }
 
 
-bool DistSensorVL53L0X::sensorRead(float &distance){
+bool DistSensorVL53L0X::sensorRead(float *distance){
 
   VL53L0X_RangingMeasurementData_t measure;
 	// Serial.print("Reading a measurement... ");
@@ -71,7 +71,7 @@ bool DistSensorVL53L0X::sensorRead(float &distance){
 		// Serial.print("  - EffectiveSpadRtnCount: "); Serial.println(measure.EffectiveSpadRtnCount);
 
 		// distance = measure.RangeMilliMeter/10;
-		distance = measure.RangeMilliMeter;
+		distance[0] = measure.RangeMilliMeter;
 		return true;
 	} else {
 	  Serial.println(" out of range ");

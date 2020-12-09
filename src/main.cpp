@@ -414,17 +414,19 @@ void loop() {
   //
   if((config.device.loop_time_ms != 0 ) && (currentLoopMillis - previousLoopMillis > config.device.loop_time_ms)) {
 
-    float radarAngle = 0;
-    float radarDistance = 0;
-    radarAngle = radar.getPosition();
+    // float radarAngle = 0;
+    // float radarDistance = 0;
+    // radarAngle = radar.getPosition();
     radar.printStatus();
 
 
     // If radar measure is not available, mqtt is not sent:
-    if (radar.getDistance(radarDistance)){
+    // if (radar.getDistance(radarDistance)){
+    if (radar.readPoints()){
 
 
-      String msg_pub ="{\"angle\":" + String(radarAngle) + ", \"distance\" :"+ String(radarDistance) +"}";
+      // String msg_pub ="{\"angle\":" + String(radarAngle) + ", \"distance\" :"+ String(radarDistance) +"}";
+      String msg_pub = radar.getJsonPoints();
       mqttQueueString += msg_pub;
 
       // Publish mqtt sensor feedback:

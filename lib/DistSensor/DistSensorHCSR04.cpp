@@ -20,7 +20,7 @@ void DistSensorHCSR04::setup(void){
 }
 
 
-bool DistSensorHCSR04::sensorRead(float &distance){
+bool DistSensorHCSR04::sensorRead(float *distance){
 
   unsigned long currentLoopMillis = millis();
 
@@ -33,13 +33,13 @@ bool DistSensorHCSR04::sensorRead(float &distance){
 		digitalWrite(trigPin, LOW);
 		duration = pulseIn(echoPin, HIGH);
 		//Calculate the distance (in cm) based on the speed of sound.
-		distance = 10*duration/58.2;
+		distance[0] = 10*duration/58.2;
 
 		if (this->debug){
 			Serial.print(" duration: ");
 			Serial.print(duration);
 			Serial.print(" distance: ");
-			Serial.println(distance);
+			Serial.println(distance[0]);
 		}
 		//Delay 50ms before next reading.
 		// delay(50);

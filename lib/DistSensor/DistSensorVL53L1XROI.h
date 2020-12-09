@@ -91,7 +91,7 @@ public:
   ~DistSensorVL53L1XROI();
 
   void setup(void);
-  bool sensorRead(float &distance);
+  bool sensorRead(float *distance);
   int sensorRead(void);
   String getSensorRange(void);
   void printSensorStatus(void);

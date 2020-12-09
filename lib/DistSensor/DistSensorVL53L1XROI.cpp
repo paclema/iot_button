@@ -51,7 +51,7 @@ void DistSensorVL53L1XROI::setup(void){
 }
 
 
-bool DistSensorVL53L1XROI::sensorRead(float &distance){
+bool DistSensorVL53L1XROI::sensorRead(float *distance){
   // TODO
   return false;
 }
