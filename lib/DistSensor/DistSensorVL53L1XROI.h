@@ -75,6 +75,14 @@ public:
   VL53L1_UserRoi_t	roiConfig1 = { 12, 15, 15, 0 };
   VL53L1_UserRoi_t	roiConfig2 = { 0, 15, 3, 0 };
 
+  // Four ROI configurations
+  VL53L1_UserRoi_t	roiZone1 = { 0, 15, 3, 0 };
+  VL53L1_UserRoi_t	roiZone2 = { 3, 15, 7, 0 };
+  VL53L1_UserRoi_t	roiZone3 = { 7, 15, 11, 0 };
+  VL53L1_UserRoi_t	roiZone4 = { 11, 15, 15, 0 };
+
+  int roiDistances[4] = { 0, 0, 0, 0 };
+
   Gesture_DIRSWIPE_1_Data_t gestureDirSwipeData;
   int status, i, distance[2] = { 0, 0 };
   int left = 0, right = 0, cnt = 0, oldcnt;
@@ -92,7 +100,7 @@ public:
 
   void setup(void);
   bool sensorRead(float *distance);
-  int sensorRead(void);
+  int sensorCountPersons(void);
   String getSensorRange(void);
   void printSensorStatus(void);
 

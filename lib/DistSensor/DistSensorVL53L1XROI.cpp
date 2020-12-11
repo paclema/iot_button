@@ -36,9 +36,12 @@ void DistSensorVL53L1XROI::setup(void){
 	status += VL53L1_WaitDeviceBooted(Dev);
 	status += VL53L1_DataInit(Dev);
 	status += VL53L1_StaticInit(Dev);
-	status += VL53L1_SetDistanceMode(Dev, VL53L1_DISTANCEMODE_SHORT);
-	status += VL53L1_SetMeasurementTimingBudgetMicroSeconds(Dev, 10000);	// 73Hz
-	status += VL53L1_SetInterMeasurementPeriodMilliSeconds(Dev, 15);
+  status += VL53L1_SetDistanceMode(Dev, VL53L1_DISTANCEMODE_SHORT);
+	// status += VL53L1_SetDistanceMode(Dev, VL53L1_DISTANCEMODE_MEDIUM);
+  status += VL53L1_SetMeasurementTimingBudgetMicroSeconds(Dev, 10000);	// 73Hz
+	// status += VL53L1_SetMeasurementTimingBudgetMicroSeconds(Dev, 30000);
+  status += VL53L1_SetInterMeasurementPeriodMilliSeconds(Dev, 15);
+	// status += VL53L1_SetInterMeasurementPeriodMilliSeconds(Dev, 30);
 	if (status) {
 		Serial.printf("StartMeasurement failed status: %d\n\r", status);
     Serial.println("\t -->VL53L1X NOT initialized!");
@@ -53,11 +56,58 @@ void DistSensorVL53L1XROI::setup(void){
 
 bool DistSensorVL53L1XROI::sensorRead(float *distance){
   // TODO
-  return false;
+  static VL53L1_RangingMeasurementData_t RangingData;
+
+  // Roi zone 1:
+  status = VL53L1_SetUserROI(Dev, &roiZone1);
+  // while (digitalRead(INT));	// slightly faster
+  status = VL53L1_WaitMeasurementDataReady(Dev);
+  if (!status) status = VL53L1_GetRangingMeasurementData(Dev, &RangingData);	//4mS
+  VL53L1_clear_interrupt_and_enable_next_range(Dev, VL53L1_DEVICEMEASUREMENTMODE_SINGLESHOT);	//2mS
+  if (status == 0) roiDistances[0] = RangingData.RangeMilliMeter;
+
+  // Roi zone 2:
+  status = VL53L1_SetUserROI(Dev, &roiZone2);
+  // while (digitalRead(INT));	// slightly faster
+  status = VL53L1_WaitMeasurementDataReady(Dev);
+  if (!status) status = VL53L1_GetRangingMeasurementData(Dev, &RangingData);	//4mS
+  VL53L1_clear_interrupt_and_enable_next_range(Dev, VL53L1_DEVICEMEASUREMENTMODE_SINGLESHOT);	//2mS
+  if (status == 0) roiDistances[1] = RangingData.RangeMilliMeter;
+
+  // Roi zone 3:
+  status = VL53L1_SetUserROI(Dev, &roiZone3);
+  // while (digitalRead(INT));	// slightly faster
+  status = VL53L1_WaitMeasurementDataReady(Dev);
+  if (!status) status = VL53L1_GetRangingMeasurementData(Dev, &RangingData);	//4mS
+  VL53L1_clear_interrupt_and_enable_next_range(Dev, VL53L1_DEVICEMEASUREMENTMODE_SINGLESHOT);	//2mS
+  if (status == 0) roiDistances[2] = RangingData.RangeMilliMeter;
+
+  // Roi zone 4:
+  status = VL53L1_SetUserROI(Dev, &roiZone4);
+  // while (digitalRead(INT));	// slightly faster
+  status = VL53L1_WaitMeasurementDataReady(Dev);
+  if (!status) status = VL53L1_GetRangingMeasurementData(Dev, &RangingData);	//4mS
+  VL53L1_clear_interrupt_and_enable_next_range(Dev, VL53L1_DEVICEMEASUREMENTMODE_SINGLESHOT);	//2mS
+  if (status == 0) roiDistances[3] = RangingData.RangeMilliMeter;
+
+  Serial.println(status);
+  Serial.print(" ROI: ");
+  for (int i = 0; i < 4; i++) {
+
+    Serial.print(" - ");
+    Serial.print(roiDistances[i]);
+    distance[i]=roiDistances[i];
+  }
+  Serial.println();
+
+
+
+
+  return true;
 }
 
 
-int DistSensorVL53L1XROI::sensorRead(void){
+int DistSensorVL53L1XROI::sensorCountPersons(void){
   static VL53L1_RangingMeasurementData_t RangingData;
 	int gesture_code;
 
