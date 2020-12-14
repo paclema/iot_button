@@ -60,6 +60,7 @@ class RadarMotor{
   float getFeedbackAngle(void);
 
   void moveServo(void);
+  void detachServo(void){ this->servo.detach(); }; // Attaching Servo to D3};
 
   void setDebug(bool d){ this->debug = d; };
   bool isDebug(void){ return this->debug; };

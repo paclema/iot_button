@@ -137,7 +137,8 @@ void Radar::setupDistSensors(void){
 };
 
 void Radar::loop(void){
-  if (this->motor.enabled) motor.moveServo();
+  if (this->motor.enabled) this->motor.moveServo();
+  else this->motor.detachServo();
 };
 
 
@@ -186,15 +187,15 @@ bool Radar::readPoints(void){
         int numPoints = 4;  //TODO: get the num depending on ROI zones
         float angle = this->motor.getFeedbackAngle();
         for(int j = 0; j < numPoints; j++){
-          rPoints[index+j].angle = angle-(27/2) + (27/4)*j;
+          rPoints[index+j].angle = angle-(27./2) + (27./8) + (27./4)*(j);
           rPoints[index+j].distance = distance[j];
-          rPoints[index+j].fov_angle = 27/4;
+          rPoints[index+j].fov_angle = (27./4);
         }
         index = index + 4;
       } else if (nameSensor ==  "VL53L1X"){
         rPoints[index].angle = this->motor.getFeedbackAngle();
         rPoints[index].distance = distance[0];
-        rPoints[index].fov_angle = 15;
+        rPoints[index].fov_angle = 27;
         index++;
       } else if (nameSensor == "VL53L0X"){
         rPoints[index].angle = this->motor.getFeedbackAngle();

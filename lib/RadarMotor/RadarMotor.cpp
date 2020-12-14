@@ -159,6 +159,7 @@
 
 
     void RadarMotor::moveServo(void){
+      servo.attach(0); // Attaching Servo to D3
       unsigned long currentLoopMillis = millis();
       timeSinceLastMove = currentLoopMillis - previousServoMillis;
 
