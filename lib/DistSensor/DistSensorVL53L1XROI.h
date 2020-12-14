@@ -59,6 +59,26 @@ adjustments will work with any Arduino
 #define dev1_sel	digitalWrite(XSHUT, HIGH);
 #define dev1_desel	digitalWrite(XSHUT, LOW);
 
+// By default, this example blocks while waiting for sensor data to be ready.
+// Comment out this line to poll for data ready in a non-blocking way instead.
+// #define USE_BLOCKING_LOOP
+
+// For non bloquing use VL53L1_GetMeasurementDataReady() with measurement data ready pointer:
+// #define USE_MEASUREMENT_DATA_READY_POINTER
+
+
+// Timing budget set through VL53L1_SetMeasurementTimingBudgetMicroSeconds().
+// #define MEASUREMENT_BUDGET_MS 50
+#define MEASUREMENT_BUDGET_MS 0
+
+// Interval between measurements, set through
+// VL53L1_SetInterMeasurementPeriodMilliSeconds(). According to the API user
+// manual (rev 2), "the minimum inter-measurement period must be longer than the
+// timing budget + 4 ms." The STM32Cube example from ST uses 500 ms, but we
+// reduce this to 55 ms to allow faster readings.
+// #define INTER_MEASUREMENT_PERIOD_MS 55
+#define INTER_MEASUREMENT_PERIOD_MS 15
+
 
 class DistSensorVL53L1XROI: public DistSensor {
 
@@ -76,10 +96,18 @@ public:
   VL53L1_UserRoi_t	roiConfig2 = { 0, 15, 3, 0 };
 
   // Four ROI configurations
-  VL53L1_UserRoi_t	roiZone1 = { 0, 15, 3, 0 };
-  VL53L1_UserRoi_t	roiZone2 = { 3, 15, 7, 0 };
-  VL53L1_UserRoi_t	roiZone3 = { 7, 15, 11, 0 };
-  VL53L1_UserRoi_t	roiZone4 = { 11, 15, 15, 0 };
+  // VL53L1_UserRoi_t	roiZone1 = { 0, 15, 3, 0 };
+  // VL53L1_UserRoi_t	roiZone2 = { 3, 15, 7, 0 };
+  // VL53L1_UserRoi_t	roiZone3 = { 7, 15, 11, 0 };
+  // VL53L1_UserRoi_t	roiZone4 = { 11, 15, 15, 0 };
+
+  VL53L1_UserRoi_t	roiZone1 = { 0, 15, 15, 12 };
+  VL53L1_UserRoi_t	roiZone2 = { 0, 11, 15, 8 };
+  VL53L1_UserRoi_t	roiZone3 = { 0, 7, 15, 4 };
+  VL53L1_UserRoi_t	roiZone4 = { 0, 3, 15, 0 };
+
+  // Four ROI configurations on array:
+  VL53L1_UserRoi_t	roiZone[4];
 
   int roiDistances[4] = { 0, 0, 0, 0 };
 
@@ -109,9 +137,20 @@ public:
   void parseWebConfig(JsonObjectConst configObject);
 
   void checkDev(VL53L1_DEV Dev) {
+    uint8_t byteData;
   	uint16_t wordData;
-  	VL53L1_RdWord(Dev, 0x010F, &wordData);
-  	Serial.printf("DevAddr: 0x%X VL53L1X: 0x%X\n\r", Dev->I2cDevAddr, wordData);
+  	// VL53L1_RdWord(Dev, 0x010F, &wordData);
+  	// Serial.printf("DevAddr: 0x%X VL53L1X: 0x%X\n\r", Dev->I2cDevAddr, wordData);
+
+    VL53L1_RdByte(Dev, 0x010F, &byteData);
+    Serial.print(F("VL53L1X Model_ID: "));
+    Serial.println(byteData, HEX);
+    VL53L1_RdByte(Dev, 0x0110, &byteData);
+    Serial.print(F("VL53L1X Module_Type: "));
+    Serial.println(byteData, HEX);
+    VL53L1_RdWord(Dev, 0x010F, &wordData);
+    Serial.print(F("VL53L1X: "));
+    Serial.println(wordData, HEX);
   }
 
   inline void dispUpdate() {	// 33mS
