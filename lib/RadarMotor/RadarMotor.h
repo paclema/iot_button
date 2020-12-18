@@ -64,10 +64,11 @@ class RadarMotor{
   void setRange(void);
 
   float getFeedback(void);
-  float getFeedbackAngle(void);
+  float getAngle(void);
 
   void moveServo(void);
-  void detachServo(void){ this->servo.detach(); }; // Attaching Servo to D3};
+  void enableServo(void){ this->servo.attach(0); };
+  void disableServo(void){ this->servo.detach(); };
 
   void setDebug(bool d){ this->debug = d; };
   bool isDebug(void){ return this->debug; };

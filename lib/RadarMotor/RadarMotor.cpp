@@ -138,7 +138,7 @@
       return(result);
     }
 
-    float RadarMotor::getFeedbackAngle(void){
+    float RadarMotor::getAngle(void){
 
       float angle = map((getFeedback()),lowEnd,highEnd,START_ANGLE,END_ANGLE);
       if (debug){
@@ -159,14 +159,11 @@
 
 
     void RadarMotor::moveServo(void){
-      servo.attach(0); // Attaching Servo to D3
       unsigned long currentLoopMillis = millis();
       timeSinceLastMove = currentLoopMillis - previousServoMillis;
 
-
       if (timeSinceLastMove >= time_between_servo_writes){
         previousServoMillis = currentLoopMillis;
-
 
         if (((servoPos + servoIncrement) >= END_ANGLE) || ((servoPos + servoIncrement) <= START_ANGLE)){
           // reverse direction
@@ -178,9 +175,7 @@
         else {
           servoPos = servoPos + servoIncrement;
         }
-
         servo.write(servoPos);
       }
-
 
     };

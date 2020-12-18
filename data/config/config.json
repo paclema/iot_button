@@ -69,9 +69,12 @@
   },
   "radar": {
     "motor":{
-      "enabled": false,
-      "debug": false,
+      "enabled": true,
+      "debug": true,
+      "control_pin": 0,
+      "feedback_pin": 12,
       "angle_accuracy": 1,
+      "motor_speed_pulse": 5,
       "servo_speed_ms/60": 600
     },
     "HCSR04":{
@@ -95,7 +98,9 @@
       "enabled": false,
       "zones" : 4
     },
-    "debug": false
+    "debug": false,
+    "angle_min": 0,
+    "angle_max": 180
   },
   "info": {
     "restart_counter": 0,

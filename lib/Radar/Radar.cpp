@@ -19,9 +19,14 @@ void Radar::parseWebConfig(JsonObjectConst configObject){
 
   // Radar IWebConfig object:
   this->debug = configObject["debug"] | false;
+  this->angleMin = configObject["angle_min"];
+  this->angleMax = configObject["angle_max"];
 
   // Radar motor:
   this->motor.enabled = configObject["motor"]["enabled"] | false;
+  this->motor.setServoControl(configObject["motor"]["control_pin"]);
+  this->motor.setServoFeedback(configObject["motor"]["feedback_pin"]);
+  this->motor.setSpeedPulse(configObject["motor"]["motor_speed_pulse"]);
   this->motor.angleAccuracy = configObject["motor"]["angle_accuracy"];
   this->motor.servoSpeed = float(configObject["motor"]["servo_speed_ms/60"])/60;
   this->motor.setDebug(configObject["motor"]["debug"] | false);
@@ -137,8 +142,35 @@ void Radar::setupDistSensors(void){
 };
 
 void Radar::loop(void){
-  if (this->motor.enabled) this->motor.moveServo();
-  else this->motor.detachServo();
+
+  // For RadarMotor:
+  // if (this->motor.enabled){
+  //   this->motor.enableServo();
+  //   this->motor.moveServo();
+  // }
+  // else this->motor.disableServo();
+
+
+  // For ParallaxServo:
+  this->motor.handle();
+  if (debug){
+  Serial.print("Current angle: ");
+  Serial.print(this->motor.getAngle());
+  Serial.print("/");
+  Serial.print(this->motor.getAngleTarget());
+  Serial.print(" - ");
+  Serial.println(this->motor.getTurns());
+  }
+
+  if (this->motor.enabled){
+    this->motor.enableServo();
+
+    // Move here accordingly:
+    if(this->motor.getAngle() == this->angleMax) this->motor.rotate(this->angleMin, 4);
+    else if(this->motor.getAngle() == this->angleMin) this->motor.rotate(this->angleMax, 4);
+  }
+  else this->motor.disableServo();
+
 };
 
 
@@ -152,7 +184,7 @@ void Radar::printStatus(void){
 
 
 float Radar::getPosition(void){
-  return this->motor.getFeedbackAngle();
+  return this->motor.getAngle();
 };
 
 
@@ -165,7 +197,7 @@ bool Radar::getDistance(float &distance){
 bool Radar::readPoints(void){
   // Depending the sensorDistance type we can get several distances each time
   // Construct here the list to pass back to the main()
-  // float angle = this->motor.getFeedbackAngle();
+  // float angle = this->motor.getAngle();
   // float distance;
   // int sizeDistances = this->sensorDistance.sensorRead(distance);
   // float distancesNew[sizeDistances];
@@ -185,7 +217,7 @@ bool Radar::readPoints(void){
       if (nameSensor == "VL53L1X_ROI") {
         // rPoints[index].fov_angle = sensorTemp->getFovAngle();
         int numPoints = 4;  //TODO: get the num depending on ROI zones
-        float angle = this->motor.getFeedbackAngle();
+        float angle = this->motor.getAngle();
         for(int j = 0; j < numPoints; j++){
           rPoints[index+j].angle = angle-(27./2) + (27./8) + (27./4)*(j);
           rPoints[index+j].distance = distance[j];
@@ -193,17 +225,17 @@ bool Radar::readPoints(void){
         }
         index = index + 4;
       } else if (nameSensor ==  "VL53L1X"){
-        rPoints[index].angle = this->motor.getFeedbackAngle();
+        rPoints[index].angle = this->motor.getAngle();
         rPoints[index].distance = distance[0];
         rPoints[index].fov_angle = 27;
         index++;
       } else if (nameSensor == "VL53L0X"){
-        rPoints[index].angle = this->motor.getFeedbackAngle();
+        rPoints[index].angle = this->motor.getAngle();
         rPoints[index].distance = distance[0];
         rPoints[index].fov_angle = 27;
         index++;
       } else if (nameSensor == "HCSR04"){
-        rPoints[index].angle = this->motor.getFeedbackAngle();
+        rPoints[index].angle = this->motor.getAngle();
         rPoints[index].distance = distance[0];
         rPoints[index].fov_angle = 27;
         index++;

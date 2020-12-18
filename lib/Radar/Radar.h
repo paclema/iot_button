@@ -7,6 +7,7 @@
 #include "IWebConfig.h"
 
 #include "RadarMotor.h"
+#include "ParallaxServo.h"
 #include "DistSensor.h"
 #include "DistSensorFactory.h"
 
@@ -14,6 +15,8 @@
 class Radar: public IWebConfig {
 
 private:
+  float angleMin = 0;
+  float angleMax = 0;
 
   bool debug = false;
 
@@ -25,7 +28,9 @@ private:
 
 public:
 
-  RadarMotor motor;
+  // RadarMotor motor; // Using Hacked Servo
+  ParallaxServo motor; // Using Hacked Servo
+
   LinkedList<DistSensor*> distanceSensors = LinkedList<DistSensor*>();
 
   RPoint rPoints[20];

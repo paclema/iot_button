@@ -48,9 +48,9 @@ adjustments will work with any Arduino
 #define  MAX_INIT_RETRIES    20
 // #define SDA			2	// D4
 #define SDA			4
-#define SCL			5	// D1
+#define SCL			5   // D1
 #define XSHUT		14	// D5
-#define INT			D6
+#define INT			16  // D0
 
 #define light_on	0	//D3
 // #define light_off	4	//D2
