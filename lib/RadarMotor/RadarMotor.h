@@ -1,10 +1,17 @@
 #ifndef RadarMotor_h
 #define RadarMotor_h
 /*
-RadarMotor.h - Library for move the sensor head
+RadarMotor.h - Library to control and move the sensor head using a positional
+servo motor hacked to get the feedback position reading the internal potentiometer
+as analog input.
+You must get out the internal potentimeter signal (usually among the 3 pins it
+is the middle one) soldering a wire and connect it to an analog input.
 
+There is only one analog input A0 for ESP8266
+Servo PWM control signal attached on GPIO0 also known as D3 in Wemos D1 mini
 
 */
+
 
 #include <Arduino.h>
 #include <Servo.h>
