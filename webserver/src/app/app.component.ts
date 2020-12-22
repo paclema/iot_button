@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { NbMenuItem, NbIconModule, NbSidebarService, NbMenuService } from '@nebular/theme';
 import { NbEvaIconsModule } from '@nebular/eva-icons';
-
+import { version } from '../../package.json';
 
 @Component({
   selector: 'app-root',
@@ -10,6 +10,7 @@ import { NbEvaIconsModule } from '@nebular/eva-icons';
 })
 export class AppComponent {
   title = 'webserver';
+  webappVersion: string = version;
 
   items: NbMenuItem[] = [
     {
