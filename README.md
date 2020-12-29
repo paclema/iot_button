@@ -30,7 +30,7 @@ If you can not run angular-cli from platformio PowerShell using windows, activat
 Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
 
 ```console
-ng build --prod --optimization=true --outputHashing=none --outputPath=../data --deleteOutputPath=false
+ng build --prod --optimization=true --outputHashing=none; npm run postbuild
 ```
 
 To build for xammp:
