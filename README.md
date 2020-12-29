@@ -39,3 +39,10 @@ ng build --prod --optimization=true --outputHashing=none --outputPath=C:/xampp/h
 ```
 
 These build options can be added in angular.json in the future.
+
+### Compress _/data_ fodler with gzip:
+Under webserver folder:
+
+```console
+npm run postbuild
+```
