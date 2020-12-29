@@ -77,78 +77,78 @@ void WebConfigServer::saveWebConfigurationFile(const char *filename, const JsonD
 
 void WebConfigServer::parseConfig(const JsonDocument& doc){
 
-    // serializeJsonPretty(doc, Serial);
+  // serializeJsonPretty(doc, Serial);
 
-    // Parse char network[64]:
-    // strlcpy(network.ssid_name, doc["network"]["ssid_name"] | "SSID_name", sizeof(network.ssid_name));
+  // Parse char network[64]:
+  // strlcpy(network.ssid_name, doc["network"]["ssid_name"] | "SSID_name", sizeof(network.ssid_name));
 
-    // Network object:
-    network.ap_name = doc["network"]["AP_SSID"] | "iotdevice";
-    network.ap_password = doc["network"]["AP_password"] | "iotdevice";
-    network.ssid_name = doc["network"]["WiFi_SSID"] | "SSID_name";
-    network.ssid_password = doc["network"]["WiFi_password"] | "SSID_password";
-    network.ip_address = doc["network"]["ip_address"] | "192.168.1.2";
-    network.subnet = doc["network"]["subnet"] | "255.255.255.0";
-    network.dns_server = doc["network"]["dns_server"] | "192.168.1.1";
-    network.hostname = doc["network"]["hostname"] | "iotdevice.local";
-
-
-    // MQTT object:
-    mqtt.server= doc["mqtt"]["server"] | "server_address";
-    mqtt.port = doc["mqtt"]["port"] | 8888;
-    mqtt.id_name= doc["mqtt"]["id_name"] | "iotdevice";
-    mqtt.reconnect_mqtt = doc["mqtt"]["reconnect_mqtt"] | false;
-    mqtt.enable_user_and_pass = doc["mqtt"]["enable_user_and_pass"] | false;
-    mqtt.user_name= doc["mqtt"]["user_name"] | "user_name";
-    mqtt.user_password= doc["mqtt"]["user_password"] | "user_password";
-    mqtt.enable_certificates = doc["mqtt"]["enable_certificates"] | false;
-    mqtt.ca_file= doc["mqtt"]["ca_file"] | "certs/ca.crt";
-    mqtt.cert_file= doc["mqtt"]["cert_file"] | "certs/client.crt";
-    mqtt.key_file= doc["mqtt"]["key_file"] | "certs/client.key";
-    mqtt.ca_file= doc["mqtt"]["ca_file"] | "server_address";
-    for (int i = 0; i < doc["mqtt"]["pub_topic"].size(); i++) { //Iterate through results
-      // mqtt.pub_topic[i] = doc["mqtt"]["pub_topic"][i];  //Implicit cast
-      mqtt.pub_topic[i] = doc["mqtt"]["pub_topic"][i].as<String>(); //Explicit cast
-    }
-    for (int i = 0; i < doc["mqtt"]["sub_topic"].size(); i++)
-      mqtt.sub_topic[i] = doc["mqtt"]["sub_topic"][i].as<String>();
+  // Network object:
+  network.ap_name = doc["network"]["AP_SSID"] | "iotdevice";
+  network.ap_password = doc["network"]["AP_password"] | "iotdevice";
+  network.ssid_name = doc["network"]["WiFi_SSID"] | "SSID_name";
+  network.ssid_password = doc["network"]["WiFi_password"] | "SSID_password";
+  network.ip_address = doc["network"]["ip_address"] | "192.168.1.2";
+  network.subnet = doc["network"]["subnet"] | "255.255.255.0";
+  network.dns_server = doc["network"]["dns_server"] | "192.168.1.1";
+  network.hostname = doc["network"]["hostname"] | "iotdevice.local";
 
 
-    // Services object:
-    // OTA
-    services.ota = doc["services"]["OTA"] | false;
-    // FTP
-    services.ftp.enabled = doc["services"]["FTP"]["enabled"] | false;
-    services.ftp.user = doc["services"]["FTP"]["user"] | "admin";
-    services.ftp.password = doc["services"]["FTP"]["password"] | "admin";
-    // WebSockets
-    services.webSockets.enabled = doc["services"]["WebSockets"]["enabled"] | false;
-    services.webSockets.publish_time_ms = doc["services"]["WebSockets"]["publish_time_ms"] | 100;
-    // DeepSleep
-    services.deep_sleep.enabled = doc["services"]["deep_sleep"]["enabled"] | false;
-    services.deep_sleep.mode = doc["services"]["deep_sleep"]["mode"] | "WAKE_RF_DEFAULT";
-    for (int i = 0; i < doc["services"]["deep_sleep"]["mode_options"].size(); i++) { //Iterate through results
-      services.deep_sleep.mode_options[i] = doc["services"]["deep_sleep"]["mode_options"][i].as<String>(); //Explicit cast
-    }
-    services.deep_sleep.sleep_time = doc["services"]["deep_sleep"]["sleep_time"] | 10;
-    services.deep_sleep.sleep_delay = doc["services"]["deep_sleep"]["sleep_delay"] | 5;
-    // LightSleep
-    services.light_sleep.enabled = doc["services"]["light_sleep"]["enabled"] | false;
-    services.light_sleep.mode = doc["services"]["light_sleep"]["mode"] | "LIGHT_SLEEP_T";
-    for (int i = 0; i < doc["services"]["light_sleep"]["mode_options"].size(); i++) { //Iterate through results
-      services.light_sleep.mode_options[i] = doc["services"]["light_sleep"]["mode_options"][i].as<String>(); //Explicit cast
-    }
-
-    // Device object:
-    device.track_restart_counter = doc["device"]["track_restart_counter"] | true;
-    device.loop_time_ms = doc["device"]["loop_time_ms"];
-    device.publish_time_ms = doc["device"]["publish_time_ms"];
+  // MQTT object:
+  mqtt.server= doc["mqtt"]["server"] | "server_address";
+  mqtt.port = doc["mqtt"]["port"] | 8888;
+  mqtt.id_name= doc["mqtt"]["id_name"] | "iotdevice";
+  mqtt.reconnect_mqtt = doc["mqtt"]["reconnect_mqtt"] | false;
+  mqtt.enable_user_and_pass = doc["mqtt"]["enable_user_and_pass"] | false;
+  mqtt.user_name= doc["mqtt"]["user_name"] | "user_name";
+  mqtt.user_password= doc["mqtt"]["user_password"] | "user_password";
+  mqtt.enable_certificates = doc["mqtt"]["enable_certificates"] | false;
+  mqtt.ca_file= doc["mqtt"]["ca_file"] | "certs/ca.crt";
+  mqtt.cert_file= doc["mqtt"]["cert_file"] | "certs/client.crt";
+  mqtt.key_file= doc["mqtt"]["key_file"] | "certs/client.key";
+  mqtt.ca_file= doc["mqtt"]["ca_file"] | "server_address";
+  for (unsigned int i = 0; i < doc["mqtt"]["pub_topic"].size(); i++) { //Iterate through results
+    // mqtt.pub_topic[i] = doc["mqtt"]["pub_topic"][i];  //Implicit cast
+    mqtt.pub_topic[i] = doc["mqtt"]["pub_topic"][i].as<String>(); //Explicit cast
+  }
+  for (unsigned int i = 0; i < doc["mqtt"]["sub_topic"].size(); i++)
+    mqtt.sub_topic[i] = doc["mqtt"]["sub_topic"][i].as<String>();
 
 
-    // Info object:
-    info.restart_counter = doc["info"]["ftp"]["enabled"] | false;
-    info.fw_version = doc["info"]["fw_version"] | "-";
-    info.repo = doc["info"]["repo"] | "github.com/paclema";
+  // Services object:
+  // OTA
+  services.ota = doc["services"]["OTA"] | false;
+  // FTP
+  services.ftp.enabled = doc["services"]["FTP"]["enabled"] | false;
+  services.ftp.user = doc["services"]["FTP"]["user"] | "admin";
+  services.ftp.password = doc["services"]["FTP"]["password"] | "admin";
+  // WebSockets
+  services.webSockets.enabled = doc["services"]["WebSockets"]["enabled"] | false;
+  services.webSockets.publish_time_ms = doc["services"]["WebSockets"]["publish_time_ms"] | 100;
+  // DeepSleep
+  services.deep_sleep.enabled = doc["services"]["deep_sleep"]["enabled"] | false;
+  services.deep_sleep.mode = doc["services"]["deep_sleep"]["mode"] | "WAKE_RF_DEFAULT";
+  for (unsigned int i = 0; i < doc["services"]["deep_sleep"]["mode_options"].size(); i++) { //Iterate through results
+    services.deep_sleep.mode_options[i] = doc["services"]["deep_sleep"]["mode_options"][i].as<String>(); //Explicit cast
+  }
+  services.deep_sleep.sleep_time = doc["services"]["deep_sleep"]["sleep_time"] | 10;
+  services.deep_sleep.sleep_delay = doc["services"]["deep_sleep"]["sleep_delay"] | 5;
+  // LightSleep
+  services.light_sleep.enabled = doc["services"]["light_sleep"]["enabled"] | false;
+  services.light_sleep.mode = doc["services"]["light_sleep"]["mode"] | "LIGHT_SLEEP_T";
+  for (unsigned int i = 0; i < doc["services"]["light_sleep"]["mode_options"].size(); i++) { //Iterate through results
+    services.light_sleep.mode_options[i] = doc["services"]["light_sleep"]["mode_options"][i].as<String>(); //Explicit cast
+  }
+
+  // Device object:
+  device.track_restart_counter = doc["device"]["track_restart_counter"] | true;
+  device.loop_time_ms = doc["device"]["loop_time_ms"];
+  device.publish_time_ms = doc["device"]["publish_time_ms"];
+
+
+  // Info object:
+  info.restart_counter = doc["info"]["ftp"]["enabled"] | false;
+  info.fw_version = doc["info"]["fw_version"] | "-";
+  info.repo = doc["info"]["repo"] | "github.com/paclema";
 
 
 }
@@ -163,17 +163,15 @@ void WebConfigServer::addConfig(IWebConfig* config, String nameObject){
 
 
 void WebConfigServer::parseIWebConfig(const JsonDocument& doc){
-  Serial.print("List IWebConfig Objects size: ");
-  Serial.println(configs.size());
+  // Serial.print("List IWebConfig Objects size: ");
+  // Serial.println(configs.size());
 
   IWebConfig *config ;
   for(int i = 0; i < configs.size(); i++){
     config = configs.get(i);
-    // JsonObjectConst configObject = doc[config->nameConfigObject];
-    // config->parseWebConfig(configObject);
     config->parseWebConfig(doc[config->nameConfigObject]);
-    Serial.print("IWebConfig Object parsed for: ");
-    Serial.println(config->nameConfigObject);
+    // Serial.print("IWebConfig Object parsed for: ");
+    // Serial.println(config->nameConfigObject);
 
   }
 };
@@ -390,9 +388,9 @@ void WebConfigServer::configureServer(ESP8266WebServer *server){
 
     // JsonObject network = doc["network"];
 
-    Serial.print("JSON POST: ");
-    serializeJsonPretty(doc, Serial);
-    Serial.println("");
+    // Serial.print("JSON POST: ");
+    // serializeJsonPretty(doc, Serial);
+    // Serial.println("");
 
     // Parse file to Config struct object:
     WebConfigServer::parseConfig(doc);
@@ -403,7 +401,9 @@ void WebConfigServer::configureServer(ESP8266WebServer *server){
     // Save the config file with new configuration:
     WebConfigServer::saveWebConfigurationFile(CONFIG_FILE,doc);
 
-    server->send ( 200, "text/json", "{\"message\": \"Configurations saved\"}" );
+    String response = "{\"message\": \"Configurations saved\"}";
+    server->send ( 200, "text/json", response );
+    Serial.println("JSON POST: " + response);
 
   });
 
