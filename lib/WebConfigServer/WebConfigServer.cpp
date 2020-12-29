@@ -365,17 +365,18 @@ void WebConfigServer::configureServer(ESP8266WebServer *server){
 
   //SERVER INIT
   //list directory
-  server->serveStatic("/config/config.json", SPIFFS, "/config/config.json");
-  server->serveStatic("/certs", SPIFFS, "/certs");
-  server->serveStatic("/img", SPIFFS, "/img");
-  server->serveStatic("/", SPIFFS, "/index.html");
-  server->serveStatic("/main.js", SPIFFS, "/main.js");
-  server->serveStatic("/polyfills.js", SPIFFS, "/polyfills.js");
-  server->serveStatic("/runtime.js", SPIFFS, "/runtime.js");
-  server->serveStatic("/styles.css", SPIFFS, "/styles.css");
-  server->serveStatic("/scripts.js", SPIFFS, "/scripts.js");
-  server->serveStatic("/3rdpartylicenses.txt", SPIFFS, "/3rdpartylicenses.txt");
-  server->serveStatic("/favicon.ico", SPIFFS, "/favicon.ico");
+  // server->serveStatic("/config/config.json", SPIFFS, "/config/config.json");
+  // server->serveStatic("/certs", SPIFFS, "/certs.gz");
+  // server->serveStatic("/img", SPIFFS, "/img.gz");
+  // server->serveStatic("/", SPIFFS, "/index.html.gz");
+  // server->serveStatic("/main.js", SPIFFS, "/main.js.gz");
+  // server->serveStatic("/polyfills.js", SPIFFS, "/polyfills.js.gz");
+  // server->serveStatic("/runtime.js", SPIFFS, "/runtime.js.gz");
+  // server->serveStatic("/styles.css", SPIFFS, "/styles.css.gz");
+  // server->serveStatic("/scripts.js", SPIFFS, "/scripts.js.gz");
+  // server->serveStatic("/3rdpartylicenses.txt", SPIFFS, "/3rdpartylicenses.txt.gz");
+  // server->serveStatic("/favicon.ico", SPIFFS, "/favicon.ico.gz");
+  // server->serveStatic("/", SPIFFS, "/");
 
 
   server->on("/gpio", HTTP_POST, [& ,server](){
@@ -433,29 +434,25 @@ void WebConfigServer::configureServer(ESP8266WebServer *server){
     // Serial.print("JSON POST argName: "); Serial.println(server->argName(0));
     // Serial.print("JSON POST args: "); Serial.println(server->args());
 
-      if (server->args() > 0){
-         for (int i = 0; i < server->args(); i++ ) {
-             // Serial.print("POST Arguments: " ); Serial.println(server->args(i));
-             Serial.print("Name: "); Serial.println(server->argName(i));
-             Serial.print("Value: "); Serial.println(server->arg(i));
-        }
-     }
+    if (server->args() > 0){
+      for (int i = 0; i < server->args(); i++ ) {
+        // Serial.print("POST Arguments: " ); Serial.println(server->args(i));
+        Serial.print("Name: "); Serial.println(server->argName(i));
+        Serial.print("Value: "); Serial.println(server->arg(i));
+      }
+    }
 
     if( ! server->hasArg("filename") || server->arg("filename") == NULL){
       server->send(400, "text/plain", "400: Invalid Request");
-    } else{
+    } else {
       Serial.print("File to restore: "); Serial.println(server->arg("filename"));
       restoreBackupFile(server->arg("filename"));
       server->send ( 200, "text/json", "{\"message\": \"Configuration restored\"}" );
     }
-
-
   });
 
+
   server->on("/restart", HTTP_POST, [& ,server](){
-    // if (!handleFileRead(server.uri())) {
-      // server->send(404, "text/plain", "FileNotFound");
-    // }
     if( ! server->hasArg("restart") || server->arg("restart") == NULL){
       server->send(400, "text/plain", "400: Invalid Request");
     } else{
@@ -475,19 +472,54 @@ void WebConfigServer::configureServer(ESP8266WebServer *server){
 
   });
 
-
-  //called when the url is not defined here
-  //use it to load content from SPIFFS
+  // Handle files also gziped:
   server->onNotFound([& ,server]() {
-    // if (!handleFileRead(server.uri())) {
-      server->send(404, "text/plain", "FileNotFound");
-    // }
+    // If the client requests any URI
+    String path = server->uri();
+    if (!handleFileRead(server, server->uri()))
+      // send it if it exists
+      // otherwise, respond with a 404 (Not Found) error:
+      server->send(404, "text/plain", "404: Not Found");
   });
 
   server->begin();
   Serial.println ( "HTTP server started" );
 
+}
 
+
+String WebConfigServer::getContentType(String filename) {
+  // convert the file extension to the MIME type
+  if(filename.endsWith(".html")) return "text/html";
+  else if(filename.endsWith(".css")) return "text/css";
+  else if(filename.endsWith(".js")) return "application/javascript";
+  else if(filename.endsWith(".ico")) return "image/x-icon";
+  else if(filename.endsWith(".gz")) return "application/x-gzip";
+  return "text/plain";
+}
+
+bool WebConfigServer::handleFileRead(ESP8266WebServer *server, String path) {
+  // send the right file to the client (if it exists)
+  Serial.println("handleFileRead: " + path);
+  // If a folder is requested, send the index file
+  if(path.endsWith("/")) path += "index.html";
+  // Get the MIME type
+  String contentType = getContentType(path);
+  String pathWithGz = path + ".gz";
+  // If the file exists, either as a compressed archive, or normal
+  if(SPIFFS.exists(pathWithGz) || SPIFFS.exists(path)){
+    // If there's a compressed version available use it
+    if(SPIFFS.exists(pathWithGz))
+      path += ".gz";
+    // Open the file and send it to the client
+    File file = SPIFFS.open(path, "r");
+    size_t sent_size = server->streamFile(file, contentType);
+    file.close();
+    Serial.println(String("\tSent file: ") + path + String(" - ") + formatBytes(sent_size));
+    return true;
+  }
+  Serial.println(String("\tFile Not Found: ") + path);
+  return false;
 }
 
 

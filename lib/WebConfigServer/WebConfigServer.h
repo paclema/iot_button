@@ -122,7 +122,7 @@ public:
 private:
 
   LinkedList<IWebConfig*> configs = LinkedList<IWebConfig*>();
-  
+
   void parseIWebConfig(const JsonDocument& doc);
 
   String formatBytes(size_t bytes);
@@ -136,6 +136,9 @@ private:
   void restoreBackupFile(String filenamechar);
   // void updateGpio(void);
   void updateGpio(ESP8266WebServer *server);
+
+  String getContentType(String filename);
+  bool handleFileRead(ESP8266WebServer *server, String path);
 
 
 };
