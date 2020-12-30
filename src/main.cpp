@@ -236,21 +236,32 @@ void reconnectMQTT() {
     if (!mqttClient.connected() && (mqttRetries <= mqttMaxRetries) ) {
       bool mqttConnected = false;
       Serial.print("Attempting MQTT connection... ");
+      String mqttWillTopic = "/" + config.mqtt.id_name + "/connected";
+      uint8_t mqttWillQoS = 2;
+      boolean mqttWillRetain = true;
+      String mqttWillMessage = "false";
       if (config.mqtt.enable_user_and_pass)
         mqttConnected = mqttClient.connect(config.mqtt.id_name.c_str(),
                                             config.mqtt.user_name.c_str(),
-                                            config.mqtt.user_password.c_str());
+                                            config.mqtt.user_password.c_str(),
+                                            mqttWillTopic.c_str(),
+                                            mqttWillQoS,
+                                            mqttWillRetain,
+                                            mqttWillMessage.c_str());
       else
-        mqttConnected = mqttClient.connect(config.mqtt.id_name.c_str());
+        mqttConnected = mqttClient.connect(config.mqtt.id_name.c_str(),
+                                            mqttWillTopic.c_str(),
+                                            mqttWillQoS,
+                                            mqttWillRetain,
+                                            mqttWillMessage.c_str());
 
       if (mqttConnected) {
         Serial.println("connected");
         // Once connected, publish an announcement...
         String base_topic_pub = "/" + config.mqtt.id_name + "/";
         String topic_connected_pub = base_topic_pub + "connected";
-        // String msg_connected = config.mqtt.id_name + " connected";
         String msg_connected ="true";
-        mqttClient.publish(topic_connected_pub.c_str(), msg_connected.c_str());
+        mqttClient.publish(topic_connected_pub.c_str(), msg_connected.c_str(), true);
         // ... and resubscribe
         String base_topic_sub = base_topic_pub + "#";
         mqttClient.subscribe(base_topic_sub.c_str());
@@ -396,7 +407,7 @@ void loop() {
 
     String base_topic_pub = "/" + config.mqtt.id_name + "/";
     String topic_pub = base_topic_pub + "data";
-    String msg_pub ="{\"angle\":35, \"distance\" : 124 }";
+    String msg_pub ="{\"angle\":35, \"distance\": 124}";
     mqttClient.publish(topic_pub.c_str(), msg_pub.c_str());
     Serial.println("MQTT published: " + msg_pub + " -- loop: " + config.device.publish_time_ms);
   }
