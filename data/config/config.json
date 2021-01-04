@@ -11,11 +11,10 @@
   },
   "mqtt": {
     "server": "broker.ddns.net",
-    "id_name": "iotbutton",
+    "id_name": "iot-button",
     "user_name": "user_name",
     "user_password": "user_password",
     "port": 1883,
-    "id_name": "iot-button",
     "reconnect_mqtt": false,
     "enable_user_and_pass": true,
     "enable_certificates": false,

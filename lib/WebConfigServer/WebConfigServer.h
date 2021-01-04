@@ -12,9 +12,11 @@
 #define ARDUINOJSON_ENABLE_ALIGNMENT 1
 #include <ArduinoJson.h>
 
-
+// Allocate a temporary JsonDocument
+// Don't forget to change the capacity to match your requirements.
+// Use arduinojson.org/assistant to compute the capacity.
 #define CONFIG_FILE "/config/config.json"
-#define CONFIG_JSON_SIZE 3000
+#define CONFIG_JSON_SIZE 4000
 #define MQTT_TOPIC_MAX_SIZE_LIST 10
 #define JSON_MAX_SIZE_LIST 6
 
@@ -122,7 +124,7 @@ public:
 private:
 
   LinkedList<IWebConfig*> configs = LinkedList<IWebConfig*>();
-  
+
   void parseIWebConfig(const JsonDocument& doc);
 
   String formatBytes(size_t bytes);
@@ -136,6 +138,9 @@ private:
   void restoreBackupFile(String filenamechar);
   // void updateGpio(void);
   void updateGpio(ESP8266WebServer *server);
+
+  String getContentType(String filename);
+  bool handleFileRead(ESP8266WebServer *server, String path);
 
 
 };
