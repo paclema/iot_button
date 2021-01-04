@@ -15,7 +15,7 @@ ParallaxServo::ParallaxServo(byte pinControl, byte pinFeedback) {
 
 void ParallaxServo::setup() {
   if (debug){
-    Serial.print("controlPin: ");
+    Serial.print("\tcontrolPin: ");
     Serial.print(this->controlPin);
     Serial.print("\t");
     Serial.print(" feedbackPin: ");

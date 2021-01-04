@@ -31,7 +31,7 @@ If you can not run angular-cli from platformio PowerShell using windows, activat
 Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
 
 ```console
-ng build --prod --optimization=true --outputHashing=none --outputPath=../data --deleteOutputPath=false
+ng build --prod --optimization=true --outputHashing=none; npm run postbuild
 ```
 
 To build for xammp:
@@ -40,3 +40,10 @@ ng build --prod --optimization=true --outputHashing=none --outputPath=C:/xampp/h
 ```
 
 These build options can be added in angular.json in the future.
+
+### Compress _/data_ fodler with gzip:
+Under webserver folder:
+
+```console
+npm run postbuild
+```

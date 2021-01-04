@@ -135,6 +135,9 @@ private:
   // void updateGpio(void);
   void updateGpio(ESP8266WebServer *server);
 
+  String getContentType(String filename);
+  bool handleFileRead(ESP8266WebServer *server, String path);
+
 
 };
 #endif

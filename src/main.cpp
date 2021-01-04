@@ -10,13 +10,18 @@ extern "C" {
 
 #include <ESP8266WiFi.h>
 
+// Main variables:
+unsigned long connectionTime = millis();
 
 // MQTT
 #include <PubSubClient.h>
 WiFiClientSecure wifiClientSecure;    // To use with mqtt and certificates
 WiFiClient wifiClient;                // To use with mqtt without certificates
 PubSubClient mqttClient;
-unsigned long connection_time = millis();
+unsigned long previousMqttReconnectionMillis = millis();
+unsigned int mqttReconnectionTime = 10000;
+int mqttRetries = 0;
+int mqttMaxRetries = 10;
 String mqttQueueString = "{\"data\":[";
 
 // Configuration
@@ -237,48 +242,60 @@ void initMQTT(void){
 
 void reconnectMQTT() {
   // Loop until we're reconnected
-  int retries = 0;
-  int max_retries = 5;
-  bool mqtt_connected = false;
-  while (!mqttClient.connected() && (retries <= max_retries) ) {
-    Serial.print("Attempting MQTT connection...");
-    if (config.mqtt.enable_user_and_pass)
-      mqtt_connected = mqttClient.connect(config.mqtt.id_name.c_str(),
-                                          config.mqtt.user_name.c_str(),
-                                          config.mqtt.user_password.c_str());
-    else
-        mqtt_connected = mqttClient.connect(config.mqtt.id_name.c_str());
+  if (currentLoopMillis - previousMqttReconnectionMillis > mqttReconnectionTime){
+    if (!mqttClient.connected() && (mqttRetries <= mqttMaxRetries) ) {
+      bool mqttConnected = false;
+      Serial.print("Attempting MQTT connection... ");
+      String mqttWillTopic = "/" + config.mqtt.id_name + "/connected";
+      uint8_t mqttWillQoS = 2;
+      boolean mqttWillRetain = true;
+      String mqttWillMessage = "false";
+      if (config.mqtt.enable_user_and_pass)
+        mqttConnected = mqttClient.connect(config.mqtt.id_name.c_str(),
+                                            config.mqtt.user_name.c_str(),
+                                            config.mqtt.user_password.c_str(),
+                                            mqttWillTopic.c_str(),
+                                            mqttWillQoS,
+                                            mqttWillRetain,
+                                            mqttWillMessage.c_str());
+      else
+        mqttConnected = mqttClient.connect(config.mqtt.id_name.c_str(),
+                                            mqttWillTopic.c_str(),
+                                            mqttWillQoS,
+                                            mqttWillRetain,
+                                            mqttWillMessage.c_str());
 
-    if (mqtt_connected) {
-      Serial.println("connected");
-      // Once connected, publish an announcement...
-      String base_topic_pub = "/" + config.mqtt.id_name + "/";
-      String topic_connected_pub = base_topic_pub + "connected";
-      // String msg_connected = config.mqtt.id_name + " connected";
-      String msg_connected ="true";
-      mqttClient.publish(topic_connected_pub.c_str(), msg_connected.c_str());
-      // ... and resubscribe
-      String base_topic_sub = base_topic_pub + "#";
-      mqttClient.subscribe(base_topic_sub.c_str());
+      if (mqttConnected) {
+        Serial.println("connected");
+        // Once connected, publish an announcement...
+        String base_topic_pub = "/" + config.mqtt.id_name + "/";
+        String topic_connected_pub = base_topic_pub + "connected";
+        String msg_connected ="true";
+        mqttClient.publish(topic_connected_pub.c_str(), msg_connected.c_str(), true);
+        // ... and resubscribe
+        String base_topic_sub = base_topic_pub + "#";
+        mqttClient.subscribe(base_topic_sub.c_str());
 
-      long time_now = millis() - connection_time;
-      Serial.print("Time to setup and be connected: ");
-      Serial.print(time_now/1000);
-      Serial.println("s");
+        long time_now = millis() - connectionTime;
+        mqttRetries = 0;
+        Serial.print("Time to setup and be connected: ");
+        Serial.print(time_now/1000);
+        Serial.println("s");
 
-    } else {
-      Serial.print("failed, rc=");
-      Serial.print(mqttClient.state());
-      Serial.print(" try again in 5 seconds: ");
-      Serial.print(retries);
-      Serial.print("/");
-      Serial.println(max_retries);
+      } else {
+        Serial.print("failed, rc=");
+        Serial.print(mqttClient.state());
+        Serial.print(" try again in ");
+        Serial.print(mqttReconnectionTime/1000);
+        Serial.print("s: ");
+        Serial.print(mqttRetries);
+        Serial.print("/");
+        Serial.println(mqttMaxRetries);
 
-      // Wait 5 seconds before retrying
-      delay(5000);
-
+      }
+      previousMqttReconnectionMillis = millis();
+      mqttRetries++;
     }
-    retries++;
   }
 }
 
@@ -383,7 +400,7 @@ void loop() {
   }
   if (config.services.deep_sleep.enabled){
     // long time_now = millis();
-    if (millis() > connection_time + (config.services.deep_sleep.sleep_delay*1000)){
+    if (millis() > connectionTime + (config.services.deep_sleep.sleep_delay*1000)){
       Serial.println("Deep sleeping...");
       if (config.services.deep_sleep.mode == "WAKE_RF_DEFAULT")
         // sleep_time is in secs, but the function gets microsecs
@@ -430,7 +447,8 @@ void loop() {
       mqttQueueString += msg_pub;
 
       // Publish mqtt sensor feedback:
-      if((config.device.publish_time_ms != 0 ) && (currentLoopMillis - previousMQTTPublishMillis > config.device.publish_time_ms)) {
+      if(mqttClient.connected() && (config.device.publish_time_ms != 0) && (currentLoopMillis - previousMQTTPublishMillis > config.device.publish_time_ms)) {
+        previousMQTTPublishMillis = currentLoopMillis;
         // Here starts the MQTT publish loop configured:
 
           mqttQueueString += "]}";
@@ -439,7 +457,7 @@ void loop() {
           String topic_pub = base_topic_pub + "data";
           mqttClient.setBufferSize((uint16_t)(mqttQueueString.length() + 100));
           mqttClient.publish(topic_pub.c_str(), mqttQueueString.c_str(), mqttQueueString.length());
-          // Serial.println("MQTT published: " + mqttQueueString);
+          // Serial.println("MQTT published: " + msg_pub + " -- loop: " + config.device.publish_time_ms);
 
           mqttQueueString = "{\"data\":[";
           previousMQTTPublishMillis = currentLoopMillis;

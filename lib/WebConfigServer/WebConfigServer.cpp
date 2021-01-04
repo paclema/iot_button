@@ -77,78 +77,78 @@ void WebConfigServer::saveWebConfigurationFile(const char *filename, const JsonD
 
 void WebConfigServer::parseConfig(const JsonDocument& doc){
 
-    // serializeJsonPretty(doc, Serial);
+  // serializeJsonPretty(doc, Serial);
 
-    // Parse char network[64]:
-    // strlcpy(network.ssid_name, doc["network"]["ssid_name"] | "SSID_name", sizeof(network.ssid_name));
+  // Parse char network[64]:
+  // strlcpy(network.ssid_name, doc["network"]["ssid_name"] | "SSID_name", sizeof(network.ssid_name));
 
-    // Network object:
-    network.ap_name = doc["network"]["AP_SSID"] | "iotdevice";
-    network.ap_password = doc["network"]["AP_password"] | "iotdevice";
-    network.ssid_name = doc["network"]["WiFi_SSID"] | "SSID_name";
-    network.ssid_password = doc["network"]["WiFi_password"] | "SSID_password";
-    network.ip_address = doc["network"]["ip_address"] | "192.168.1.2";
-    network.subnet = doc["network"]["subnet"] | "255.255.255.0";
-    network.dns_server = doc["network"]["dns_server"] | "192.168.1.1";
-    network.hostname = doc["network"]["hostname"] | "iotdevice.local";
-
-
-    // MQTT object:
-    mqtt.server= doc["mqtt"]["server"] | "server_address";
-    mqtt.port = doc["mqtt"]["port"] | 8888;
-    mqtt.id_name= doc["mqtt"]["id_name"] | "iotdevice";
-    mqtt.reconnect_mqtt = doc["mqtt"]["reconnect_mqtt"] | false;
-    mqtt.enable_user_and_pass = doc["mqtt"]["enable_user_and_pass"] | false;
-    mqtt.user_name= doc["mqtt"]["user_name"] | "user_name";
-    mqtt.user_password= doc["mqtt"]["user_password"] | "user_password";
-    mqtt.enable_certificates = doc["mqtt"]["enable_certificates"] | false;
-    mqtt.ca_file= doc["mqtt"]["ca_file"] | "certs/ca.crt";
-    mqtt.cert_file= doc["mqtt"]["cert_file"] | "certs/client.crt";
-    mqtt.key_file= doc["mqtt"]["key_file"] | "certs/client.key";
-    mqtt.ca_file= doc["mqtt"]["ca_file"] | "server_address";
-    for (unsigned int i = 0; i < doc["mqtt"]["pub_topic"].size(); i++) { //Iterate through results
-      // mqtt.pub_topic[i] = doc["mqtt"]["pub_topic"][i];  //Implicit cast
-      mqtt.pub_topic[i] = doc["mqtt"]["pub_topic"][i].as<String>(); //Explicit cast
-    }
-    for (unsigned int i = 0; i < doc["mqtt"]["sub_topic"].size(); i++)
-      mqtt.sub_topic[i] = doc["mqtt"]["sub_topic"][i].as<String>();
+  // Network object:
+  network.ap_name = doc["network"]["AP_SSID"] | "iotdevice";
+  network.ap_password = doc["network"]["AP_password"] | "iotdevice";
+  network.ssid_name = doc["network"]["WiFi_SSID"] | "SSID_name";
+  network.ssid_password = doc["network"]["WiFi_password"] | "SSID_password";
+  network.ip_address = doc["network"]["ip_address"] | "192.168.1.2";
+  network.subnet = doc["network"]["subnet"] | "255.255.255.0";
+  network.dns_server = doc["network"]["dns_server"] | "192.168.1.1";
+  network.hostname = doc["network"]["hostname"] | "iotdevice.local";
 
 
-    // Services object:
-    // OTA
-    services.ota = doc["services"]["OTA"] | false;
-    // FTP
-    services.ftp.enabled = doc["services"]["FTP"]["enabled"] | false;
-    services.ftp.user = doc["services"]["FTP"]["user"] | "admin";
-    services.ftp.password = doc["services"]["FTP"]["password"] | "admin";
-    // WebSockets
-    services.webSockets.enabled = doc["services"]["WebSockets"]["enabled"] | false;
-    services.webSockets.publish_time_ms = doc["services"]["WebSockets"]["publish_time_ms"] | 100;
-    // DeepSleep
-    services.deep_sleep.enabled = doc["services"]["deep_sleep"]["enabled"] | false;
-    services.deep_sleep.mode = doc["services"]["deep_sleep"]["mode"] | "WAKE_RF_DEFAULT";
-    for (unsigned int i = 0; i < doc["services"]["deep_sleep"]["mode_options"].size(); i++) { //Iterate through results
-      services.deep_sleep.mode_options[i] = doc["services"]["deep_sleep"]["mode_options"][i].as<String>(); //Explicit cast
-    }
-    services.deep_sleep.sleep_time = doc["services"]["deep_sleep"]["sleep_time"] | 10;
-    services.deep_sleep.sleep_delay = doc["services"]["deep_sleep"]["sleep_delay"] | 5;
-    // LightSleep
-    services.light_sleep.enabled = doc["services"]["light_sleep"]["enabled"] | false;
-    services.light_sleep.mode = doc["services"]["light_sleep"]["mode"] | "LIGHT_SLEEP_T";
-    for (unsigned int i = 0; i < doc["services"]["light_sleep"]["mode_options"].size(); i++) { //Iterate through results
-      services.light_sleep.mode_options[i] = doc["services"]["light_sleep"]["mode_options"][i].as<String>(); //Explicit cast
-    }
-
-    // Device object:
-    device.track_restart_counter = doc["device"]["track_restart_counter"] | true;
-    device.loop_time_ms = doc["device"]["loop_time_ms"];
-    device.publish_time_ms = doc["device"]["publish_time_ms"];
+  // MQTT object:
+  mqtt.server= doc["mqtt"]["server"] | "server_address";
+  mqtt.port = doc["mqtt"]["port"] | 8888;
+  mqtt.id_name= doc["mqtt"]["id_name"] | "iotdevice";
+  mqtt.reconnect_mqtt = doc["mqtt"]["reconnect_mqtt"] | false;
+  mqtt.enable_user_and_pass = doc["mqtt"]["enable_user_and_pass"] | false;
+  mqtt.user_name= doc["mqtt"]["user_name"] | "user_name";
+  mqtt.user_password= doc["mqtt"]["user_password"] | "user_password";
+  mqtt.enable_certificates = doc["mqtt"]["enable_certificates"] | false;
+  mqtt.ca_file= doc["mqtt"]["ca_file"] | "certs/ca.crt";
+  mqtt.cert_file= doc["mqtt"]["cert_file"] | "certs/client.crt";
+  mqtt.key_file= doc["mqtt"]["key_file"] | "certs/client.key";
+  mqtt.ca_file= doc["mqtt"]["ca_file"] | "server_address";
+  for (unsigned int i = 0; i < doc["mqtt"]["pub_topic"].size(); i++) { //Iterate through results
+    // mqtt.pub_topic[i] = doc["mqtt"]["pub_topic"][i];  //Implicit cast
+    mqtt.pub_topic[i] = doc["mqtt"]["pub_topic"][i].as<String>(); //Explicit cast
+  }
+  for (unsigned int i = 0; i < doc["mqtt"]["sub_topic"].size(); i++)
+    mqtt.sub_topic[i] = doc["mqtt"]["sub_topic"][i].as<String>();
 
 
-    // Info object:
-    info.restart_counter = doc["info"]["ftp"]["enabled"] | false;
-    info.fw_version = doc["info"]["fw_version"] | "-";
-    info.repo = doc["info"]["repo"] | "github.com/paclema";
+  // Services object:
+  // OTA
+  services.ota = doc["services"]["OTA"] | false;
+  // FTP
+  services.ftp.enabled = doc["services"]["FTP"]["enabled"] | false;
+  services.ftp.user = doc["services"]["FTP"]["user"] | "admin";
+  services.ftp.password = doc["services"]["FTP"]["password"] | "admin";
+  // WebSockets
+  services.webSockets.enabled = doc["services"]["WebSockets"]["enabled"] | false;
+  services.webSockets.publish_time_ms = doc["services"]["WebSockets"]["publish_time_ms"] | 100;
+  // DeepSleep
+  services.deep_sleep.enabled = doc["services"]["deep_sleep"]["enabled"] | false;
+  services.deep_sleep.mode = doc["services"]["deep_sleep"]["mode"] | "WAKE_RF_DEFAULT";
+  for (unsigned int i = 0; i < doc["services"]["deep_sleep"]["mode_options"].size(); i++) { //Iterate through results
+    services.deep_sleep.mode_options[i] = doc["services"]["deep_sleep"]["mode_options"][i].as<String>(); //Explicit cast
+  }
+  services.deep_sleep.sleep_time = doc["services"]["deep_sleep"]["sleep_time"] | 10;
+  services.deep_sleep.sleep_delay = doc["services"]["deep_sleep"]["sleep_delay"] | 5;
+  // LightSleep
+  services.light_sleep.enabled = doc["services"]["light_sleep"]["enabled"] | false;
+  services.light_sleep.mode = doc["services"]["light_sleep"]["mode"] | "LIGHT_SLEEP_T";
+  for (unsigned int i = 0; i < doc["services"]["light_sleep"]["mode_options"].size(); i++) { //Iterate through results
+    services.light_sleep.mode_options[i] = doc["services"]["light_sleep"]["mode_options"][i].as<String>(); //Explicit cast
+  }
+
+  // Device object:
+  device.track_restart_counter = doc["device"]["track_restart_counter"] | true;
+  device.loop_time_ms = doc["device"]["loop_time_ms"];
+  device.publish_time_ms = doc["device"]["publish_time_ms"];
+
+
+  // Info object:
+  info.restart_counter = doc["info"]["ftp"]["enabled"] | false;
+  info.fw_version = doc["info"]["fw_version"] | "-";
+  info.repo = doc["info"]["repo"] | "github.com/paclema";
 
 
 }
@@ -157,8 +157,8 @@ void WebConfigServer::parseConfig(const JsonDocument& doc){
 void WebConfigServer::addConfig(IWebConfig* config, String nameObject){
   config->nameConfigObject = nameObject;
   this->configs.add(config);
-  // Serial.print("IWebConfig Object added for: ");
-  // Serial.println(config->nameConfigObject);
+  Serial.print("IWebConfig Object added for: ");
+  Serial.println(config->nameConfigObject);
 };
 
 
@@ -363,17 +363,18 @@ void WebConfigServer::configureServer(ESP8266WebServer *server){
 
   //SERVER INIT
   //list directory
-  server->serveStatic("/config/config.json", SPIFFS, "/config/config.json");
-  server->serveStatic("/certs", SPIFFS, "/certs");
-  server->serveStatic("/img", SPIFFS, "/img");
-  server->serveStatic("/", SPIFFS, "/index.html");
-  server->serveStatic("/main.js", SPIFFS, "/main.js");
-  server->serveStatic("/polyfills.js", SPIFFS, "/polyfills.js");
-  server->serveStatic("/runtime.js", SPIFFS, "/runtime.js");
-  server->serveStatic("/styles.css", SPIFFS, "/styles.css");
-  server->serveStatic("/scripts.js", SPIFFS, "/scripts.js");
-  server->serveStatic("/3rdpartylicenses.txt", SPIFFS, "/3rdpartylicenses.txt");
-  server->serveStatic("/favicon.ico", SPIFFS, "/favicon.ico");
+  // server->serveStatic("/config/config.json", SPIFFS, "/config/config.json");
+  // server->serveStatic("/certs", SPIFFS, "/certs.gz");
+  // server->serveStatic("/img", SPIFFS, "/img.gz");
+  // server->serveStatic("/", SPIFFS, "/index.html.gz");
+  // server->serveStatic("/main.js", SPIFFS, "/main.js.gz");
+  // server->serveStatic("/polyfills.js", SPIFFS, "/polyfills.js.gz");
+  // server->serveStatic("/runtime.js", SPIFFS, "/runtime.js.gz");
+  // server->serveStatic("/styles.css", SPIFFS, "/styles.css.gz");
+  // server->serveStatic("/scripts.js", SPIFFS, "/scripts.js.gz");
+  // server->serveStatic("/3rdpartylicenses.txt", SPIFFS, "/3rdpartylicenses.txt.gz");
+  // server->serveStatic("/favicon.ico", SPIFFS, "/favicon.ico.gz");
+  // server->serveStatic("/", SPIFFS, "/");
 
 
   server->on("/gpio", HTTP_POST, [& ,server](){
@@ -433,29 +434,25 @@ void WebConfigServer::configureServer(ESP8266WebServer *server){
     // Serial.print("JSON POST argName: "); Serial.println(server->argName(0));
     // Serial.print("JSON POST args: "); Serial.println(server->args());
 
-      if (server->args() > 0){
-         for (int i = 0; i < server->args(); i++ ) {
-             // Serial.print("POST Arguments: " ); Serial.println(server->args(i));
-             Serial.print("Name: "); Serial.println(server->argName(i));
-             Serial.print("Value: "); Serial.println(server->arg(i));
-        }
-     }
+    if (server->args() > 0){
+      for (int i = 0; i < server->args(); i++ ) {
+        // Serial.print("POST Arguments: " ); Serial.println(server->args(i));
+        Serial.print("Name: "); Serial.println(server->argName(i));
+        Serial.print("Value: "); Serial.println(server->arg(i));
+      }
+    }
 
     if( ! server->hasArg("filename") || server->arg("filename") == NULL){
       server->send(400, "text/plain", "400: Invalid Request");
-    } else{
+    } else {
       Serial.print("File to restore: "); Serial.println(server->arg("filename"));
       restoreBackupFile(server->arg("filename"));
       server->send ( 200, "text/json", "{\"message\": \"Configuration restored\"}" );
     }
-
-
   });
 
+
   server->on("/restart", HTTP_POST, [& ,server](){
-    // if (!handleFileRead(server.uri())) {
-      // server->send(404, "text/plain", "FileNotFound");
-    // }
     if( ! server->hasArg("restart") || server->arg("restart") == NULL){
       server->send(400, "text/plain", "400: Invalid Request");
     } else{
@@ -475,19 +472,54 @@ void WebConfigServer::configureServer(ESP8266WebServer *server){
 
   });
 
-
-  //called when the url is not defined here
-  //use it to load content from SPIFFS
+  // Handle files also gziped:
   server->onNotFound([& ,server]() {
-    // if (!handleFileRead(server.uri())) {
-      server->send(404, "text/plain", "FileNotFound");
-    // }
+    // If the client requests any URI
+    String path = server->uri();
+    if (!handleFileRead(server, server->uri()))
+      // send it if it exists
+      // otherwise, respond with a 404 (Not Found) error:
+      server->send(404, "text/plain", "404: Not Found");
   });
 
   server->begin();
   Serial.println ( "HTTP server started" );
 
+}
 
+
+String WebConfigServer::getContentType(String filename) {
+  // convert the file extension to the MIME type
+  if(filename.endsWith(".html")) return "text/html";
+  else if(filename.endsWith(".css")) return "text/css";
+  else if(filename.endsWith(".js")) return "application/javascript";
+  else if(filename.endsWith(".ico")) return "image/x-icon";
+  else if(filename.endsWith(".gz")) return "application/x-gzip";
+  return "text/plain";
+}
+
+bool WebConfigServer::handleFileRead(ESP8266WebServer *server, String path) {
+  // send the right file to the client (if it exists)
+  Serial.println("handleFileRead: " + path);
+  // If a folder is requested, send the index file
+  if(path.endsWith("/")) path += "index.html";
+  // Get the MIME type
+  String contentType = getContentType(path);
+  String pathWithGz = path + ".gz";
+  // If the file exists, either as a compressed archive, or normal
+  if(SPIFFS.exists(pathWithGz) || SPIFFS.exists(path)){
+    // If there's a compressed version available use it
+    if(SPIFFS.exists(pathWithGz))
+      path += ".gz";
+    // Open the file and send it to the client
+    File file = SPIFFS.open(path, "r");
+    size_t sent_size = server->streamFile(file, contentType);
+    file.close();
+    Serial.println(String("\tSent file: ") + path + String(" - ") + formatBytes(sent_size));
+    return true;
+  }
+  Serial.println(String("\tFile Not Found: ") + path);
+  return false;
 }
 
 
