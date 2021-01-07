@@ -1,8 +1,8 @@
 #include "WrapperWebSockets.h"
 
-String getHeapFree(void ){
-  return String(GET_FREE_HEAP);
-};
+// String getHeapFree(void ){
+//   return String(GET_FREE_HEAP);
+// };
 
 void WrapperWebSockets::init(void) {
   // Serial.println("Starting Websocket server...");
@@ -11,10 +11,11 @@ void WrapperWebSockets::init(void) {
   webSocket.begin();
   webSocket.onEvent(webSocketEvent);
 
+  // Exaple to add a websocket function:
   // listObjets[0] = "heap_free";
   // listObjetFunctions[0] = getHeapFree;
   // listObjetsIndex++;
-  this->addObjectToPublish("heap_free", getHeapFree);
+  // this->addObjectToPublish("heap_free", getHeapFree);
 
 };
 

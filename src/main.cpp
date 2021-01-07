@@ -50,15 +50,11 @@ long previousMainLoopMillis = 0;
 #include <WrapperWebSockets.h>
 WrapperWebSockets ws;
 
-String getLoopTime(){
-  return String(currentLoopMillis - previousMainLoopMillis);
-}
+// Websocket functions to publish:
+String getLoopTime(){ return String(currentLoopMillis - previousMainLoopMillis);}
+String getRSSI(){ return String(WiFi.RSSI());}
+String getHeapFree(){ return String(GET_FREE_HEAP);}
 
-String getRSSI(){
-  return String(WiFi.RSSI());
-}
-
-String getHeapFragmentation(){ return String(ESP.getHeapFragmentation() );}
 
 
 
@@ -335,10 +331,9 @@ void setup() {
 
   // Configure some Websockets object to publish to webapp dashboard:
   if (config.services.webSockets.enabled){
+    ws.addObjectToPublish("heap_free", getHeapFree);
     ws.addObjectToPublish("loop", getLoopTime);
     ws.addObjectToPublish("RSSI", getRSSI);
-    ws.addObjectToPublish("Heap_Fragmentation", getHeapFragmentation);
-
   }
 
   Serial.println("###  Looping time\n");
