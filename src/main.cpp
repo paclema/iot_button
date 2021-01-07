@@ -57,6 +57,9 @@ String getHeapFree(){ return String(GET_FREE_HEAP);}
 
 
 
+// MAIN FUNCTIONS:
+// --------------
+//
 
 void networkRestart(void){
   if(config.status() == CONFIG_LOADED){
