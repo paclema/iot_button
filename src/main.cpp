@@ -9,6 +9,9 @@ extern "C" {
 }
 
 #include <ESP8266WiFi.h>
+#include <ESP8266WiFiMulti.h>
+#include <ESP8266mDNS.h>
+ESP8266WiFiMulti wifiMulti;
 
 // Main variables:
 unsigned long connectionTime = millis();
@@ -63,38 +66,50 @@ String getHeapFree(){ return String(GET_FREE_HEAP);}
 
 void networkRestart(void){
   if(config.status() == CONFIG_LOADED){
-    // Config loaded correctly
-    if (config.network.ssid_name!=NULL && config.network.ssid_password!=NULL){
-      // Configure device hostname:
-      WiFi.hostname(config.network.hostname);
-      // Connect to Wi-Fi
-      // WiFi.mode(WIFI_STA);
-      WiFi.mode(WIFI_AP_STA);
 
-      // Access point config:
-      WiFi.softAP(config.network.ap_name,config.network.ap_password, false);
-      IPAddress myIP = WiFi.softAPIP();
-      Serial.print(config.network.ap_name);Serial.print(" AP IP address: ");
-      Serial.println(myIP);
+    // WiFi setup:
+    // WiFi.mode(WIFI_STA);
+    WiFi.mode(WIFI_AP_STA);
 
-      // Wifi client config:
-      WiFi.begin(config.network.ssid_name, config.network.ssid_password);
-      Serial.print("Connecting to ");Serial.print(config.network.ssid_name);
-      while (WiFi.status() != WL_CONNECTED) {
-        delay(300);
-        Serial.print(".");
-      }
-      Serial.println("");
+    // Config acces point:
+    if (config.network.ap_name!=NULL &&
+        config.network.ap_password!=NULL){
+          Serial.print("Setting soft-AP ... ");
+          Serial.println(WiFi.softAP(config.network.ap_name.c_str(),
+                      config.network.ap_password.c_str(),
+                      config.network.ap_channel,
+                      config.network.ap_ssid_hidden,
+                      config.network.ap_max_connection) ? "Ready" : "Failed!");
+          IPAddress myIP = WiFi.softAPIP();
+          Serial.print(config.network.ap_name);Serial.print(" AP IP address: ");
+          Serial.println(myIP);
     }
+
+    // Client Wifi config:
+    if (config.network.ssid_name!=NULL && config.network.ssid_password!=NULL){
+
+      wifiMulti.addAP(config.network.ssid_name.c_str(),config.network.ssid_password.c_str());
+
+      Serial.print("Connecting to ");Serial.println(config.network.ssid_name);
+      while (wifiMulti.run() != WL_CONNECTED) {
+        delay(200);
+        Serial.print('.');
+      }
+      Serial.print("\n\nConnected to ");Serial.print(WiFi.SSID());
+      Serial.print("\nIP address:\t");Serial.println(WiFi.localIP());
+    }
+
+    // Configure device hostname:
+    if (config.network.hostname){
+      if (MDNS.begin(config.network.hostname.c_str())) Serial.println("mDNS responder started");
+      else Serial.println("Error setting up MDNS responder!");
+    }
+
   }
-
-  // Print Local IP Address
-  Serial.println(WiFi.localIP());
-
 }
 
 void enableServices(void){
-  Serial.println("--- Services: ");
+  Serial.println("\n--- Services: ");
 
   if (config.services.ota){
     // ota.init(&display);

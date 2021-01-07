@@ -2,6 +2,9 @@
   "network": {
     "AP_SSID": "iotdevice",
     "AP_password": "iotdevice",
+    "AP_channel": 6,
+    "AP_SSID_hidden": false,
+    "AP_max_connection": 4,
     "WiFi_SSID": "wifissid",
     "WiFi_password": "wifipass",
     "ip_address": "192.168.1.2",

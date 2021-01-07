@@ -35,6 +35,9 @@ public:
   struct Network {
     String ap_name;
     String ap_password;
+    int ap_channel;
+    bool ap_ssid_hidden;
+    int ap_max_connection;
     String ssid_name;
     String ssid_password;
     String ip_address;
