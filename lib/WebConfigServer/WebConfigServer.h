@@ -6,8 +6,14 @@
 #include <LinkedList.h>
 #include "IWebConfig.h"
 
-#include <ESP8266WebServer.h>
-#include <FS.h>
+#ifdef ESP32
+  #include <WebServer.h>
+  #include <SPIFFS.h>
+
+#elif defined(ESP8266)
+  #include <ESP8266WebServer.h>
+  #include <FS.h>
+#endif
 
 #define ARDUINOJSON_ENABLE_ALIGNMENT 1
 #include <ArduinoJson.h>
@@ -35,6 +41,9 @@ public:
   struct Network {
     String ap_name;
     String ap_password;
+    int ap_channel;
+    bool ap_ssid_hidden;
+    int ap_max_connection;
     String ssid_name;
     String ssid_password;
     String ip_address;
@@ -46,6 +55,7 @@ public:
   } network;
 
   struct Mqtt {
+    bool enabled;
     String server;
     int port;
     String id_name;
@@ -76,8 +86,8 @@ public:
     bool enabled;
     String mode;
     String mode_options[JSON_MAX_SIZE_LIST];
-    int sleep_time;
-    int sleep_delay;
+    float sleep_time;
+    float sleep_delay;
   };
 
   struct LightSleep {
@@ -112,7 +122,12 @@ public:
 
   WebConfigServer(void);
 
-  void configureServer(ESP8266WebServer *server);
+  #ifdef ESP32
+    void configureServer(WebServer *server);
+  #elif defined(ESP8266)
+    void configureServer(ESP8266WebServer *server);
+  #endif
+
   void handle(void);
   bool begin(void);
 
@@ -136,11 +151,16 @@ private:
   void saveConfigurationFile(const char *filename);
   void printFile(String filename);
   void restoreBackupFile(String filenamechar);
-  // void updateGpio(void);
-  void updateGpio(ESP8266WebServer *server);
+
+  #ifdef ESP32
+    void updateGpio(WebServer *server);
+    bool handleFileRead(WebServer *server, String path);
+  #elif defined(ESP8266)
+    void updateGpio(ESP8266WebServer *server);
+    bool handleFileRead(ESP8266WebServer *server, String path);
+  #endif
 
   String getContentType(String filename);
-  bool handleFileRead(ESP8266WebServer *server, String path);
 
 
 };

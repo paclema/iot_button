@@ -29,7 +29,11 @@ void WrapperOTA::init(SSD1306Wire *display) {
 
   void WrapperOTA::init(WebConfigServer *config) {
     // Port defaults to 8266
+    #ifdef ESP32
+    ArduinoOTA.setPort(3232);
+    #elif defined(ESP8266)
     ArduinoOTA.setPort(8266);
+    #endif
 
     // Hostname defaults to esp8266-[ChipID]
     char hostname[sizeof(config->network.hostname)];
@@ -38,13 +42,16 @@ void WrapperOTA::init(SSD1306Wire *display) {
 
     ArduinoOTA.begin();
     ArduinoOTA.onStart([config]() {
+      Serial.println("\n OTA update started... ");
     });
 
     ArduinoOTA.onProgress([config](unsigned int progress, unsigned int total) {
       // Log.info("OTA Progress: %i%%", (progress / (total / 100)));
+      Serial.printf("OTA Progress: %i%%\n", (progress / (total / 100)));
     });
 
     ArduinoOTA.onEnd([config]() {
+      Serial.println("OTA update finished!");
     });
 
 };
