@@ -15,6 +15,7 @@ ESP8266WiFiMulti wifiMulti;
 
 // Main variables:
 unsigned long connectionTime = millis();
+unsigned long setupDeviceTime;
 
 // MQTT
 #include <PubSubClient.h>
@@ -133,9 +134,9 @@ void enableServices(void){
     // Serial.println("   - Deep sleep -> configured");
     Serial.print("   - Deep sleep -> enabled for ");
     Serial.print(config.services.deep_sleep.sleep_time);
-    Serial.print("secs after waitting ");
+    Serial.print("s after waitting ");
     Serial.print(config.services.deep_sleep.sleep_delay);
-    Serial.println("secs. Choose sleep_time: 0 for infinite sleeping");
+    Serial.println("s. Choose sleep_time: 0 for infinite sleeping");
     Serial.println("     Do not forget to connect D0 to RST pin to auto-wake up! Or I will sleep forever");
   } else Serial.println("   - Deep sleep -> disabled");
 
@@ -282,9 +283,8 @@ void reconnectMQTT() {
 
         long time_now = millis() - connectionTime;
         mqttRetries = 0;
-        Serial.print("Time to setup and be connected: ");
-        Serial.print(time_now/1000);
-        Serial.println("s");
+        Serial.print("Time to connect MQTT client: ");
+        Serial.println((float)time_now/1000);
 
       } else {
         Serial.print("failed, rc=");
@@ -322,6 +322,30 @@ void reconnect(void) {
 }
 
 
+void deepSleepHandler() {
+  Serial.print("sleep_delay: "); Serial.print((config.services.deep_sleep.sleep_delay));
+  Serial.print(" setupDeviceTime: "); Serial.print( (float)setupDeviceTime/1000);
+  Serial.print(" currentLoopMillis: "); Serial.println((float)currentLoopMillis/1000);
+
+  if (currentLoopMillis > setupDeviceTime + (config.services.deep_sleep.sleep_delay*1000)){
+    Serial.println("Deep sleeping...");
+    if (config.services.deep_sleep.mode == "WAKE_RF_DEFAULT")
+      // sleep_time is in secs, but the function gets microsecs
+      ESP.deepSleep(config.services.deep_sleep.sleep_time * 1000000, WAKE_RF_DEFAULT);
+    else if (config.services.deep_sleep.mode == "WAKE_RF_DISABLED")
+      ESP.deepSleep(config.services.deep_sleep.sleep_time * 1000000, WAKE_RF_DISABLED);
+    else if (config.services.deep_sleep.mode == "WAKE_RFCAL")
+      ESP.deepSleep(config.services.deep_sleep.sleep_time * 1000000, WAKE_RFCAL);
+    else if (config.services.deep_sleep.mode == "WAKE_NO_RFCAL")
+      ESP.deepSleep(config.services.deep_sleep.sleep_time * 1000000, WAKE_NO_RFCAL);
+    else {
+      Serial.println("   - Deep sleep -> mode not available");
+      return;
+    }
+  }
+}
+
+
 void setup() {
   Serial.begin(115200);
   // Enable wifi diagnostic:
@@ -330,22 +354,22 @@ void setup() {
   reconnect();
 
   // Print some info:
-  uint32_t realSize = ESP.getFlashChipRealSize();
-  uint32_t ideSize = ESP.getFlashChipSize();
-  FlashMode_t ideMode = ESP.getFlashChipMode();
+  // uint32_t realSize = ESP.getFlashChipRealSize();
+  // uint32_t ideSize = ESP.getFlashChipSize();
+  // FlashMode_t ideMode = ESP.getFlashChipMode();
 
-  Serial.printf("Flash real id:   %08X\n", ESP.getFlashChipId());
-  Serial.printf("Flash real size: %u bytes\n\n", realSize);
+  // Serial.printf("Flash real id:   %08X\n", ESP.getFlashChipId());
+  // Serial.printf("Flash real size: %u bytes\n\n", realSize);
 
-  Serial.printf("Flash ide  size: %u bytes\n", ideSize);
-  Serial.printf("Flash ide speed: %u Hz\n", ESP.getFlashChipSpeed());
-  Serial.printf("Flash ide mode:  %s\n", (ideMode == FM_QIO ? "QIO" : ideMode == FM_QOUT ? "QOUT" : ideMode == FM_DIO ? "DIO" : ideMode == FM_DOUT ? "DOUT" : "UNKNOWN"));
+  // Serial.printf("Flash ide  size: %u bytes\n", ideSize);
+  // Serial.printf("Flash ide speed: %u Hz\n", ESP.getFlashChipSpeed());
+  // Serial.printf("Flash ide mode:  %s\n", (ideMode == FM_QIO ? "QIO" : ideMode == FM_QOUT ? "QOUT" : ideMode == FM_DIO ? "DIO" : ideMode == FM_DOUT ? "DOUT" : "UNKNOWN"));
 
-  if (ideSize != realSize) {
-    Serial.println("Flash Chip configuration wrong!\n");
-  } else {
-    Serial.println("Flash Chip configuration ok.\n");
-  }
+  // if (ideSize != realSize) {
+    // Serial.println("Flash Chip configuration wrong!\n");
+  // } else {
+    // Serial.println("Flash Chip configuration ok.\n");
+  // }
 
   // Configure some Websockets object to publish to webapp dashboard:
   if (config.services.webSockets.enabled){
@@ -355,6 +379,8 @@ void setup() {
   }
 
   Serial.println("###  Looping time\n");
+
+  setupDeviceTime = millis();
 }
 
 void loop() {
@@ -385,23 +411,7 @@ void loop() {
     }
   }
   if (config.services.deep_sleep.enabled){
-    // long time_now = millis();
-    if (millis() > connectionTime + (config.services.deep_sleep.sleep_delay*1000)){
-      Serial.println("Deep sleeping...");
-      if (config.services.deep_sleep.mode == "WAKE_RF_DEFAULT")
-        // sleep_time is in secs, but the function gets microsecs
-        ESP.deepSleep(config.services.deep_sleep.sleep_time * 1000000, WAKE_RF_DEFAULT);
-      else if (config.services.deep_sleep.mode == "WAKE_RF_DISABLED")
-        ESP.deepSleep(config.services.deep_sleep.sleep_time * 1000000, WAKE_RF_DISABLED);
-      else if (config.services.deep_sleep.mode == "WAKE_RFCAL")
-        ESP.deepSleep(config.services.deep_sleep.sleep_time * 1000000, WAKE_RFCAL);
-      else if (config.services.deep_sleep.mode == "WAKE_NO_RFCAL")
-        ESP.deepSleep(config.services.deep_sleep.sleep_time * 1000000, WAKE_NO_RFCAL);
-      else {
-        Serial.println("   - Deep sleep -> mode not available");
-        return;
-      }
-    }
+    deepSleepHandler();
   }
 
 

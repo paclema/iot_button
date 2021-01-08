@@ -79,8 +79,8 @@ public:
     bool enabled;
     String mode;
     String mode_options[JSON_MAX_SIZE_LIST];
-    int sleep_time;
-    int sleep_delay;
+    float sleep_time;
+    float sleep_delay;
   };
 
   struct LightSleep {
