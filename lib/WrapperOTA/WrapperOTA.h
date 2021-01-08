@@ -6,7 +6,6 @@
 #include "SSD1306Wire.h" // legacy include: `#include "SSD1306.h"`
 
 // OTA Includes
-#include <ESP8266mDNS.h>
 #include <ArduinoOTA.h>
 
 #include <WebConfigServer.h>

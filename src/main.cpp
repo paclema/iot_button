@@ -1,20 +1,37 @@
 #include <Arduino.h>
 
-#define DEBUG_ESP_CORE
-#define ENABLE_SERIAL_DEBUG true
 
-// Used for light sleep
-extern "C" {
-  #include "user_interface.h"
-}
-
-#include <ESP8266WiFi.h>
 
 // Main variables:
+#define DEBUG_ESP_CORE
+#define ENABLE_SERIAL_DEBUG true
 unsigned long connectionTime = millis();
+unsigned long setupDeviceTime;
+
+// WiFi
+#ifdef ESP32
+  #include <WiFi.h>
+  #include <WiFiMulti.h>
+  #include <ESPmDNS.h>
+  WiFiMulti wifiMulti;
+
+#elif defined(ESP8266)
+  // Used for light sleep
+  extern "C" {
+    #include "user_interface.h"
+  }
+
+  #include <ESP8266WiFi.h>
+  #include <ESP8266WiFiMulti.h>
+  #include <ESP8266mDNS.h>
+  ESP8266WiFiMulti wifiMulti;
+#endif
+
+
 
 // MQTT
 #include <PubSubClient.h>
+#include <WiFiClientSecure.h>
 WiFiClientSecure wifiClientSecure;    // To use with mqtt and certificates
 WiFiClient wifiClient;                // To use with mqtt without certificates
 PubSubClient mqttClient;
@@ -24,11 +41,17 @@ int mqttRetries = 0;
 int mqttMaxRetries = 10;
 String mqttQueueString = "{\"data\":[";
 
-// Configuration
+// WebConfigServer Configuration
+#ifdef ESP32
+  #include <WebServer.h>
+  WebServer server(80);
+#elif defined(ESP8266)
+  #include <ESP8266WebServer.h>
+  ESP8266WebServer server(80);
+#endif
+
 #include "WebConfigServer.h"
-#include <ESP8266WebServer.h>
 WebConfigServer config;   // <- global configuration object
-ESP8266WebServer server(80);
 
 // FTP server
 #include <ESP8266FtpServer.h>
@@ -43,23 +66,18 @@ WrapperOTA ota;
 // Device configurations
 unsigned long currentLoopMillis = 0;
 unsigned long previousLoopMillis = 0;
-unsigned long previousLoopMainMillis = 0;
 unsigned long previousMQTTPublishMillis = 0;
 unsigned long previousWSMillis = 0;
+unsigned long previousMainLoopMillis = 0;
 
 // Websocket server:
 #include <WrapperWebSockets.h>
 WrapperWebSockets ws;
 
-String getLoopTime(){
-  return String(currentLoopMillis - previousLoopMainMillis);
-}
-
-String getRSSI(){
-  return String(WiFi.RSSI());
-}
-
-String getHeapFragmentation(){ return String(ESP.getHeapFragmentation() );}
+// Websocket functions to publish:
+String getLoopTime(){ return String(currentLoopMillis - previousMainLoopMillis);}
+String getRSSI(){ return String(WiFi.RSSI());}
+String getHeapFree(){ return String(GET_FREE_HEAP);}
 String mqttState(){ return String(mqttClient.state() );}
 String mqttBufferSize(){ return String(mqttClient.getBufferSize() );}
 
@@ -71,41 +89,60 @@ String mqttBufferSize(){ return String(mqttClient.getBufferSize() );}
 Radar radar;
 
 
+// MAIN FUNCTIONS:
+// --------------
+//
 
 void networkRestart(void){
   if(config.status() == CONFIG_LOADED){
-    // Config loaded correctly
-    if (config.network.ssid_name!=NULL && config.network.ssid_password!=NULL){
-      // Configure device hostname:
-      WiFi.hostname(config.network.hostname);
-      // Connect to Wi-Fi
+
+    // WiFi setup:
+    #ifdef ESP32
+      WiFi.mode(WIFI_MODE_APSTA);
+    #elif defined(ESP8266)
       // WiFi.mode(WIFI_STA);
       WiFi.mode(WIFI_AP_STA);
+    #endif
 
-      // Access point config:
-      WiFi.softAP(config.network.ap_name,config.network.ap_password, false);
-      IPAddress myIP = WiFi.softAPIP();
-      Serial.print(config.network.ap_name);Serial.print(" AP IP address: ");
-      Serial.println(myIP);
-
-      // Wifi client config:
-      WiFi.begin(config.network.ssid_name, config.network.ssid_password);
-      Serial.print("Connecting to ");Serial.print(config.network.ssid_name);
-      while (WiFi.status() != WL_CONNECTED) {
-        delay(300);
-        Serial.print(".");
-      }
-      Serial.println("");
+    // Config acces point:
+    if (config.network.ap_name!=NULL &&
+        config.network.ap_password!=NULL){
+          Serial.print("Setting soft-AP ... ");
+          Serial.println(WiFi.softAP(config.network.ap_name.c_str(),
+                      config.network.ap_password.c_str(),
+                      config.network.ap_channel,
+                      config.network.ap_ssid_hidden,
+                      config.network.ap_max_connection) ? "Ready" : "Failed!");
+          IPAddress myIP = WiFi.softAPIP();
+          Serial.print(config.network.ap_name);Serial.print(" AP IP address: ");
+          Serial.println(myIP);
     }
+
+    // Client Wifi config:
+    if (config.network.ssid_name!=NULL && config.network.ssid_password!=NULL){
+
+      wifiMulti.addAP(config.network.ssid_name.c_str(),config.network.ssid_password.c_str());
+
+      Serial.print("Connecting to ");Serial.println(config.network.ssid_name);
+      while (wifiMulti.run() != WL_CONNECTED) {
+        delay(200);
+        Serial.print('.');
+      }
+      Serial.print("\n\nConnected to ");Serial.print(WiFi.SSID());
+      Serial.print("\nIP address:\t");Serial.println(WiFi.localIP());
+    }
+
+    // Configure device hostname:
+    if (config.network.hostname){
+      if (MDNS.begin(config.network.hostname.c_str())) Serial.println("mDNS responder started");
+      else Serial.println("Error setting up MDNS responder!");
+    }
+
   }
-
-  // Print Local IP Address
-  Serial.println(WiFi.localIP());
-
 }
 
 void enableServices(void){
-  Serial.println("--- Services: ");
+  Serial.println("\n--- Services: ");
 
   if (config.services.ota){
     // ota.init(&display);
@@ -129,23 +166,29 @@ void enableServices(void){
     // Serial.println("   - Deep sleep -> configured");
     Serial.print("   - Deep sleep -> enabled for ");
     Serial.print(config.services.deep_sleep.sleep_time);
-    Serial.print("secs after waitting ");
+    Serial.print("s after waitting ");
     Serial.print(config.services.deep_sleep.sleep_delay);
-    Serial.println("secs. Choose sleep_time: 0 for infinite sleeping");
+    Serial.println("s. Choose sleep_time: 0 for infinite sleeping");
     Serial.println("     Do not forget to connect D0 to RST pin to auto-wake up! Or I will sleep forever");
   } else Serial.println("   - Deep sleep -> disabled");
 
-  if (config.services.light_sleep.enabled){
-    if (config.services.light_sleep.mode == "LIGHT_SLEEP_T")
-      wifi_set_sleep_type(LIGHT_SLEEP_T);
-    else if (config.services.light_sleep.mode == "NONE_SLEEP_T")
-      wifi_set_sleep_type(NONE_SLEEP_T);
-    else {
-      Serial.println("   - Light sleep -> mode not available");
-      return;
-    }
-    Serial.println("   - Light sleep -> enabled");
-  } else Serial.println("   - Light sleep -> disabled");
+
+  #ifdef ESP32
+    // TODO: enable sleep modes for ESP32 here
+
+  #elif defined(ESP8266)
+    if (config.services.light_sleep.enabled){
+      if (config.services.light_sleep.mode == "LIGHT_SLEEP_T")
+        wifi_set_sleep_type(LIGHT_SLEEP_T);
+      else if (config.services.light_sleep.mode == "NONE_SLEEP_T")
+        wifi_set_sleep_type(NONE_SLEEP_T);
+      else {
+        Serial.println("   - Light sleep -> mode not available");
+        return;
+      }
+      Serial.println("   - Light sleep -> enabled");
+    } else Serial.println("   - Light sleep -> disabled");
+  #endif
 
   Serial.println("");
 
@@ -213,7 +256,7 @@ void initMQTT(void){
     if (!cert) Serial.println("Failed to open cert file ");
     else Serial.println("Success to open cert file");
 
-    if (wifiClientSecure.loadCertificate(cert)) Serial.println("cert loaded");
+    if (wifiClientSecure.loadCertificate(cert, cert.size())) Serial.println("cert loaded");
     else Serial.println("cert not loaded");
     cert.close();
 
@@ -224,7 +267,7 @@ void initMQTT(void){
     if (!private_key) Serial.println("Failed to open key file ");
     else Serial.println("Success to open key file");
 
-    if (wifiClientSecure.loadPrivateKey(private_key)) Serial.println("key loaded");
+    if (wifiClientSecure.loadPrivateKey(private_key, private_key.size())) Serial.println("key loaded");
     else Serial.println("key not loaded");
     private_key.close();
 
@@ -233,7 +276,7 @@ void initMQTT(void){
     if (!ca) Serial.println("Failed to open CA file ");
     else Serial.println("Success to open CA file");
 
-    if (wifiClientSecure.loadCACert(ca)) Serial.println("CA loaded");
+    if (wifiClientSecure.loadCACert(ca, ca.size())) Serial.println("CA loaded");
     else Serial.println("CA not loaded");
     ca.close();
   }
@@ -278,8 +321,8 @@ void reconnectMQTT() {
 
         long time_now = millis() - connectionTime;
         mqttRetries = 0;
-        Serial.print("Time to setup and be connected: ");
-        Serial.print(time_now/1000);
+        Serial.print("Time to connect MQTT client: ");
+        Serial.print((float)time_now/1000);
         Serial.println("s");
 
       } else {
@@ -317,90 +360,26 @@ void reconnect(void) {
   radar.enableRadarServices();
 
   // Configure MQTT broker:
-  initMQTT();
-  if (config.mqtt.reconnect_mqtt)
-    reconnectMQTT();
+  if (config.mqtt.enabled) {
+    initMQTT();
+    if (config.mqtt.reconnect_mqtt)
+      reconnectMQTT();
+  }
+
 
 }
 
 
-void setup() {
-  Serial.begin(115200);
-  // Enable wifi diagnostic:
-  Serial.setDebugOutput(ENABLE_SERIAL_DEBUG);
+void deepSleepHandler() {
+  Serial.print("sleep_delay: "); Serial.print((config.services.deep_sleep.sleep_delay));
+  Serial.print(" setupDeviceTime: "); Serial.print( (float)setupDeviceTime/1000);
+  Serial.print(" currentLoopMillis: "); Serial.println((float)currentLoopMillis/1000);
 
-  reconnect();
-
-  // Print some info:
-  uint32_t realSize = ESP.getFlashChipRealSize();
-  uint32_t ideSize = ESP.getFlashChipSize();
-  FlashMode_t ideMode = ESP.getFlashChipMode();
-
-  Serial.printf("Flash real id:   %08X\n", ESP.getFlashChipId());
-  Serial.printf("Flash real size: %u bytes\n\n", realSize);
-
-  Serial.printf("Flash ide  size: %u bytes\n", ideSize);
-  Serial.printf("Flash ide speed: %u Hz\n", ESP.getFlashChipSpeed());
-  Serial.printf("Flash ide mode:  %s\n", (ideMode == FM_QIO ? "QIO" : ideMode == FM_QOUT ? "QOUT" : ideMode == FM_DIO ? "DIO" : ideMode == FM_DOUT ? "DOUT" : "UNKNOWN"));
-
-  if (ideSize != realSize) {
-    Serial.println("Flash Chip configuration wrong!\n");
-  } else {
-    Serial.println("Flash Chip configuration ok.\n");
-  }
+  #ifdef ESP32
 
 
-
-  // Configure some Websockets object to publish to webapp dashboard:
-  if (config.services.webSockets.enabled){
-    ws.addObjectToPublish("loop", getLoopTime);
-    ws.addObjectToPublish("RSSI", getRSSI);
-    ws.addObjectToPublish("Heap_Fragmentation", getHeapFragmentation);
-    ws.addObjectToPublish("mqtt_state", mqttState);
-    ws.addObjectToPublish("mqtt_buffer_size", mqttBufferSize);
-
-
-  }
-
-
-  Serial.println("###  Looping time\n");
-
-  previousLoopMainMillis = millis();
-}
-
-void loop() {
-  currentLoopMillis = millis();
-  //  ----------------------------------------------
-  //
-  // Config services Loop:
-  //  ----------------------------------------------
-
-  // Reconnection loop:
-  // if (WiFi.status() != WL_CONNECTED) {
-  //   config.begin();
-  //   networkRestart();
-  //   config.configureServer(&server);
-  // }
-  // Handle mqtt reconnection:
-  if (config.mqtt.reconnect_mqtt && !mqttClient.connected())
-    reconnectMQTT();
-
-  server.handleClient();
-  mqttClient.loop();
-
-  // Services loop:
-  if (config.services.ota) ota.handle();
-  if (config.services.ftp.enabled) ftpSrv.handleFTP();
-  if (config.services.webSockets.enabled){
-    ws.handle();
-    if(currentLoopMillis - previousWSMillis > config.services.webSockets.publish_time_ms) {
-      ws.publishClients();
-      previousWSMillis = currentLoopMillis;
-    }
-  }
-  if (config.services.deep_sleep.enabled){
-    // long time_now = millis();
-    if (millis() > connectionTime + (config.services.deep_sleep.sleep_delay*1000)){
+  #elif defined(ESP8266)
+    if (currentLoopMillis > setupDeviceTime + (config.services.deep_sleep.sleep_delay*1000)){
       Serial.println("Deep sleeping...");
       if (config.services.deep_sleep.mode == "WAKE_RF_DEFAULT")
         // sleep_time is in secs, but the function gets microsecs
@@ -416,6 +395,92 @@ void loop() {
         return;
       }
     }
+  #endif
+
+}
+
+
+void setup() {
+  Serial.begin(115200);
+  // Enable wifi diagnostic:
+  Serial.setDebugOutput(ENABLE_SERIAL_DEBUG);
+
+  reconnect();
+
+  // Print some info:
+  // uint32_t realSize = ESP.getFlashChipRealSize();
+  // uint32_t ideSize = ESP.getFlashChipSize();
+  // FlashMode_t ideMode = ESP.getFlashChipMode();
+
+  // Serial.printf("Flash real id:   %08X\n", ESP.getFlashChipId());
+  // Serial.printf("Flash real size: %u bytes\n\n", realSize);
+
+  // Serial.printf("Flash ide  size: %u bytes\n", ideSize);
+  // Serial.printf("Flash ide speed: %u Hz\n", ESP.getFlashChipSpeed());
+  // Serial.printf("Flash ide mode:  %s\n", (ideMode == FM_QIO ? "QIO" : ideMode == FM_QOUT ? "QOUT" : ideMode == FM_DIO ? "DIO" : ideMode == FM_DOUT ? "DOUT" : "UNKNOWN"));
+
+  // if (ideSize != realSize) {
+    // Serial.println("Flash Chip configuration wrong!\n");
+  // } else {
+    // Serial.println("Flash Chip configuration ok.\n");
+  // }
+
+
+
+  // Configure some Websockets object to publish to webapp dashboard:
+  if (config.services.webSockets.enabled){
+    ws.addObjectToPublish("heap_free", getHeapFree);
+    ws.addObjectToPublish("loop", getLoopTime);
+    ws.addObjectToPublish("RSSI", getRSSI);
+    ws.addObjectToPublish("mqtt_state", mqttState);
+    ws.addObjectToPublish("mqtt_buffer_size", mqttBufferSize);
+
+
+  }
+
+
+  Serial.println("###  Looping time\n");
+
+  setupDeviceTime = millis();
+  previousMainLoopMillis = millis();
+}
+
+void loop() {
+  currentLoopMillis = millis();
+  //  ----------------------------------------------
+  //
+  // Config services Loop:
+  //  ----------------------------------------------
+
+  // Reconnection loop:
+  // if (WiFi.status() != WL_CONNECTED) {
+  //   config.begin();
+  //   networkRestart();
+  //   config.configureServer(&server);
+  // }
+
+  // Handle mqtt reconnection:
+  if (config.mqtt.enabled) {
+    if (config.mqtt.reconnect_mqtt && !mqttClient.connected())
+      reconnectMQTT();
+    mqttClient.loop();
+  }
+
+  // Handle WebConfigServer:
+  server.handleClient();
+
+  // Services loop:
+  if (config.services.ota) ota.handle();
+  if (config.services.ftp.enabled) ftpSrv.handleFTP();
+  if (config.services.webSockets.enabled){
+    ws.handle();
+    if(currentLoopMillis - previousWSMillis > (unsigned)config.services.webSockets.publish_time_ms) {
+      ws.publishClients();
+      previousWSMillis = currentLoopMillis;
+    }
+  }
+  if (config.services.deep_sleep.enabled){
+    deepSleepHandler();
   }
 
 
@@ -424,12 +489,10 @@ void loop() {
 
 
 
-  //  ----------------------------------------------
-  //
-  //  Main Loop:
-  //  ----------------------------------------------
-  //
-  if((config.device.loop_time_ms != 0 ) && (currentLoopMillis - previousLoopMillis > config.device.loop_time_ms)) {
+  // Main Loop:
+  if((config.device.loop_time_ms != 0 ) &&
+      (currentLoopMillis - previousLoopMillis > (unsigned)config.device.loop_time_ms)) {
+    // Here starts the device loop configured:
 
     // float radarAngle = 0;
     // float radarDistance = 0;
@@ -447,7 +510,8 @@ void loop() {
       mqttQueueString += msg_pub;
 
       // Publish mqtt sensor feedback:
-      if(mqttClient.connected() && (config.device.publish_time_ms != 0) && (currentLoopMillis - previousMQTTPublishMillis > config.device.publish_time_ms)) {
+      if(mqttClient.connected() && (config.device.publish_time_ms != 0) &&
+          (currentLoopMillis - previousMQTTPublishMillis > (unsigned)config.device.publish_time_ms)) {
         previousMQTTPublishMillis = currentLoopMillis;
         // Here starts the MQTT publish loop configured:
 
@@ -467,5 +531,6 @@ void loop() {
     }
     previousLoopMillis = currentLoopMillis;
   }
-  previousLoopMainMillis = currentLoopMillis;
+
+previousMainLoopMillis = currentLoopMillis;
 }
