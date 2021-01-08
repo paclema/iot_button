@@ -29,7 +29,11 @@ void WrapperOTA::init(SSD1306Wire *display) {
 
   void WrapperOTA::init(WebConfigServer *config) {
     // Port defaults to 8266
+    #ifdef ESP32
+    ArduinoOTA.setPort(3232);
+    #elif defined(ESP8266)
     ArduinoOTA.setPort(8266);
+    #endif
 
     // Hostname defaults to esp8266-[ChipID]
     char hostname[sizeof(config->network.hostname)];

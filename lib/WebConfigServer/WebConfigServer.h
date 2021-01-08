@@ -6,8 +6,14 @@
 #include <LinkedList.h>
 #include "IWebConfig.h"
 
-#include <ESP8266WebServer.h>
-#include <FS.h>
+#ifdef ESP32
+  #include <WebServer.h>
+  #include <SPIFFS.h>
+
+#elif defined(ESP8266)
+  #include <ESP8266WebServer.h>
+  #include <FS.h>
+#endif
 
 #define ARDUINOJSON_ENABLE_ALIGNMENT 1
 #include <ArduinoJson.h>
@@ -116,7 +122,12 @@ public:
 
   WebConfigServer(void);
 
-  void configureServer(ESP8266WebServer *server);
+  #ifdef ESP32
+    void configureServer(WebServer *server);
+  #elif defined(ESP8266)
+    void configureServer(ESP8266WebServer *server);
+  #endif
+
   void handle(void);
   bool begin(void);
 
@@ -140,11 +151,16 @@ private:
   void saveConfigurationFile(const char *filename);
   void printFile(String filename);
   void restoreBackupFile(String filenamechar);
-  // void updateGpio(void);
-  void updateGpio(ESP8266WebServer *server);
+
+  #ifdef ESP32
+    void updateGpio(WebServer *server);
+    bool handleFileRead(WebServer *server, String path);
+  #elif defined(ESP8266)
+    void updateGpio(ESP8266WebServer *server);
+    bool handleFileRead(ESP8266WebServer *server, String path);
+  #endif
 
   String getContentType(String filename);
-  bool handleFileRead(ESP8266WebServer *server, String path);
 
 
 };

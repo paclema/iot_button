@@ -1,21 +1,33 @@
 #include <Arduino.h>
 
-#define DEBUG_ESP_CORE
-#define ENABLE_SERIAL_DEBUG true
 
-// Used for light sleep
-extern "C" {
-  #include "user_interface.h"
-}
-
-#include <ESP8266WiFi.h>
-#include <ESP8266WiFiMulti.h>
-#include <ESP8266mDNS.h>
-ESP8266WiFiMulti wifiMulti;
 
 // Main variables:
+#define DEBUG_ESP_CORE
+#define ENABLE_SERIAL_DEBUG true
 unsigned long connectionTime = millis();
 unsigned long setupDeviceTime;
+
+// WiFi
+#ifdef ESP32
+  #include <WiFi.h>
+  #include <WiFiMulti.h>
+  #include <ESPmDNS.h>
+  WiFiMulti wifiMulti;
+
+#elif defined(ESP8266)
+  // Used for light sleep
+  extern "C" {
+    #include "user_interface.h"
+  }
+
+  #include <ESP8266WiFi.h>
+  #include <ESP8266WiFiMulti.h>
+  #include <ESP8266mDNS.h>
+  ESP8266WiFiMulti wifiMulti;
+#endif
+
+
 
 // MQTT
 #include <PubSubClient.h>
@@ -28,11 +40,17 @@ unsigned int mqttReconnectionTime = 10000;
 int mqttRetries = 0;
 int mqttMaxRetries = 10;
 
-// Configuration
+// WebConfigServer Configuration
+#ifdef ESP32
+  #include <WebServer.h>
+  WebServer server(80);
+#elif defined(ESP8266)
+  #include <ESP8266WebServer.h>
+  ESP8266WebServer server(80);
+#endif
+
 #include "WebConfigServer.h"
-#include <ESP8266WebServer.h>
 WebConfigServer config;   // <- global configuration object
-ESP8266WebServer server(80);
 
 // FTP server
 #include <ESP8266FtpServer.h>
@@ -70,8 +88,12 @@ void networkRestart(void){
   if(config.status() == CONFIG_LOADED){
 
     // WiFi setup:
-    // WiFi.mode(WIFI_STA);
-    WiFi.mode(WIFI_AP_STA);
+    #ifdef ESP32
+      WiFi.mode(WIFI_MODE_APSTA);
+    #elif defined(ESP8266)
+      // WiFi.mode(WIFI_STA);
+      WiFi.mode(WIFI_AP_STA);
+    #endif
 
     // Config acces point:
     if (config.network.ap_name!=NULL &&
@@ -141,17 +163,23 @@ void enableServices(void){
     Serial.println("     Do not forget to connect D0 to RST pin to auto-wake up! Or I will sleep forever");
   } else Serial.println("   - Deep sleep -> disabled");
 
-  if (config.services.light_sleep.enabled){
-    if (config.services.light_sleep.mode == "LIGHT_SLEEP_T")
-      wifi_set_sleep_type(LIGHT_SLEEP_T);
-    else if (config.services.light_sleep.mode == "NONE_SLEEP_T")
-      wifi_set_sleep_type(NONE_SLEEP_T);
-    else {
-      Serial.println("   - Light sleep -> mode not available");
-      return;
-    }
-    Serial.println("   - Light sleep -> enabled");
-  } else Serial.println("   - Light sleep -> disabled");
+
+  #ifdef ESP32
+    // TODO: enable sleep modes for ESP32 here
+
+  #elif defined(ESP8266)
+    if (config.services.light_sleep.enabled){
+      if (config.services.light_sleep.mode == "LIGHT_SLEEP_T")
+        wifi_set_sleep_type(LIGHT_SLEEP_T);
+      else if (config.services.light_sleep.mode == "NONE_SLEEP_T")
+        wifi_set_sleep_type(NONE_SLEEP_T);
+      else {
+        Serial.println("   - Light sleep -> mode not available");
+        return;
+      }
+      Serial.println("   - Light sleep -> enabled");
+    } else Serial.println("   - Light sleep -> disabled");
+  #endif
 
   Serial.println("");
 
@@ -332,22 +360,28 @@ void deepSleepHandler() {
   Serial.print(" setupDeviceTime: "); Serial.print( (float)setupDeviceTime/1000);
   Serial.print(" currentLoopMillis: "); Serial.println((float)currentLoopMillis/1000);
 
-  if (currentLoopMillis > setupDeviceTime + (config.services.deep_sleep.sleep_delay*1000)){
-    Serial.println("Deep sleeping...");
-    if (config.services.deep_sleep.mode == "WAKE_RF_DEFAULT")
-      // sleep_time is in secs, but the function gets microsecs
-      ESP.deepSleep(config.services.deep_sleep.sleep_time * 1000000, WAKE_RF_DEFAULT);
-    else if (config.services.deep_sleep.mode == "WAKE_RF_DISABLED")
-      ESP.deepSleep(config.services.deep_sleep.sleep_time * 1000000, WAKE_RF_DISABLED);
-    else if (config.services.deep_sleep.mode == "WAKE_RFCAL")
-      ESP.deepSleep(config.services.deep_sleep.sleep_time * 1000000, WAKE_RFCAL);
-    else if (config.services.deep_sleep.mode == "WAKE_NO_RFCAL")
-      ESP.deepSleep(config.services.deep_sleep.sleep_time * 1000000, WAKE_NO_RFCAL);
-    else {
-      Serial.println("   - Deep sleep -> mode not available");
-      return;
+  #ifdef ESP32
+
+
+  #elif defined(ESP8266)
+    if (currentLoopMillis > setupDeviceTime + (config.services.deep_sleep.sleep_delay*1000)){
+      Serial.println("Deep sleeping...");
+      if (config.services.deep_sleep.mode == "WAKE_RF_DEFAULT")
+        // sleep_time is in secs, but the function gets microsecs
+        ESP.deepSleep(config.services.deep_sleep.sleep_time * 1000000, WAKE_RF_DEFAULT);
+      else if (config.services.deep_sleep.mode == "WAKE_RF_DISABLED")
+        ESP.deepSleep(config.services.deep_sleep.sleep_time * 1000000, WAKE_RF_DISABLED);
+      else if (config.services.deep_sleep.mode == "WAKE_RFCAL")
+        ESP.deepSleep(config.services.deep_sleep.sleep_time * 1000000, WAKE_RFCAL);
+      else if (config.services.deep_sleep.mode == "WAKE_NO_RFCAL")
+        ESP.deepSleep(config.services.deep_sleep.sleep_time * 1000000, WAKE_NO_RFCAL);
+      else {
+        Serial.println("   - Deep sleep -> mode not available");
+        return;
+      }
     }
-  }
+  #endif
+
 }
 
 
