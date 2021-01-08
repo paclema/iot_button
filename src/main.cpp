@@ -284,7 +284,8 @@ void reconnectMQTT() {
         long time_now = millis() - connectionTime;
         mqttRetries = 0;
         Serial.print("Time to connect MQTT client: ");
-        Serial.println((float)time_now/1000);
+        Serial.print((float)time_now/1000);
+        Serial.println("s");
 
       } else {
         Serial.print("failed, rc=");
@@ -315,9 +316,12 @@ void reconnect(void) {
   enableServices();
 
   // Configure MQTT broker:
-  initMQTT();
-  if (config.mqtt.reconnect_mqtt)
-    reconnectMQTT();
+  if (config.mqtt.enabled) {
+    initMQTT();
+    if (config.mqtt.reconnect_mqtt)
+      reconnectMQTT();
+  }
+
 
 }
 
@@ -393,12 +397,16 @@ void loop() {
   //   networkRestart();
   //   config.configureServer(&server);
   // }
-  // Handle mqtt reconnection:
-  if (config.mqtt.reconnect_mqtt && !mqttClient.connected())
-    reconnectMQTT();
 
+  // Handle mqtt reconnection:
+  if (config.mqtt.enabled) {
+    if (config.mqtt.reconnect_mqtt && !mqttClient.connected())
+      reconnectMQTT();
+    mqttClient.loop();
+  }
+
+  // Handle WebConfigServer:
   server.handleClient();
-  mqttClient.loop();
 
   // Services loop:
   if (config.services.ota) ota.handle();

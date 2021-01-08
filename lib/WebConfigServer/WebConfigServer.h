@@ -49,6 +49,7 @@ public:
   } network;
 
   struct Mqtt {
+    bool enabled;
     String server;
     int port;
     String id_name;

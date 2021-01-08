@@ -97,18 +97,19 @@ void WebConfigServer::parseConfig(const JsonDocument& doc){
 
 
   // MQTT object:
-  mqtt.server= doc["mqtt"]["server"] | "server_address";
+  mqtt.enabled = doc["mqtt"]["enabled"] | false;
+  mqtt.server = doc["mqtt"]["server"] | "server_address";
   mqtt.port = doc["mqtt"]["port"] | 8888;
-  mqtt.id_name= doc["mqtt"]["id_name"] | "iotdevice";
+  mqtt.id_name = doc["mqtt"]["id_name"] | "iotdevice";
   mqtt.reconnect_mqtt = doc["mqtt"]["reconnect_mqtt"] | false;
   mqtt.enable_user_and_pass = doc["mqtt"]["enable_user_and_pass"] | false;
-  mqtt.user_name= doc["mqtt"]["user_name"] | "user_name";
-  mqtt.user_password= doc["mqtt"]["user_password"] | "user_password";
+  mqtt.user_name = doc["mqtt"]["user_name"] | "user_name";
+  mqtt.user_password = doc["mqtt"]["user_password"] | "user_password";
   mqtt.enable_certificates = doc["mqtt"]["enable_certificates"] | false;
-  mqtt.ca_file= doc["mqtt"]["ca_file"] | "certs/ca.crt";
-  mqtt.cert_file= doc["mqtt"]["cert_file"] | "certs/client.crt";
-  mqtt.key_file= doc["mqtt"]["key_file"] | "certs/client.key";
-  mqtt.ca_file= doc["mqtt"]["ca_file"] | "server_address";
+  mqtt.ca_file = doc["mqtt"]["ca_file"] | "certs/ca.crt";
+  mqtt.cert_file = doc["mqtt"]["cert_file"] | "certs/client.crt";
+  mqtt.key_file = doc["mqtt"]["key_file"] | "certs/client.key";
+  mqtt.ca_file = doc["mqtt"]["ca_file"] | "server_address";
   for (unsigned int i = 0; i < doc["mqtt"]["pub_topic"].size(); i++) { //Iterate through results
     // mqtt.pub_topic[i] = doc["mqtt"]["pub_topic"][i];  //Implicit cast
     mqtt.pub_topic[i] = doc["mqtt"]["pub_topic"][i].as<String>(); //Explicit cast
