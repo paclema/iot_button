@@ -217,7 +217,7 @@ void initMQTT(void){
     if (!cert) Serial.println("Failed to open cert file ");
     else Serial.println("Success to open cert file");
 
-    if (wifiClientSecure.loadCertificate(cert)) Serial.println("cert loaded");
+    if (wifiClientSecure.loadCertificate(cert, cert.size())) Serial.println("cert loaded");
     else Serial.println("cert not loaded");
     cert.close();
 
@@ -228,7 +228,7 @@ void initMQTT(void){
     if (!private_key) Serial.println("Failed to open key file ");
     else Serial.println("Success to open key file");
 
-    if (wifiClientSecure.loadPrivateKey(private_key)) Serial.println("key loaded");
+    if (wifiClientSecure.loadPrivateKey(private_key, private_key.size())) Serial.println("key loaded");
     else Serial.println("key not loaded");
     private_key.close();
 
@@ -237,7 +237,7 @@ void initMQTT(void){
     if (!ca) Serial.println("Failed to open CA file ");
     else Serial.println("Success to open CA file");
 
-    if (wifiClientSecure.loadCACert(ca)) Serial.println("CA loaded");
+    if (wifiClientSecure.loadCACert(ca, ca.size())) Serial.println("CA loaded");
     else Serial.println("CA not loaded");
     ca.close();
   }
