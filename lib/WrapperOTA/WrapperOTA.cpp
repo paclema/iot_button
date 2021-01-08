@@ -38,13 +38,16 @@ void WrapperOTA::init(SSD1306Wire *display) {
 
     ArduinoOTA.begin();
     ArduinoOTA.onStart([config]() {
+      Serial.println("\n OTA update started... ");
     });
 
     ArduinoOTA.onProgress([config](unsigned int progress, unsigned int total) {
       // Log.info("OTA Progress: %i%%", (progress / (total / 100)));
+      Serial.printf("OTA Progress: %i%%\n", (progress / (total / 100)));
     });
 
     ArduinoOTA.onEnd([config]() {
+      Serial.println("OTA update finished!");
     });
 
 };

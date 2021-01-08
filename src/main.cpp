@@ -19,6 +19,7 @@ unsigned long setupDeviceTime;
 
 // MQTT
 #include <PubSubClient.h>
+#include <WiFiClientSecure.h>
 WiFiClientSecure wifiClientSecure;    // To use with mqtt and certificates
 WiFiClient wifiClient;                // To use with mqtt without certificates
 PubSubClient mqttClient;
@@ -45,10 +46,10 @@ WrapperOTA ota;
 
 // Device configurations
 unsigned long currentLoopMillis = 0;
-long previousLoopMillis = 0;
-long previousMQTTPublishMillis = 0;
-long previousWSMillis = 0;
-long previousMainLoopMillis = 0;
+unsigned long previousLoopMillis = 0;
+unsigned long previousMQTTPublishMillis = 0;
+unsigned long previousWSMillis = 0;
+unsigned long previousMainLoopMillis = 0;
 
 // Websocket server:
 #include <WrapperWebSockets.h>
@@ -162,7 +163,7 @@ void callbackMQTT(char* topic, byte* payload, unsigned int length) {
   Serial.print("] ");
 
   char buff[length + 1];
-  for (int i = 0; i < length; i++) {
+  for (unsigned int i = 0; i < length; i++) {
     //Serial.print((char)payload[i]);
     buff[i] = (char)payload[i];
   }
@@ -413,7 +414,7 @@ void loop() {
   if (config.services.ftp.enabled) ftpSrv.handleFTP();
   if (config.services.webSockets.enabled){
     ws.handle();
-    if(currentLoopMillis - previousWSMillis > config.services.webSockets.publish_time_ms) {
+    if(currentLoopMillis - previousWSMillis > (unsigned)config.services.webSockets.publish_time_ms) {
       ws.publishClients();
       previousWSMillis = currentLoopMillis;
     }
@@ -426,13 +427,15 @@ void loop() {
 
 
   // Main Loop:
-  if((config.device.loop_time_ms != 0 ) && (currentLoopMillis - previousLoopMillis > config.device.loop_time_ms)) {
+  if((config.device.loop_time_ms != 0 ) &&
+      (currentLoopMillis - previousLoopMillis > (unsigned)config.device.loop_time_ms)) {
     previousLoopMillis = currentLoopMillis;
     // Here starts the device loop configured:
 
 
   }
-  if(mqttClient.connected() && (config.device.publish_time_ms != 0) && (currentLoopMillis - previousMQTTPublishMillis > config.device.publish_time_ms)) {
+  if(mqttClient.connected() && (config.device.publish_time_ms != 0) &&
+      (currentLoopMillis - previousMQTTPublishMillis > (unsigned)config.device.publish_time_ms)) {
     previousMQTTPublishMillis = currentLoopMillis;
     // Here starts the MQTT publish loop configured:
 

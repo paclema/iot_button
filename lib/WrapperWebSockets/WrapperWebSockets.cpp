@@ -36,7 +36,7 @@ void WrapperWebSockets::webSocketEvent(uint8_t num, WStype_t type, uint8_t * pay
         }
             break;
         case WStype_TEXT:
-            Serial.printf("[%u] get Text: %s\n", num, payload);
+            Serial.printf("[%u] Text received: %s\n", num, payload);
 
             if(payload[0] == '#') {
                 // we get RGB data
@@ -59,9 +59,10 @@ void WrapperWebSockets::webSocketEvent(uint8_t num, WStype_t type, uint8_t * pay
 void WrapperWebSockets::publishClients(void) {
 
   numClients++;
-  bool ping = (numClients % 2);
-  int i = webSocket.connectedClients(ping);
+  // bool ping = (numClients % 2);
+  // int i = webSocket.connectedClients(ping);
   // Serial.printf("%d Connected websocket clients ping: %d\n", i, ping);
+
   // To send msg to all connected clients:
   // webSocket.broadcastTXT("message here");
   // To send msg to specific client id:
