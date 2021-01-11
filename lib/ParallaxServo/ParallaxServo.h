@@ -1,4 +1,5 @@
-#ifndef ParallaxServo_h
+// #ifndef ParallaxServo_h
+#ifndef ESP32
 #define ParallaxServo_h
 #include <Arduino.h>
 #include <Servo.h>

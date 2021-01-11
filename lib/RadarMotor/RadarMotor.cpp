@@ -25,7 +25,7 @@
     Serial.print(" time_between_servo_writes:");
     Serial.println(time_between_servo_writes);
 
-    servo.attach(0); // Attaching Servo to D3
+    servo.attach(this->controlPin); // Attaching Servo to D3
     servo.write(servoPos);
 
     setRange();
@@ -102,7 +102,7 @@
         Serial.print("     Readings --> ");
       // Get several servo potentiometer feedback measurements:
       for (int j=0; j<feedbackReadings; j++){
-        reading[j] = analogRead(0);
+        reading[j] = analogRead(this->feedbackPin);
         if (debug){
           Serial.print(reading[j]);
           Serial.print(", ");
@@ -179,3 +179,19 @@
       }
 
     };
+
+
+void RadarMotor::setServoControl(byte pin) {
+
+  this->controlPin = pin;
+  // Servo control pin attach
+  this->servo.attach(this->controlPin);
+}
+
+
+void RadarMotor::setServoFeedback(byte pin) {
+
+  this->feedbackPin = pin;
+  // Servo feedback pin attach
+  pinMode(this->feedbackPin, INPUT);
+}

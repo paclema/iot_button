@@ -1,5 +1,5 @@
+#ifdef ParallaxServo_h
 #include <Arduino.h>
-#include <Servo.h>
 #include "ParallaxServo.h"
 
 
@@ -125,3 +125,6 @@ float ParallaxServo::getAngleTarget(){
 int ParallaxServo::getTurns(){
   return this->turns;
 }
+
+
+#endif

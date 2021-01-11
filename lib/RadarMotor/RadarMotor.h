@@ -8,13 +8,21 @@ You must get out the internal potentimeter signal (usually among the 3 pins it
 is the middle one) soldering a wire and connect it to an analog input.
 
 There is only one analog input A0 for ESP8266
-Servo PWM control signal attached on GPIO0 also known as D3 in Wemos D1 mini
+Servo PWM control signal attached on GPIO0 also known as D3 in Wemos D1 mini.
+
+If you are using ESP32 you can choose among several GPIOs with ADC capabilities.
 
 */
 
 
 #include <Arduino.h>
-#include <Servo.h>
+
+#ifdef ESP32
+  #include <ESP32Servo.h>
+#elif defined(ESP8266)
+  #include <Servo.h>
+#endif
+
 
 #define  START_ANGLE          25.0
 #define  END_ANGLE            160.0
@@ -28,6 +36,15 @@ class RadarMotor{
   private:
 
   Servo servo;
+
+  #ifdef ESP32
+    byte controlPin = GPIO_ID_PIN(14);
+    byte feedbackPin = GPIO_ID_PIN(34);  // GPIO 34 (Analog ADC1_CH6)
+  #elif defined(ESP8266)
+    byte controlPin = D3;
+    byte feedbackPin = A0;
+  #endif
+
   float servoIncrement = 0;
   float servoPos = START_ANGLE;
   int reverseIncrement = 1;
@@ -58,6 +75,13 @@ class RadarMotor{
   RadarMotor(void);
 
   void setup();
+  bool handle(){
+    moveServo();
+    return true;
+  };
+  void rotate(float degree, int threshold){
+    if (this->debug) Serial.println(" rotate() not implemented");
+  };
 
   void testMovement(void);
   void printData(int i);
@@ -67,8 +91,17 @@ class RadarMotor{
   float getAngle(void);
 
   void moveServo(void);
-  void enableServo(void){ this->servo.attach(0); };
+  void enableServo(void){ this->servo.attach(this->controlPin); };
   void disableServo(void){ this->servo.detach(); };
+
+  void setServoControl(byte servoPinNumber);
+  void setServoFeedback(byte servoPinNumber);
+  void setSpeedPulse(int speedPulse){
+    this->servoSpeed = speedPulse;
+  };
+
+  float getAngleTarget(){ return servoPos + servoIncrement; };
+  int getTurns(){ return 0; };
 
   void setDebug(bool d){ this->debug = d; };
   bool isDebug(void){ return this->debug; };

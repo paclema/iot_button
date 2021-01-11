@@ -12,8 +12,14 @@
 // Trigger -- D7
 // VCC -- 5V
 // GND -- GND
-#define echoPin D8
-#define trigPin D7
+
+#ifdef ESP32
+  #define echoPin GPIO_ID_PIN(8)
+  #define trigPin GPIO_ID_PIN(7)
+#elif defined(ESP8266)
+  #define echoPin D8
+  #define trigPin D7
+#endif
 
 class DistSensorHCSR04: public DistSensor {
 
