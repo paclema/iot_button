@@ -1,13 +1,17 @@
-// #ifndef ParallaxServo_h
-#ifndef ESP32
+#ifndef ParallaxServo_h
 #define ParallaxServo_h
+
 #include <Arduino.h>
 #include <Servo.h>
+
 /*
 ParallaxServo.h - Library to control the sensor head using a Parallax Feedback 360°
 High-Speed Servo.
 
 https://solarbotics.com/wp-content/uploads/900-00360-feedback-360-hs-servo-v1.2.pdf
+
+Servo.h is not available for ESP32. Add this lib as a dependency:
+https://github.com/RoboticsBrno/ServoESP32
 */
 
 class ParallaxServo {
@@ -42,6 +46,7 @@ class ParallaxServo {
     int turns = 0;                          // How many times we've gone around the circle
 
     bool debug = false;
+    bool servoAttached = false;
 
   public:
     bool enabled;
@@ -50,13 +55,14 @@ class ParallaxServo {
 
     ParallaxServo();
     ParallaxServo(byte pinControl, byte pinFeedback);
+    ~ParallaxServo();
 
     void setup();
     bool handle();
     void rotate(float degree, int threshold);
 
-    void enableServo(void){ this->servo.attach(this->controlPin); };
-    void disableServo(void){ this->servo.detach(); };
+    void enableServo(void);
+    void disableServo(void);
 
     void setServoControl(byte servoPinNumber);
     void setServoFeedback(byte servoPinNumber);
@@ -72,6 +78,8 @@ class ParallaxServo {
 
     void setDebug(bool d){ this->debug = d; };
     bool isDebug(void){ return this->debug; };
+
+    bool isAttached(void){ return this->servoAttached; };
 
 
 };

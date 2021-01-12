@@ -7,9 +7,16 @@
 #include "IWebConfig.h"
 
 #include "RadarMotor.h"
-#include "ParallaxServo.h"
 #include "DistSensor.h"
 #include "DistSensorFactory.h"
+// ParallaxServo class can work with ESP8266 or ESP32:
+#include "ParallaxServo.h"
+
+#ifdef ESP32
+// To use paclema/ESP32Servo360:
+#include "ParallaxServoESP32.h"
+// #elif defined(ESP8266)
+#endif
 
 
 class Radar: public IWebConfig {
@@ -28,8 +35,16 @@ private:
 
 public:
 
-  // RadarMotor motor; // Using Hacked Servo
-  ParallaxServo motor; // Using Hacked Servo
+  // Radar Servo motor:
+  #ifdef ESP32
+    // RadarMotor motor;            // Using Hacked Servo
+    // ParallaxServoESP32 motor;    // Using Parallax Servo with ESP32Servo360
+    ParallaxServo motor;            // Using Parallax Servo
+
+  #elif defined(ESP8266)
+    // RadarMotor motor;               // Using Hacked Servo
+    ParallaxServo motor;            // Using Parallax Servo
+  #endif
 
   LinkedList<DistSensor*> distanceSensors = LinkedList<DistSensor*>();
 

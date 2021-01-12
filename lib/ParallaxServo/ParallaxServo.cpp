@@ -1,10 +1,16 @@
-#ifdef ParallaxServo_h
 #include <Arduino.h>
 #include "ParallaxServo.h"
 
 
 ParallaxServo::ParallaxServo() {
 
+}
+
+
+ParallaxServo::~ParallaxServo()
+{
+
+  ParallaxServo::disableServo();
 }
 
 
@@ -24,14 +30,20 @@ void ParallaxServo::setup() {
   setServoControl(this->controlPin);
   setServoFeedback(this->feedbackPin);
 
+  ParallaxServo::enableServo();
 }
 
 
 void ParallaxServo::setServoControl(byte pin) {
 
-  this->controlPin = pin;
-  // Servo control pin attach
-  this->servo.attach(this->controlPin);
+  #ifdef ESP32
+    this->controlPin = GPIO_ID_PIN(pin);
+  #elif defined(ESP8266)
+    this->controlPin = pin;
+  #endif
+
+  // ParallaxServo::enableServo();
+  // this->servo.attach(this->controlPin);
 }
 
 
@@ -127,4 +139,17 @@ int ParallaxServo::getTurns(){
 }
 
 
-#endif
+void ParallaxServo::enableServo(void){
+  if(!this->servoAttached){
+    this->servo.attach(this->controlPin);
+    this->servoAttached = true;
+  }
+}
+
+
+void ParallaxServo::disableServo(void){
+  if(this->servoAttached){
+    this->servo.detach();
+    this->servoAttached = false;
+  }
+}

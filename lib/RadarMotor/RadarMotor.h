@@ -17,11 +17,7 @@ If you are using ESP32 you can choose among several GPIOs with ADC capabilities.
 
 #include <Arduino.h>
 
-#ifdef ESP32
-  #include <ESP32Servo.h>
-#elif defined(ESP8266)
-  #include <Servo.h>
-#endif
+#include <Servo.h>
 
 
 #define  START_ANGLE          25.0
