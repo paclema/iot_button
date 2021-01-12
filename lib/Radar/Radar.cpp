@@ -188,6 +188,11 @@ float Radar::getPosition(void){
 };
 
 
+float Radar::getTargetPosition(void){
+  return this->motor.getAngleTarget();
+};
+
+
 bool Radar::getDistance(float &distance){
   // return this->sensorDistance.sensorRead(distance);
   return false;

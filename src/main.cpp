@@ -74,19 +74,24 @@ unsigned long previousMainLoopMillis = 0;
 #include <WrapperWebSockets.h>
 WrapperWebSockets ws;
 
+// Radar:
+#include "Radar.h"
+// Radar *radar =  new radar("radar");
+Radar radar;
+
+
 // Websocket functions to publish:
 String getLoopTime(){ return String(currentLoopMillis - previousMainLoopMillis);}
 String getRSSI(){ return String(WiFi.RSSI());}
 String getHeapFree(){ return String((float)GET_FREE_HEAP/1000);}
 String mqttState(){ return String(mqttClient.state() );}
 String mqttBufferSize(){ return String(mqttClient.getBufferSize() );}
+String getPosition(){ return String(radar.getPosition() );}
+String getTargetPosition(){ return String(radar.getTargetPosition() );}
 
 
 
-// Radar:
-#include "Radar.h"
-// Radar *radar =  new radar("radar");
-Radar radar;
+
 
 
 // MAIN FUNCTIONS:
@@ -434,6 +439,8 @@ void setup() {
     ws.addObjectToPublish("RSSI", getRSSI);
     ws.addObjectToPublish("mqtt_state", mqttState);
     ws.addObjectToPublish("mqtt_buffer_size", mqttBufferSize);
+    ws.addObjectToPublish("radar_position", getPosition);
+    ws.addObjectToPublish("radar_target_position", getTargetPosition);
 
 
   }

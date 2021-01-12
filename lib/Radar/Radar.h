@@ -47,6 +47,7 @@ public:
 
   void printStatus(void);
   float getPosition(void);
+  float getTargetPosition(void);
   bool getDistance(float &distance);
   bool readPoints(void);
   String getJsonPoints(void);
