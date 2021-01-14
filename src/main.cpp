@@ -41,17 +41,37 @@ int mqttRetries = 0;
 int mqttMaxRetries = 10;
 String mqttQueueString = "{\"data\":[";
 
-// WebConfigServer Configuration
-#ifdef ESP32
-  #include <WebServer.h>
-  WebServer server(80);
-#elif defined(ESP8266)
-  #include <ESP8266WebServer.h>
-  ESP8266WebServer server(80);
-#endif
 
+// WebConfigServer Configuration
 #include "WebConfigServer.h"
 WebConfigServer config;   // <- global configuration object
+
+// To enable asyc webserver use platformio build_flags = -D USE_ASYNC_WEBSERVER
+// Or define here and in WebCOnfigServer.h:
+// #define USE_ASYNC_WEBSERVER
+
+#ifdef ESP32
+  #ifdef USE_ASYNC_WEBSERVER
+    #include <AsyncTCP.h>
+    #include <ESPAsyncWebServer.h>
+    AsyncWebServer server(80);
+  #else
+    #include <WebServer.h>
+    WebServer server(80);
+  #endif
+
+#elif defined(ESP8266)
+  #ifdef USE_ASYNC_WEBSERVER
+    #include <ESPAsyncTCP.h>
+    #include <ESPAsyncWebServer.h>
+    AsyncWebServer server(80);
+  #else
+    #include <ESP8266WebServer.h>
+    ESP8266WebServer server(80);
+  #endif
+#endif
+
+
 
 // FTP server
 #include <ESP8266FtpServer.h>
@@ -473,8 +493,10 @@ void loop() {
     mqttClient.loop();
   }
 
-  // Handle WebConfigServer:
-  server.handleClient();
+  // Handle WebConfigServer for not asyc webserver:
+  #ifndef USE_ASYNC_WEBSERVER
+    server.handleClient();
+  #endif
 
   // Services loop:
   if (config.services.ota) ota.handle();

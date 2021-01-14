@@ -3,16 +3,35 @@
 
 #include <Arduino.h>
 
-#include <LinkedList.h>
+// #include <LinkedList.h>
+// Using AsyncWebServer LinkedList lib can not be used because there is a class
+// using the same name. For that reason, for now we use SimpleList until we fix
+// this using namespace for example.
+#include <SimpleList.h>
 #include "IWebConfig.h"
 
+
+// To enable asyc webserver use platformio build_flags = -D USE_ASYNC_WEBSERVER
+// Or define here and in main.cpp:
+// #define USE_ASYNC_WEBSERVER
+
 #ifdef ESP32
-  #include <WebServer.h>
   #include <SPIFFS.h>
+  #ifdef USE_ASYNC_WEBSERVER
+    #include <AsyncTCP.h>
+    #include <ESPAsyncWebServer.h>
+  #else
+    #include <WebServer.h>
+  #endif
 
 #elif defined(ESP8266)
-  #include <ESP8266WebServer.h>
   #include <FS.h>
+  #ifdef USE_ASYNC_WEBSERVER
+    #include <ESPAsyncTCP.h>
+    #include <ESPAsyncWebServer.h>
+  #else
+    #include <ESP8266WebServer.h>
+  #endif
 #endif
 
 #define ARDUINOJSON_ENABLE_ALIGNMENT 1
@@ -118,10 +137,14 @@ public:
 
   WebConfigServer(void);
 
-  #ifdef ESP32
-    void configureServer(WebServer *server);
-  #elif defined(ESP8266)
-    void configureServer(ESP8266WebServer *server);
+  #ifdef USE_ASYNC_WEBSERVER
+    void configureServer(AsyncWebServer *server);
+  #else
+    #ifdef ESP32
+      void configureServer(WebServer *server);
+    #elif defined(ESP8266)
+      void configureServer(ESP8266WebServer *server);
+    #endif
   #endif
 
   void handle(void);
@@ -134,7 +157,8 @@ public:
 
 private:
 
-  LinkedList<IWebConfig*> configs = LinkedList<IWebConfig*>();
+  // LinkedList<IWebConfig*> configs = LinkedList<IWebConfig*>();
+  SimpleList<IWebConfig*> configs = SimpleList<IWebConfig*>();
 
   void parseIWebConfig(const JsonDocument& doc);
 
@@ -148,12 +172,17 @@ private:
   void printFile(String filename);
   void restoreBackupFile(String filenamechar);
 
-  #ifdef ESP32
-    void updateGpio(WebServer *server);
-    bool handleFileRead(WebServer *server, String path);
-  #elif defined(ESP8266)
-    void updateGpio(ESP8266WebServer *server);
-    bool handleFileRead(ESP8266WebServer *server, String path);
+  #ifdef USE_ASYNC_WEBSERVER
+    void updateGpio(AsyncWebServer *server);
+    bool handleFileRead(AsyncWebServerRequest *request, String path);
+  #else
+    #ifdef ESP32
+      void updateGpio(WebServer *server);
+      bool handleFileRead(WebServer *server, String path);
+    #elif defined(ESP8266)
+      void updateGpio(ESP8266WebServer *server);
+      bool handleFileRead(ESP8266WebServer *server, String path);
+    #endif
   #endif
 
   String getContentType(String filename);
