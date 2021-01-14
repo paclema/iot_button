@@ -3,7 +3,11 @@
 
 #include <Arduino.h>
 
-#include <LinkedList.h>
+// #include <LinkedList.h>
+// Using AsyncWebServer LinkedList lib can not be used because there is a class
+// using the same name. For that reason, for now we use SimpleList until we fix
+// this using namespace for example.
+#include <SimpleList.h>
 #include "IWebConfig.h"
 
 #ifdef ESP32
@@ -138,7 +142,8 @@ public:
 
 private:
 
-  LinkedList<IWebConfig*> configs = LinkedList<IWebConfig*>();
+  // LinkedList<IWebConfig*> configs = LinkedList<IWebConfig*>();
+  SimpleList<IWebConfig*> configs = SimpleList<IWebConfig*>();
 
   void parseIWebConfig(const JsonDocument& doc);
 
