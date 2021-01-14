@@ -317,7 +317,8 @@ void Radar::removeDistanceSensor(String name){
   int sensorId = Radar::getDistanceSensorsId(name);
   if (sensorId != -1){
     // This sensor is in distanceSensors list
-    distanceSensorTemp = this->distanceSensors.remove(sensorId);
+    // distanceSensorTemp = this->distanceSensors.remove(sensorId);
+    this->distanceSensors.remove(sensorId);
     delete distanceSensorTemp;
     distanceSensorTemp = NULL;
   }

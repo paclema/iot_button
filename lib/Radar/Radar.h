@@ -3,7 +3,11 @@
 
 #define JSON_MAX_SIZE_LIST 6
 
-#include <LinkedList.h>
+// #include <LinkedList.h>
+// Using AsyncWebServer LinkedList lib can not be used because there is a class
+// using the same name. For that reason, for now we use SimpleList until we fix
+// this using namespace for example.
+#include <SimpleList.h>
 #include "IWebConfig.h"
 
 #include "RadarMotor.h"
@@ -46,7 +50,8 @@ public:
     ParallaxServo motor;            // Using Parallax Servo
   #endif
 
-  LinkedList<DistSensor*> distanceSensors = LinkedList<DistSensor*>();
+  // LinkedList<DistSensor*> distanceSensors = LinkedList<DistSensor*>();
+  SimpleList<DistSensor*> distanceSensors = SimpleList<DistSensor*>();
 
   RPoint rPoints[20];
   int rPointsSize = 0;
