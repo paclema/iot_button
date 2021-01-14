@@ -334,6 +334,61 @@ void WebConfigServer::restoreBackupFile(String filenamechar){
       //printFile(filename);
 }
 
+
+#ifdef USE_ASYNC_WEBSERVER
+void WebConfigServer::updateGpio(AsyncWebServer *server){
+
+}
+
+void WebConfigServer::configureServer(AsyncWebServer *server){
+
+  // Handle files also gziped:
+  server->onNotFound([&, this](AsyncWebServerRequest *request) {
+    // If the client requests any URI
+    // String path = server->uri();
+    if (!handleFileRead(request, request->url()))
+      // send it if it exists
+      // otherwise, respond with a 404 (Not Found) error:
+      request->send(404, "text/plain", "404: Not Found");
+  });
+
+  server->begin();
+  Serial.println ( "HTTP server started" );
+}
+
+
+bool WebConfigServer::handleFileRead(AsyncWebServerRequest *request, String path) {
+  // send the right file to the client (if it exists)
+  Serial.println("handleFileRead: " + path);
+  // If a folder is requested, send the index file
+  if(path.endsWith("/")) path += "index.html";
+  // Get the MIME type
+  String contentType = getContentType(path);
+  String pathWithGz = path + ".gz";
+  // If the file exists, either as a compressed archive, or normal
+  if(SPIFFS.exists(pathWithGz) || SPIFFS.exists(path)){
+    // If there's a compressed version available use it
+    bool gzipContent = false;
+    if(SPIFFS.exists(pathWithGz)){
+      path += ".gz";
+      gzipContent = true;
+    }
+    // Open the file and send it to the client
+    File file = SPIFFS.open(path, "r");
+    // size_t sent_size = server->streamFile(file, contentType);
+    AsyncWebServerResponse *response = request->beginResponse(SPIFFS, path, contentType);
+    if(gzipContent) response->addHeader("Content-Encoding", "gzip");
+    request->send(response);
+    file.close();
+    // Serial.println(String("\tSent file: ") + path + String(" - ") + formatBytes(sent_size));
+    Serial.println(String("\tSent file: ") + path);
+    return true;
+  }
+  Serial.println(String("\tFile Not Found: ") + path);
+  return false;
+}
+
+#else
 #ifdef ESP32
 void WebConfigServer::updateGpio(WebServer *server){
   String gpio = server->arg("id");
@@ -385,6 +440,7 @@ void WebConfigServer::updateGpio(WebServer *server){
   Serial.println("GPIO updated!");
 
 }
+
 
 void WebConfigServer::configureServer(WebServer *server){
 
@@ -444,22 +500,22 @@ void WebConfigServer::configureServer(WebServer *server){
     // JsonObject& newjson = newBuffer.parseObject(server->arg("plain"));
     //
     // server->send ( 200, "text/json", "{success:true}" );
-/*
-    StaticJsonDocument doc(CONFIG_JSON_SIZE);
-    //DynamicJsonDocument doc(CONFIG_JSON_SIZE);
-    deserializeJson(doc, server->arg("plain"));
 
-    // JsonObject network = doc["network"];
+    // StaticJsonDocument doc(CONFIG_JSON_SIZE);
+    // //DynamicJsonDocument doc(CONFIG_JSON_SIZE);
+    // deserializeJson(doc, server->arg("plain"));
+    //
+    // // JsonObject network = doc["network"];
+    //
+    // Serial.print("JSON POST: ");
+    // serializeJsonPretty(doc, Serial);
+    // Serial.println("");
+    //
+    // // Restore the filename requested:
+    // restoreBackupFile(doc["filename"]);
+    //
+    // // server->send ( 200, "text/json", "{success:true}" );
 
-    Serial.print("JSON POST: ");
-    serializeJsonPretty(doc, Serial);
-    Serial.println("");
-
-    // Restore the filename requested:
-    restoreBackupFile(doc["filename"]);
-
-    // server->send ( 200, "text/json", "{success:true}" );
-*/
 
 
     // Serial.print("JSON POST: "); Serial.println(server->arg("plain"));
@@ -519,6 +575,7 @@ void WebConfigServer::configureServer(WebServer *server){
 
 }
 
+
 bool WebConfigServer::handleFileRead(WebServer *server, String path) {
   // send the right file to the client (if it exists)
   Serial.println("handleFileRead: " + path);
@@ -544,6 +601,7 @@ bool WebConfigServer::handleFileRead(WebServer *server, String path) {
 }
 
 #elif defined(ESP8266)
+
 void WebConfigServer::updateGpio(ESP8266WebServer *server){
   String gpio = server->arg("id");
   String val = server->arg("val");
@@ -653,22 +711,22 @@ void WebConfigServer::configureServer(ESP8266WebServer *server){
     // JsonObject& newjson = newBuffer.parseObject(server->arg("plain"));
     //
     // server->send ( 200, "text/json", "{success:true}" );
-/*
-    StaticJsonDocument doc(CONFIG_JSON_SIZE);
-    //DynamicJsonDocument doc(CONFIG_JSON_SIZE);
-    deserializeJson(doc, server->arg("plain"));
 
-    // JsonObject network = doc["network"];
+    // StaticJsonDocument doc(CONFIG_JSON_SIZE);
+    // //DynamicJsonDocument doc(CONFIG_JSON_SIZE);
+    // deserializeJson(doc, server->arg("plain"));
+    //
+    // // JsonObject network = doc["network"];
+    //
+    // Serial.print("JSON POST: ");
+    // serializeJsonPretty(doc, Serial);
+    // Serial.println("");
+    //
+    // // Restore the filename requested:
+    // restoreBackupFile(doc["filename"]);
+    //
+    // // server->send ( 200, "text/json", "{success:true}" );
 
-    Serial.print("JSON POST: ");
-    serializeJsonPretty(doc, Serial);
-    Serial.println("");
-
-    // Restore the filename requested:
-    restoreBackupFile(doc["filename"]);
-
-    // server->send ( 200, "text/json", "{success:true}" );
-*/
 
 
     // Serial.print("JSON POST: "); Serial.println(server->arg("plain"));
@@ -751,16 +809,26 @@ bool WebConfigServer::handleFileRead(ESP8266WebServer *server, String path) {
   Serial.println(String("\tFile Not Found: ") + path);
   return false;
 }
-#endif
 
+#endif
+#endif
 
 String WebConfigServer::getContentType(String filename) {
   // convert the file extension to the MIME type
-  if(filename.endsWith(".html")) return "text/html";
-  else if(filename.endsWith(".css")) return "text/css";
-  else if(filename.endsWith(".js")) return "application/javascript";
-  else if(filename.endsWith(".ico")) return "image/x-icon";
-  else if(filename.endsWith(".gz")) return "application/x-gzip";
+  if(filename.endsWith(F(".html"))) 	return F("text/html");
+  else if(filename.endsWith(F(".gz"))) 		return F("application/x-gzip");
+  else if(filename.endsWith(F(".css"))) 	return F("text/css");
+  else if(filename.endsWith(F(".js"))) 		return F("application/javascript");
+  else if(filename.endsWith(F(".json"))) 	return F("application/json");
+  else if(filename.endsWith(F(".ico"))) 	return F("image/x-icon");
+  else if(filename.endsWith(F(".png"))) 	return F("image/png");
+  else if(filename.endsWith(F(".htm"))) 	return F("text/html");
+  else if(filename.endsWith(F(".gif"))) 	return F("image/gif");
+  else if(filename.endsWith(F(".jpg"))) 	return F("image/jpeg");
+  else if(filename.endsWith(F(".jpeg"))) 	return F("image/jpeg");
+  else if(filename.endsWith(F(".xml"))) 	return F("text/xml");
+  else if(filename.endsWith(F(".pdf"))) 	return F("application/x-pdf");
+  else if(filename.endsWith(F(".zip"))) 	return F("application/x-zip");
   return "text/plain";
 }
 
