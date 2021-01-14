@@ -297,7 +297,7 @@ void WebConfigServer::printFile(String filename){
 
 
 // Restore the backup of a file:
-void WebConfigServer::restoreBackupFile(String filenamechar){
+bool WebConfigServer::restoreBackupFile(String filenamechar){
 
       String filename = filenamechar;
       if(!filename.startsWith("/")) filename = "/"+filename;
@@ -309,14 +309,14 @@ void WebConfigServer::restoreBackupFile(String filenamechar){
       File file = SPIFFS.open(filename, "w+");
       if (!file) {
         Serial.print(F("Failed to read file: "));Serial.println(filename);
-        return;
+        return false;
       }
 
       //Serial.print("Opened: "); Serial.println(filename);
       File file_bak = SPIFFS.open(filename_bak, "r");
       if (!file) {
         Serial.print(F("Failed to read backup file: "));Serial.println(filename_bak);
-        return;
+        return false;
       }
 
       //Serial.print("Opened: "); Serial.println(filename_bak);
@@ -329,18 +329,164 @@ void WebConfigServer::restoreBackupFile(String filenamechar){
       Serial.println("Backup restored");
       file_bak.close();
       file.close();
-
-      // Serial.println("New config:");
-      //printFile(filename);
+      return true;
 }
 
 
 #ifdef USE_ASYNC_WEBSERVER
-void WebConfigServer::updateGpio(AsyncWebServer *server){
+void WebConfigServer::updateGpio(AsyncWebServerRequest *request){
+
+  //List all parameters (Compatibility)
+  // int args = request->args();
+  // for(int i=0;i<args;i++){
+  //   Serial.printf("ARG[%s]: %s\n", request->argName(i).c_str(), request->arg(i).c_str());
+  // }
+
+  String gpio, val;
+
+  if(request->hasArg("id")) gpio = request->arg("id");
+  if(request->hasArg("val")) val = request->arg("val");
+
+  String success = "1";
+
+  #ifdef ESP32
+  int pin = GPIO_ID_PIN(5);
+  if ( gpio == "D5" ) {
+    pin = GPIO_ID_PIN(5);
+  } else if ( gpio == "D7" ) {
+     pin = GPIO_ID_PIN(7);
+  } else if ( gpio == "D8" ) {
+     pin = GPIO_ID_PIN(8);
+  } else if ( gpio == "LED_BUILTIN" ) {
+     pin = GPIO_ID_PIN(LED_BUILTIN);
+  } else {
+     // Built-in nodemcu GPI16, pin 16 led D0
+     // esp12 led is 2 or D4
+     pin = LED_BUILTIN;
+  }
+  #elif defined(ESP8266)
+    int pin = D5;
+    if ( gpio == "D5" ) {
+      pin = D5;
+    } else if ( gpio == "D7" ) {
+       pin = D7;
+    } else if ( gpio == "D8" ) {
+       pin = D8;
+    } else if ( gpio == "LED_BUILTIN" ) {
+       pin = LED_BUILTIN;
+    } else {
+       // Built-in nodemcu GPI16, pin 16 led D0
+       // esp12 led is 2 or D4
+       pin = LED_BUILTIN;
+    }
+  #endif
+
+
+    // Reverse current LED status:
+    pinMode(pin, OUTPUT);
+    // digitalWrite(pin, LOW);
+    digitalWrite(pin, !digitalRead(pin));
+
+    // if ( val == "true" ) {
+    //   digitalWrite(pin, HIGH);
+    // } else if ( val == "false" ) {
+    //   digitalWrite(pin, LOW);
+    // } else {
+    //   success = "true";
+    //   Serial.println("Err parsing GPIO Value");
+    // }
+
+    // String response = "{\"gpio\":\"" + String(gpio) + "\",";
+    // response += "\"val\":\"" + String(val) + "\",";
+    // response += "\"success\":\"" + String(success) + "\"}";
+
+    String response = "{\"message\":\"GPIO " + String(gpio);
+    response += " changed to " + String(!digitalRead(pin)) + "\"}";
+
+    request->send(200, "text/json", response);
+    Serial.println("JSON POST /gpio : " + response);
 
 }
 
 void WebConfigServer::configureServer(AsyncWebServer *server){
+
+  server->on("/gpio", HTTP_POST, [& ,this](AsyncWebServerRequest *request){
+    updateGpio(request);
+  });
+
+
+  server->on("/save_config", HTTP_POST,
+    [](AsyncWebServerRequest *request){
+      // Config saved and request done
+    },
+    NULL,
+    [& ,server](AsyncWebServerRequest *request, uint8_t *data, size_t len, size_t index, size_t total) {
+      DynamicJsonDocument doc(CONFIG_JSON_SIZE);
+      // deserializeJson(doc, server->arg("plain"));
+      deserializeJson(doc, data);
+      // Parse file to Config struct object:
+      WebConfigServer::parseConfig(doc);
+      // Parse file to IWebConfig objects:
+      WebConfigServer::parseIWebConfig(doc);
+      // Save the config file with new configuration:
+      WebConfigServer::saveWebConfigurationFile(CONFIG_FILE,doc);
+      String response = "{\"message\": \"Configurations saved\"}";
+      request->send(200, "text/json", response);
+      Serial.println("JSON POST /save_config: " + response);
+
+    });
+
+
+  server->on("/restore_config", HTTP_POST, [& ,server](AsyncWebServerRequest *request){
+
+    // if (request->args() > 0){
+    //   for (int i = 0; i < request->args(); i++ ) {
+    //     // Serial.print("POST Arguments: " ); Serial.println(server->args(i));
+    //     Serial.print("Name: "); Serial.println(request->argName(i));
+    //     Serial.print("Value: "); Serial.println(request->arg(i));
+    //   }
+    // }
+
+    String response;
+    if( ! request->hasArg("filename") || request->arg("filename") == NULL){
+      response = "{\"message\": \"filename to restore not provided\"}";
+      request->send(400, "text/json", response);
+      Serial.println("JSON POST /restore_config: " + response);
+    } else {
+      Serial.print("File to restore: "); Serial.println(request->arg("filename"));
+      if (restoreBackupFile(request->arg("filename"))){
+        response = "{\"message\": \"Configuration restored\"}";
+        request->send(200, "text/json", response);
+        Serial.println("JSON POST /restore_config: " + response);
+      }
+      else{
+        response = "{\"message\": \"Error while reading files\"}";
+        request->send(400, "text/json", response);
+        Serial.println("JSON POST /restore_config: " + response);
+      }
+    }
+  });
+
+
+  server->on("/restart", HTTP_POST, [& ,this](AsyncWebServerRequest *request){
+    if( ! request->hasArg("restart") || request->arg("restart") == NULL){
+      String response = "{\"message\": \"400: Invalid Request\"}";
+      request->send(400, "text/json", response);
+      Serial.println("JSON POST /restart: " + response);
+    } else{
+      if (request->arg("restart") == "true"){
+        String response = "{\"message\": \"Restarting device...\"}";
+        request->send(200, "text/json", response);
+        Serial.println("JSON POST /restart: " + response);
+
+        delay(150);
+        WiFi.disconnect();
+        SPIFFS.end();
+        ESP.restart();
+      }
+    }
+  });
+
 
   // Handle files also gziped:
   server->onNotFound([&, this](AsyncWebServerRequest *request) {
@@ -495,47 +641,25 @@ void WebConfigServer::configureServer(WebServer *server){
 
   });
 
+
   server->on("/restore_config", HTTP_POST, [& ,server](){
-    // StaticJsonBuffer<200> newBuffer;
-    // JsonObject& newjson = newBuffer.parseObject(server->arg("plain"));
-    //
-    // server->send ( 200, "text/json", "{success:true}" );
-
-    // StaticJsonDocument doc(CONFIG_JSON_SIZE);
-    // //DynamicJsonDocument doc(CONFIG_JSON_SIZE);
-    // deserializeJson(doc, server->arg("plain"));
-    //
-    // // JsonObject network = doc["network"];
-    //
-    // Serial.print("JSON POST: ");
-    // serializeJsonPretty(doc, Serial);
-    // Serial.println("");
-    //
-    // // Restore the filename requested:
-    // restoreBackupFile(doc["filename"]);
-    //
-    // // server->send ( 200, "text/json", "{success:true}" );
-
-
-
-    // Serial.print("JSON POST: "); Serial.println(server->arg("plain"));
-    // Serial.print("JSON POST argName: "); Serial.println(server->argName(0));
-    // Serial.print("JSON POST args: "); Serial.println(server->args());
-
-    if (server->args() > 0){
-      for (int i = 0; i < server->args(); i++ ) {
-        // Serial.print("POST Arguments: " ); Serial.println(server->args(i));
-        Serial.print("Name: "); Serial.println(server->argName(i));
-        Serial.print("Value: "); Serial.println(server->arg(i));
-      }
-    }
-
+    String response;
     if( ! server->hasArg("filename") || server->arg("filename") == NULL){
-      server->send(400, "text/plain", "400: Invalid Request");
+      response = "{\"message\": \"filename to restore not provided\"}";
+      server->send(400, "text/json", response);
+      Serial.println("JSON POST /restore_config: " + response);
     } else {
       Serial.print("File to restore: "); Serial.println(server->arg("filename"));
-      restoreBackupFile(server->arg("filename"));
-      server->send ( 200, "text/json", "{\"message\": \"Configuration restored\"}" );
+      if (restoreBackupFile(server->arg("filename"))){
+        response = "{\"message\": \"Configuration restored\"}";
+        server->send(200, "text/json", response);
+        Serial.println("JSON POST /restore_config: " + response);
+      }
+      else{
+        response = "{\"message\": \"Error while reading files\"}";
+        server->send(400, "text/json", response);
+        Serial.println("JSON POST /restore_config: " + response);
+      }
     }
   });
 
@@ -557,7 +681,6 @@ void WebConfigServer::configureServer(WebServer *server){
       }
       server->send ( 200, "text/json", "{\"message\": \"Device restarted\"}" );
     }
-
   });
 
   // Handle files also gziped:
@@ -706,47 +829,25 @@ void WebConfigServer::configureServer(ESP8266WebServer *server){
 
   });
 
+
   server->on("/restore_config", HTTP_POST, [& ,server](){
-    // StaticJsonBuffer<200> newBuffer;
-    // JsonObject& newjson = newBuffer.parseObject(server->arg("plain"));
-    //
-    // server->send ( 200, "text/json", "{success:true}" );
-
-    // StaticJsonDocument doc(CONFIG_JSON_SIZE);
-    // //DynamicJsonDocument doc(CONFIG_JSON_SIZE);
-    // deserializeJson(doc, server->arg("plain"));
-    //
-    // // JsonObject network = doc["network"];
-    //
-    // Serial.print("JSON POST: ");
-    // serializeJsonPretty(doc, Serial);
-    // Serial.println("");
-    //
-    // // Restore the filename requested:
-    // restoreBackupFile(doc["filename"]);
-    //
-    // // server->send ( 200, "text/json", "{success:true}" );
-
-
-
-    // Serial.print("JSON POST: "); Serial.println(server->arg("plain"));
-    // Serial.print("JSON POST argName: "); Serial.println(server->argName(0));
-    // Serial.print("JSON POST args: "); Serial.println(server->args());
-
-    if (server->args() > 0){
-      for (int i = 0; i < server->args(); i++ ) {
-        // Serial.print("POST Arguments: " ); Serial.println(server->args(i));
-        Serial.print("Name: "); Serial.println(server->argName(i));
-        Serial.print("Value: "); Serial.println(server->arg(i));
-      }
-    }
-
+    String response;
     if( ! server->hasArg("filename") || server->arg("filename") == NULL){
-      server->send(400, "text/plain", "400: Invalid Request");
+      response = "{\"message\": \"filename to restore not provided\"}";
+      server->send(400, "text/json", response);
+      Serial.println("JSON POST /restore_config: " + response);
     } else {
       Serial.print("File to restore: "); Serial.println(server->arg("filename"));
-      restoreBackupFile(server->arg("filename"));
-      server->send ( 200, "text/json", "{\"message\": \"Configuration restored\"}" );
+      if (restoreBackupFile(server->arg("filename"))){
+        response = "{\"message\": \"Configuration restored\"}";
+        server->send(200, "text/json", response);
+        Serial.println("JSON POST /restore_config: " + response);
+      }
+      else{
+        response = "{\"message\": \"Error while reading files\"}";
+        server->send(400, "text/json", response);
+        Serial.println("JSON POST /restore_config: " + response);
+      }
     }
   });
 

@@ -96,7 +96,7 @@ WrapperWebSockets ws;
 // Websocket functions to publish:
 String getLoopTime(){ return String(currentLoopMillis - previousMainLoopMillis);}
 String getRSSI(){ return String(WiFi.RSSI());}
-String getHeapFree(){ return String(GET_FREE_HEAP);}
+String getHeapFree(){ return String((float)GET_FREE_HEAP/1000);}
 
 
 

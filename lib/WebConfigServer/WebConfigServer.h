@@ -174,10 +174,10 @@ private:
   void loadConfigurationFile(const char *filename);
   void saveConfigurationFile(const char *filename);
   void printFile(String filename);
-  void restoreBackupFile(String filenamechar);
+  bool restoreBackupFile(String filenamechar);
 
   #ifdef USE_ASYNC_WEBSERVER
-    void updateGpio(AsyncWebServer *server);
+    void updateGpio(AsyncWebServerRequest *request);
     bool handleFileRead(AsyncWebServerRequest *request, String path);
   #else
     #ifdef ESP32
