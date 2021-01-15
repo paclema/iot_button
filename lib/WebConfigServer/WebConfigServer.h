@@ -20,6 +20,7 @@
   #ifdef USE_ASYNC_WEBSERVER
     #include <AsyncTCP.h>
     #include <ESPAsyncWebServer.h>
+    #include "AsyncJson.h"          // To handle JSON post request using AsyncCallbackJsonWebHandler
   #else
     #include <WebServer.h>
   #endif
@@ -29,6 +30,7 @@
   #ifdef USE_ASYNC_WEBSERVER
     #include <ESPAsyncTCP.h>
     #include <ESPAsyncWebServer.h>
+    #include "AsyncJson.h"          // To handle JSON post request using AsyncCallbackJsonWebHandler
   #else
     #include <ESP8266WebServer.h>
   #endif
@@ -168,16 +170,16 @@ private:
 
   String formatBytes(size_t bytes);
 
-  void saveWebConfigurationFile(const char *filename, const JsonDocument& doc);
+  bool saveWebConfigurationFile(const char *filename, const JsonDocument& doc);
   void parseConfig(const JsonDocument& doc);
 
   void loadConfigurationFile(const char *filename);
   void saveConfigurationFile(const char *filename);
   void printFile(String filename);
-  void restoreBackupFile(String filenamechar);
+  bool restoreBackupFile(String filenamechar);
 
   #ifdef USE_ASYNC_WEBSERVER
-    void updateGpio(AsyncWebServer *server);
+    void updateGpio(AsyncWebServerRequest *request);
     bool handleFileRead(AsyncWebServerRequest *request, String path);
   #else
     #ifdef ESP32

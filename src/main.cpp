@@ -3,7 +3,7 @@
 
 
 // Main variables:
-#define DEBUG_ESP_CORE
+// #define DEBUG_ESP_CORE
 #define ENABLE_SERIAL_DEBUG true
 unsigned long connectionTime = millis();
 unsigned long setupDeviceTime;
@@ -96,7 +96,7 @@ WrapperWebSockets ws;
 // Websocket functions to publish:
 String getLoopTime(){ return String(currentLoopMillis - previousMainLoopMillis);}
 String getRSSI(){ return String(WiFi.RSSI());}
-String getHeapFree(){ return String(GET_FREE_HEAP);}
+String getHeapFree(){ return String((float)GET_FREE_HEAP/1000);}
 
 
 
@@ -407,8 +407,10 @@ void deepSleepHandler() {
 
 void setup() {
   Serial.begin(115200);
-  // Enable wifi diagnostic:
-  Serial.setDebugOutput(ENABLE_SERIAL_DEBUG);
+  // Enable wifi diagnostic using platformio build_glag: -D ENABLE_SERIAL_DEBUG:
+  #ifdef ENABLE_SERIAL_DEBUG
+    Serial.setDebugOutput(true);
+  #endif
 
   reconnect();
 
