@@ -3,7 +3,7 @@
 
 
 // Main variables:
-#define DEBUG_ESP_CORE
+// #define DEBUG_ESP_CORE
 #define ENABLE_SERIAL_DEBUG true
 unsigned long connectionTime = millis();
 unsigned long setupDeviceTime;
@@ -427,8 +427,10 @@ void deepSleepHandler() {
 
 void setup() {
   Serial.begin(115200);
-  // Enable wifi diagnostic:
-  Serial.setDebugOutput(ENABLE_SERIAL_DEBUG);
+  // Enable wifi diagnostic using platformio build_glag: -D ENABLE_SERIAL_DEBUG:
+  #ifdef ENABLE_SERIAL_DEBUG
+    Serial.setDebugOutput(true);
+  #endif
 
   reconnect();
 
