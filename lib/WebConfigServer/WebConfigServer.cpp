@@ -81,7 +81,7 @@ String WebConfigServer::formatBytes(size_t bytes){
 
 
 // Saves the web configuration from a POST req to a file
-void WebConfigServer::saveWebConfigurationFile(const char *filename, const JsonDocument& doc){
+bool WebConfigServer::saveWebConfigurationFile(const char *filename, const JsonDocument& doc){
   // Delete existing file, otherwise the configuration is appended to the file
   Serial.println(F("Saving webconfig file..."));
   SPIFFS.remove(filename);
@@ -91,16 +91,18 @@ void WebConfigServer::saveWebConfigurationFile(const char *filename, const JsonD
   File file = SPIFFS.open(filename, "w");
   if (!file) {
     Serial.println(F("Failed to create file"));
-    return;
+    return false;
   }
 
   // Serialize JSON to file
   if (serializeJson(doc, file) == 0) {
     Serial.println(F("Failed to write to file"));
+    return false;
   }
 
   // Close the file
   file.close();
+  return true;
 }
 
 
@@ -156,7 +158,7 @@ void WebConfigServer::parseConfig(const JsonDocument& doc){
   services.ftp.password = doc["services"]["FTP"]["password"] | "admin";
   // WebSockets
   services.webSockets.enabled = doc["services"]["WebSockets"]["enabled"] | false;
-  services.webSockets.publish_time_ms = doc["services"]["WebSockets"]["publish_time_ms"] | 100;
+  services.webSockets.publish_time_ms = doc["services"]["WebSockets"]["publish_time_ms"];
   // DeepSleep
   services.deep_sleep.enabled = doc["services"]["deep_sleep"]["enabled"] | false;
   services.deep_sleep.mode = doc["services"]["deep_sleep"]["mode"] | "WAKE_RF_DEFAULT";
@@ -410,31 +412,63 @@ void WebConfigServer::updateGpio(AsyncWebServerRequest *request){
 
 void WebConfigServer::configureServer(AsyncWebServer *server){
 
+  //list directory
+  // server->serveStatic("/certs", SPIFFS, "/certs");
+  // server->serveStatic("/img", SPIFFS, "/img");
+  // server->serveStatic("/", SPIFFS, "/index.html");
+
+  server->serveStatic("/config/config.json", SPIFFS, "/config/config.json");
+  server->serveStatic("/", SPIFFS, "/").setDefaultFile("index.html").setCacheControl("max-age=600");
+  // server->serveStatic("/", SPIFFS, "/");
+  server->serveStatic("/index.html", SPIFFS, "/index.html");
+  server->serveStatic("/main.js", SPIFFS, "/main.js");
+  server->serveStatic("/polyfills.js", SPIFFS, "/polyfills.js");
+  server->serveStatic("/runtime.js", SPIFFS, "/runtime.js");
+  server->serveStatic("/styles.css", SPIFFS, "/styles.css");
+  server->serveStatic("/scripts.js", SPIFFS, "/scripts.js");
+  server->serveStatic("/favicon.ico", SPIFFS, "/favicon.ico");
+  server->serveStatic("/chiplogo.png", SPIFFS, "/chiplogo.png");
+  // server->serveStatic("/3rdpartylicenses.txt", SPIFFS, "/3rdpartylicenses.txt");
+
+
+
   server->on("/gpio", HTTP_POST, [& ,this](AsyncWebServerRequest *request){
     updateGpio(request);
+    Serial.print("getHeapFree(): "); Serial.print(ESP.getFreeHeap());
+    Serial.println();
+
   });
 
 
-  server->on("/save_config", HTTP_POST,
-    [](AsyncWebServerRequest *request){
-      // Config saved and request done
-    },
-    NULL,
-    [& ,server](AsyncWebServerRequest *request, uint8_t *data, size_t len, size_t index, size_t total) {
-      DynamicJsonDocument doc(CONFIG_JSON_SIZE);
-      // deserializeJson(doc, server->arg("plain"));
-      deserializeJson(doc, data);
+
+  AsyncCallbackJsonWebHandler* handlerSaveConfig = new AsyncCallbackJsonWebHandler("/save_config", [& ,server](AsyncWebServerRequest *request, JsonVariant &json) {
+    DynamicJsonDocument doc(CONFIG_JSON_SIZE);
+    doc = json;
+    if ( !doc.isNull()){
+      // Serial.print("\nJSON received: ");
+      // serializeJsonPretty(doc, Serial);
+      // Serial.println("");
+
       // Parse file to Config struct object:
       WebConfigServer::parseConfig(doc);
       // Parse file to IWebConfig objects:
       WebConfigServer::parseIWebConfig(doc);
       // Save the config file with new configuration:
-      WebConfigServer::saveWebConfigurationFile(CONFIG_FILE,doc);
-      String response = "{\"message\": \"Configurations saved\"}";
-      request->send(200, "text/json", response);
-      Serial.println("JSON POST /save_config: " + response);
 
-    });
+      String response;
+      if (WebConfigServer::saveWebConfigurationFile(CONFIG_FILE,doc)){
+        response = "{\"message\": \"Configurations saved\"}";
+        request->send(200, "text/json", response);
+        Serial.println("JSON POST /save_config: " + response);
+      } else {
+        response = "{\"message\": \"Error saving the configuration\"}";
+        request->send(400, "text/json", response);
+        Serial.println("JSON POST /save_config: " + response);
+      }
+
+    }
+  });
+  server->addHandler(handlerSaveConfig);
 
 
   server->on("/restore_config", HTTP_POST, [& ,server](AsyncWebServerRequest *request){
@@ -479,7 +513,10 @@ void WebConfigServer::configureServer(AsyncWebServer *server){
         request->send(200, "text/json", response);
         Serial.println("JSON POST /restart: " + response);
 
-        delay(150);
+        // This hould not be here, we should track the reboot autside of the
+        // handler as here: https://github.com/me-no-dev/ESPAsyncWebServer#setting-up-the-server
+        // If not, the 200 response won't be sent properly.
+        // delay(150);    // Delays will not take place under Asyc WebServer
         WiFi.disconnect();
         SPIFFS.end();
         ESP.restart();
@@ -488,7 +525,7 @@ void WebConfigServer::configureServer(AsyncWebServer *server){
   });
 
 
-  // Handle files also gziped:
+  // Handle files also gzipped if requested other file not configured using serveStatic():
   server->onNotFound([&, this](AsyncWebServerRequest *request) {
     // If the client requests any URI
     // String path = server->uri();
@@ -496,6 +533,7 @@ void WebConfigServer::configureServer(AsyncWebServer *server){
       // send it if it exists
       // otherwise, respond with a 404 (Not Found) error:
       request->send(404, "text/plain", "404: Not Found");
+      request->client()->close();
   });
 
   server->begin();
