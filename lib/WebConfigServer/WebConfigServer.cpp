@@ -441,7 +441,9 @@ void WebConfigServer::configureServer(AsyncWebServer *server){
 
 
 
-  AsyncCallbackJsonWebHandler* handlerSaveConfig = new AsyncCallbackJsonWebHandler("/save_config", [& ,server](AsyncWebServerRequest *request, JsonVariant &json) {
+  AsyncCallbackJsonWebHandler* handlerSaveConfig = new AsyncCallbackJsonWebHandler(
+      "/save_config",
+      [& ,server](AsyncWebServerRequest *request, JsonVariant &json) {
     DynamicJsonDocument doc(CONFIG_JSON_SIZE);
     doc = json;
     if ( !doc.isNull()){

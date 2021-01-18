@@ -3,17 +3,35 @@
 
 #include <Arduino.h>
 
+// To enable asyc webserver use platformio build_flags = -D USE_ASYNC_WEBSERVER
+// Or define here and in main.cpp:
+// #define USE_ASYNC_WEBSERVER
+
+// Allocate a temporary JsonDocument
+// Don't forget to change the capacity to match your requirements.
+// Use arduinojson.org/assistant to compute the capacity.
+#define CONFIG_FILE "/config/config.json"
+
+#ifndef CONFIG_JSON_SIZE
+  #define CONFIG_JSON_SIZE 4096
+#endif
+#define DYNAMIC_JSON_DOCUMENT_SIZE CONFIG_JSON_SIZE   //  To redefine "AsyncJson.h" AsyncCallbackJsonWebHandler json doc max size
+
+#define MQTT_TOPIC_MAX_SIZE_LIST 10
+#define JSON_MAX_SIZE_LIST 6
+
+#define CONFIG_LOADED "loaded"
+#define CONFIG_NOT_LOADED "not_loaded"
+
+#define ARDUINOJSON_ENABLE_ALIGNMENT 1
+
+
 // #include <LinkedList.h>
 // Using AsyncWebServer LinkedList lib can not be used because there is a class
 // using the same name. For that reason, for now we use SimpleList until we fix
 // this using namespace for example.
 #include <SimpleList.h>
 #include "IWebConfig.h"
-
-
-// To enable asyc webserver use platformio build_flags = -D USE_ASYNC_WEBSERVER
-// Or define here and in main.cpp:
-// #define USE_ASYNC_WEBSERVER
 
 #ifdef ESP32
   #include <SPIFFS.h>
@@ -36,19 +54,7 @@
   #endif
 #endif
 
-#define ARDUINOJSON_ENABLE_ALIGNMENT 1
 #include <ArduinoJson.h>
-
-// Allocate a temporary JsonDocument
-// Don't forget to change the capacity to match your requirements.
-// Use arduinojson.org/assistant to compute the capacity.
-#define CONFIG_FILE "/config/config.json"
-#define CONFIG_JSON_SIZE 4000
-#define MQTT_TOPIC_MAX_SIZE_LIST 10
-#define JSON_MAX_SIZE_LIST 6
-
-#define CONFIG_LOADED "loaded"
-#define CONFIG_NOT_LOADED "not_loaded"
 
 
 
