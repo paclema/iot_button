@@ -76,7 +76,7 @@
       "enabled": true,
       "debug": true,
       "control_pin": 0,
-      "feedback_pin": 12,
+      "feedback_pin": 13,
       "angle_accuracy": 1,
       "motor_speed_pulse": 5,
       "servo_speed_ms/60": 600
@@ -103,7 +103,7 @@
       "zones" : 4
     },
     "debug": false,
-    "angle_min": 0,
+    "angle_min": 20,
     "angle_max": 180
   },
   "info": {

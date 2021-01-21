@@ -381,15 +381,16 @@ void reconnect(void) {
   // Enable services:
   enableServices();
 
-  // Enable Radar services:
-  radar.enableRadarServices();
-
   // Configure MQTT broker:
   if (config.mqtt.enabled) {
     initMQTT();
     if (config.mqtt.reconnect_mqtt)
       reconnectMQTT();
   }
+
+
+  // Enable Radar services:
+  radar.enableRadarServices();
 
 
 }
