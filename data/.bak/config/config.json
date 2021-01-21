@@ -76,20 +76,35 @@
       "enabled": false,
       "debug": true,
       "control_pin": 0,
-      "feedback_pin": 12,
+      "feedback_pin": 13,
       "angle_accuracy": 1,
       "motor_speed_pulse": 5,
       "servo_speed_ms/60": 600
     },
     "HCSR04":{
       "enabled": false,
+      "debug": false,
       "time_budget_ms": 50
     },
-    "vl53l1x": {
-      "enabled": false,
+    "vl53l1x_1": {
+      "enabled": true,
       "debug": true,
       "time_budget_ms": 20,
-      "distance_mode": "Short",
+      "XSHUT_pin": 14,
+      "I2c_address": 42,
+      "distance_mode_options": [
+        "Short",
+        "Medium",
+        "Long",
+        "Unknown"
+      ]
+    },
+    "vl53l1x_2": {
+      "enabled": true,
+      "debug": true,
+      "time_budget_ms": 20,
+      "XSHUT_pin": 12,
+      "I2c_address": 43,
       "distance_mode_options": [
         "Short",
         "Medium",
@@ -101,8 +116,8 @@
       "enabled": false,
       "zones" : 4
     },
-    "debug": false,
-    "angle_min": 0,
+    "debug": true,
+    "angle_min": 20,
     "angle_max": 180
   },
   "info": {

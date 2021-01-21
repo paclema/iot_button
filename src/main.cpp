@@ -108,6 +108,7 @@ String mqttState(){ return String(mqttClient.state() );}
 String mqttBufferSize(){ return String(mqttClient.getBufferSize() );}
 String getPosition(){ return String(radar.getPosition() );}
 String getTargetPosition(){ return String(radar.getTargetPosition() );}
+String getMqttQueueString(){ return String((float)mqttQueueString.length()/1000 );}
 
 
 
@@ -462,6 +463,7 @@ void setup() {
     ws.addObjectToPublish("RSSI", getRSSI);
     ws.addObjectToPublish("mqtt_state", mqttState);
     ws.addObjectToPublish("mqtt_buffer_size", mqttBufferSize);
+    ws.addObjectToPublish("mqtt_queue_string_size", getMqttQueueString);
     ws.addObjectToPublish("radar_position", getPosition);
     ws.addObjectToPublish("radar_target_position", getTargetPosition);
 
