@@ -30,6 +30,7 @@ private:
   float angleMax = 0;
 
   bool debug = false;
+  bool radarInitialized  = false;
 
   struct RPoint {
     float angle;
@@ -62,6 +63,7 @@ public:
   void parseWebConfig(JsonObjectConst configObject);
 
   void enableRadarServices(void);
+  void disableDistSensors(void);
   void setupDistSensors(void);
   void loop(void);
 
@@ -73,7 +75,7 @@ public:
   String getJsonPoints(void);
 
   int getDistanceSensorsId(String name);
-  DistSensor* getDistanceSensor(String name);
+  DistSensor* getDistanceSensor(String name, String type);
   void removeDistanceSensor(String name);
 
   void setDebug(bool d){ this->debug = d; };

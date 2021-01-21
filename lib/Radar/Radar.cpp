@@ -16,6 +16,8 @@ void Radar::parseWebConfig(JsonObjectConst configObject){
   // JsonObject received:
   // serializeJsonPretty(configObject, Serial);
 
+  // Disable distance sensors:
+  // if (this->radarInitialized) Radar::disableDistSensors();
 
   // Radar IWebConfig object:
   this->debug = configObject["debug"] | false;
@@ -34,9 +36,9 @@ void Radar::parseWebConfig(JsonObjectConst configObject){
 
   // HCSR04 sensor:
   if (configObject["HCSR04"]["enabled"]){
-    if (this->debug) Serial.println("\tHCSR04 must be created");
+    // if (this->debug) Serial.println("\tHCSR04 must be created");
 
-    DistSensor *distanceSensor = getDistanceSensor("HCSR04");
+    DistSensor *distanceSensor = getDistanceSensor("HCSR04", "HCSR04");
     distanceSensor->setEnable(configObject["HCSR04"]["enabled"] | false);
     distanceSensor->setTimeBudget(configObject["HCSR04"]["time_budget_ms"]);
 
@@ -47,40 +49,63 @@ void Radar::parseWebConfig(JsonObjectConst configObject){
 
 
   // VL53L1X sensor:
-  if (configObject["vl53l1x"]["enabled"]){
-    if (this->debug) Serial.println("\tvl53l1x must be created");
+  String nameSensor = "vl53l1x_1";
+  if (configObject[nameSensor]["enabled"]){
+    // if (this->debug) Serial.println("\tvl53l1x must be created");
 
     // As VL53L1X with or whithout use different libraries, we have to remove
     // the VL53L1X_ROI object if it was created and create a VL53L1X one:
     removeDistanceSensor("VL53L1X_ROI");
-    DistSensor *distanceSensor = getDistanceSensor("VL53L1X");
+    DistSensor *distanceSensor = getDistanceSensor(nameSensor, "VL53L1X");
 
-    distanceSensor->setEnable(configObject["vl53l1x"]["enabled"] | false);
-    distanceSensor->setDebug(configObject["vl53l1x"]["debug"] | false);
-    distanceSensor->setTimeBudget(configObject["vl53l1x"]["time_budget_ms"]);
+    distanceSensor->setEnable(configObject[nameSensor]["enabled"] | false);
+    distanceSensor->setDebug(configObject[nameSensor]["debug"] | false);
+    distanceSensor->setTimeBudget(configObject[nameSensor]["time_budget_ms"]);
 
   } else {
-    if (this->debug) Serial.println("\tvl53l1x must be removed");
-    removeDistanceSensor("VL53L1X");
+    // if (this->debug) Serial.println("\tvl53l1x must be removed");
+    removeDistanceSensor(nameSensor);
+
+  }
+
+  // VL53L1X second sensor:
+  nameSensor = "vl53l1x_2";
+  // Serial.print("\tCONFIGURING: ");
+  // serializeJsonPretty(configObject[nameSensor], Serial);
+  if (configObject[nameSensor]["enabled"]){
+    // if (this->debug) Serial.println("\tvl53l1x must be created");
+
+    // As VL53L1X with or whithout use different libraries, we have to remove
+    // the VL53L1X_ROI object if it was created and create a VL53L1X one:
+    // removeDistanceSensor("VL53L1X_ROI");
+    DistSensor *distanceSensor = getDistanceSensor(nameSensor, "VL53L1X");
+
+    distanceSensor->setEnable(configObject[nameSensor]["enabled"] | false);
+    distanceSensor->setDebug(configObject[nameSensor]["debug"] | false);
+    distanceSensor->setTimeBudget(configObject[nameSensor]["time_budget_ms"]);
+
+  } else {
+    // if (this->debug) Serial.println("\tvl53l1x must be removed");
+    removeDistanceSensor(nameSensor);
 
   }
 
 
   // VL53L1X with ROI sensor:
   if (configObject["ROI"]["enabled"]){
-    if (this->debug) Serial.println("\tROI must be created");
+    // if (this->debug) Serial.println("\tROI must be created");
 
     // As VL53L1X with or whithout use different libraries, we have to remove
     // the VL53L1X object if it was created and create a VL53L1X_ROI one:
-    removeDistanceSensor("VL53L1X");
-    DistSensor *distanceSensor = getDistanceSensor("VL53L1X_ROI");
+    removeDistanceSensor("vl53l1x_1");
+    DistSensor *distanceSensor = getDistanceSensor("VL53L1X_ROI", "VL53L1X_ROI");
 
     distanceSensor->setEnable(configObject["ROI"]["enabled"] | false);
-    distanceSensor->setDebug(configObject["vl53l1x"]["debug"] | false);
-    distanceSensor->setTimeBudget(configObject["vl53l1x"]["time_budget_ms"]);
+    distanceSensor->setDebug(configObject["vl53l1x_1"]["debug"] | false);
+    distanceSensor->setTimeBudget(configObject["vl53l1x_1"]["time_budget_ms"]);
 
   } else {
-    if (this->debug) Serial.println("\tROI must be removed");
+    // if (this->debug) Serial.println("\tROI must be removed");
     removeDistanceSensor("VL53L1X_ROI");
 
   }
@@ -95,7 +120,7 @@ void Radar::parseWebConfig(JsonObjectConst configObject){
 
 
   // Setup again Distance sensors:
-  Radar::setupDistSensors();
+  // if (this->radarInitialized) Radar::setupDistSensors();
 
 
   // Distance sensors object:
@@ -109,6 +134,9 @@ void Radar::parseWebConfig(JsonObjectConst configObject){
 
 void Radar::enableRadarServices(void){
   Serial.println("--- Radar: ");
+  Serial.printf("   - Debug: %s\n", this->debug ? "true" : "false");
+  Serial.printf("   - Angle min: %f\n", this->angleMin);
+  Serial.printf("   - Angle max: %f\n", this->angleMax);
 
   // Motor:
   if (this->motor.enabled){
@@ -119,7 +147,22 @@ void Radar::enableRadarServices(void){
   this->motor.rotate(this->angleMin, 4);
 
   // Distance sensors:
+  Radar::disableDistSensors();
   Radar::setupDistSensors();
+
+  this->radarInitialized = true;
+};
+
+
+void Radar::disableDistSensors(void){
+
+  Serial.printf("Disabling %d sensors:\n", distanceSensors.size());
+  DistSensor *sensorTemp ;
+  for(int i = 0; i < distanceSensors.size(); i++){
+    sensorTemp = distanceSensors.get(i);
+    sensorTemp->disableSensor();
+    if (this->debug) Serial.printf("\t-> %s disabled\n", sensorTemp->getName().c_str());
+  }
 
 };
 
@@ -129,9 +172,12 @@ void Radar::setupDistSensors(void){
   for(int i = 0; i < distanceSensors.size(); i++){
     sensorTemp = distanceSensors.get(i);
     String nameSensor = sensorTemp->getName();
+    String typeSensor = sensorTemp->getType();
     Serial.print("   - ");
     Serial.print(nameSensor);
-    Serial.print(" -> ");
+    Serial.print(" (");
+    Serial.print(typeSensor);
+    Serial.print(") -> ");
     if (sensorTemp->isEnabled()) Serial.print("enabled");
     else Serial.print("disabled");
     if (sensorTemp->isDebug()) Serial.print(" with debug");
@@ -140,6 +186,22 @@ void Radar::setupDistSensors(void){
   }
 
   Serial.println();
+
+  if (debug){
+    Serial.println ("I2C sensors scanner. Scanning ...");
+    byte count = 0;
+    for (byte i = 1; i < 120; i++) {
+      Wire.beginTransmission (i);
+      if (Wire.endTransmission () == 0) {
+        Serial.print ("Found address: "); Serial.print (i, DEC); Serial.print (" (0x");
+        Serial.print (i, HEX); Serial.println (")");
+        count++;
+        delay (1);
+      }
+    }
+    Serial.println ("Done.");
+    Serial.print ("Found "); Serial.print (count, DEC); Serial.println (" device(s).\n");
+  }
 
 };
 
@@ -235,8 +297,14 @@ bool Radar::readPoints(void){
           rPoints[index+j].fov_angle = (27./4);
         }
         index = index + 4;
-      } else if (nameSensor ==  "VL53L1X"){
+      } else if (nameSensor ==  "vl53l1x_1"){
         rPoints[index].angle = this->motor.getAngle();
+        rPoints[index].distance = distance[0];
+        rPoints[index].fov_angle = 27;
+        index++;
+      } else if (nameSensor ==  "vl53l1x_2"){
+        // rPoints[index].angle = this->motor2.getAngle();
+        rPoints[index].angle = 0;
         rPoints[index].distance = distance[0];
         rPoints[index].fov_angle = 27;
         index++;
@@ -284,7 +352,7 @@ int Radar::getDistanceSensorsId(String name){
   for(int i = 0; i < distanceSensors.size(); i++){
     sensorTemp = distanceSensors.get(i);
     if (sensorTemp->getName() == name){
-      // Serial.println("FOUND!: " + name);
+      if (this->debug) Serial.println("FOUND!: " + name + " of type " + sensorTemp->getType());
       return i;
     }
   }
@@ -294,14 +362,14 @@ int Radar::getDistanceSensorsId(String name){
 };
 
 
-DistSensor* Radar::getDistanceSensor(String name){
+DistSensor* Radar::getDistanceSensor(String name, String type){
   DistSensor *distanceSensorTemp = NULL;
 
   // Check if the sensor is in distanceSensors list or create one:
   int sensorId = Radar::getDistanceSensorsId(name);
   if (sensorId == -1){
     // This sensor is not yet in distanceSensors list, create one:
-    distanceSensorTemp = DistSensorFactory::createDistSensor(name);
+    distanceSensorTemp = DistSensorFactory::createDistSensor(name, type);
     this->distanceSensors.add(distanceSensorTemp);
   } else {
       distanceSensorTemp = this->distanceSensors.get(sensorId);
