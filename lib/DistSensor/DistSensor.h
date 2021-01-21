@@ -16,6 +16,7 @@ protected:
   float timeBudget;
 
   String name = "none";
+  String type = "none";
 
 
 public:
@@ -28,6 +29,7 @@ public:
   virtual void free() = 0;
 
   void setName(String name){ this->name = name; };
+  void setType(String type){ this->type = type; };
   void setEnable(bool e){ this->enabled = e; };
   void setDebug(bool d){ this->debug = d; };
   void setTimeBudget(float t){ this->timeBudget = t; };
@@ -35,6 +37,7 @@ public:
   virtual void parseWebConfig(JsonObjectConst configObject) = 0;
 
   String getName(void){ return this->name; };
+  String getType(void){ return this->type; };
   bool isEnabled(void){ return this->enabled; };
   bool isDebug(void){ return this->debug; };
 
