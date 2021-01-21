@@ -11,6 +11,11 @@ DistSensorVL53L0X::~DistSensorVL53L0X(void) {
 };
 
 
+void DistSensorVL53L0X::disableSensor(void) {
+
+};
+
+
 void DistSensorVL53L0X::setup(void){
 
   Serial.println("\tInitialising VL53L0X sensor");

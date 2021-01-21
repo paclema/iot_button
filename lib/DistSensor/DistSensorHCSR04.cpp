@@ -11,6 +11,11 @@ DistSensorHCSR04::~DistSensorHCSR04(void) {
 };
 
 
+void DistSensorHCSR04::disableSensor(void) {
+
+};
+
+
 void DistSensorHCSR04::setup(void){
 
   pinMode(trigPin, OUTPUT);

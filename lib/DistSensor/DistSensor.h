@@ -23,6 +23,7 @@ public:
 
   virtual ~DistSensor() {}
   virtual void setup(void) = 0;
+  virtual void disableSensor(void) = 0;
   virtual bool sensorRead(float *distance) = 0;
   virtual String getSensorRange(void) = 0;
   virtual void printSensorStatus(void) = 0;

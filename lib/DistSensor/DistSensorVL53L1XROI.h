@@ -127,6 +127,7 @@ public:
   ~DistSensorVL53L1XROI();
 
   void setup(void);
+  void disableSensor(void);
   bool sensorRead(float *distance);
   int sensorCountPersons(void);
   String getSensorRange(void);

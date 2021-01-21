@@ -16,12 +16,17 @@
 //
 // SDA -- D1
 // SCL -- D2
+// XSHUT -- D5 (GPIO14) or D6 (GPIO12) for Wemos D1 mini
 // VIN -- 3.3V
 // GND -- GND
 #define  MAX_INIT_RETRIES    20
 
 
 class DistSensorVL53L1X: public DistSensor {
+
+private:
+  uint8_t address;
+  int XSHUTPin;
 
 public:
 
@@ -36,6 +41,7 @@ public:
 
 
   void setup(void);
+  void disableSensor(void);
   bool sensorRead(float *distance);
   String getSensorRange(void);
   void printSensorStatus(void);

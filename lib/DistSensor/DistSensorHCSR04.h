@@ -37,6 +37,7 @@ public:
 
 
   void setup(void);
+  void disableSensor(void);
   bool sensorRead(float *distance);
   String getSensorRange(void);
   void printSensorStatus(void);

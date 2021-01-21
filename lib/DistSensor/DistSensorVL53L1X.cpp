@@ -12,13 +12,19 @@ DistSensorVL53L1X::~DistSensorVL53L1X(void) {
 };
 
 
-void DistSensorVL53L1X::setup(void){
+void DistSensorVL53L1X::disableSensor(void) {
+  pinMode(XSHUTPin, OUTPUT);
+  digitalWrite(XSHUTPin, LOW);
+  if (this->debug) Serial.printf("\t%s disables %d\n", this->name.c_str(), XSHUTPin);
+};
 
+
+void DistSensorVL53L1X::setup(void){
   Wire.begin();
   Wire.setClock(400000); // use 400 kHz I2C
 
-  sensor.setTimeout(500);
-  Serial.println("\tInitialising VL53L1X sensor");
+  pinMode(XSHUTPin, INPUT);
+  Serial.println("\tInitialising VL53L1X sensor: " + this->name);
 
   int initRetries = 0;
   while (!sensor.init() && initRetries <= MAX_INIT_RETRIES) {
@@ -26,10 +32,11 @@ void DistSensorVL53L1X::setup(void){
     Serial.print(".");
     initRetries++;
   }
-  Serial.println("");
 
   if (initRetries <= MAX_INIT_RETRIES) {
-    Serial.print("\t --> VL53L1X initialized!");
+    sensor.setAddress((uint8_t)this->address);
+    sensor.setTimeout(500);
+
     // Use long distance mode and allow up to 50000 us (50 ms) for a measurement.
     // You can change these settings to adjust the performance of the sensor, but
     // the minimum timing budget is 20 ms for short distance mode and 33 ms for
@@ -43,18 +50,21 @@ void DistSensorVL53L1X::setup(void){
     // sensor.setMeasurementTimingBudget(50000);
     sensor.setMeasurementTimingBudget(this->timeBudget*1000);
 
+
+    Serial.println("\tMode: " + this->distance_mode);
+    Serial.println("\tTime budget: " + String(this->timeBudget));
+    Serial.print("\tI2C address: "); Serial.println((uint8_t) this->sensor.getAddress());
+    Serial.print("\tXSHUTPin: "); Serial.println(this->XSHUTPin);
+
     // Start continuous readings at a rate of one measurement every 50 ms (the
     // inter-measurement period). This period should be at least as long as the
     // timing budget.
     // sensor.startContinuous(50);
     sensor.startContinuous(this->timeBudget);
-
-    Serial.print(" Mode: " + this->distance_mode);
-    Serial.println("; Time budget: " + String(this->timeBudget));
-
+    Serial.println("\t -->" + this->name + " initialized!");
 
   } else {
-    Serial.println("\t -->VL53L1X NOT initialized!");
+    Serial.println("\t -->" + this->name + " NOT initialized!");
     }
 }
 
@@ -97,7 +107,9 @@ void DistSensorVL53L1X::printSensorStatus(void){
 
 void DistSensorVL53L1X::parseWebConfig(JsonObjectConst configObject){
 
-  this->distance_mode = configObject["vl53l1x"]["distance_mode"] | "Short" ;
+  this->distance_mode = configObject[this->name]["distance_mode"] | "Short" ;
+  this->XSHUTPin = configObject[this->name]["XSHUT_pin"] ;
+  this->address = configObject[this->name]["I2c_address"] ;
   // for (unsigned int i = 0; i < configObject["vl53l1x"]["distance_mode_options"].size(); i++) { //Iterate through results
   //   this->distance_mode_options[i] = configObject["vl53l1x"]["distance_mode_options"][i].as<String>(); //Explicit cast
   // }

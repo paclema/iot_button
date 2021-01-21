@@ -11,6 +11,11 @@ DistSensorVL53L1XROI::~DistSensorVL53L1XROI(void) {
 };
 
 
+void DistSensorVL53L1XROI::disableSensor(void) {
+
+};
+
+
 void DistSensorVL53L1XROI::setup(void){
 
   Wire.begin(SDA, SCL);
