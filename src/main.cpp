@@ -502,6 +502,12 @@ void loop() {
     mqttClient.loop();
   }
 
+  // Reset mqtt buffer if mqtt not connected to avoid memory leaking
+  if (!mqttClient.connected()){
+    mqttQueueString = "{\"data\":[";
+  }
+
+
   // Handle WebConfigServer for not asyc webserver:
   #ifndef USE_ASYNC_WEBSERVER
     server.handleClient();
