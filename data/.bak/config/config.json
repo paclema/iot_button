@@ -72,7 +72,7 @@
     "publish_time_ms":100
   },
   "radar": {
-    "motor":{
+    "motor_1":{
       "enabled": false,
       "debug": true,
       "control_pin": 0,
@@ -81,10 +81,14 @@
       "motor_speed_pulse": 5,
       "servo_speed_ms/60": 600
     },
-    "HCSR04":{
+    "motor_2":{
       "enabled": false,
-      "debug": false,
-      "time_budget_ms": 50
+      "debug": true,
+      "control_pin": 2,
+      "feedback_pin": 15,
+      "angle_accuracy": 1,
+      "motor_speed_pulse": 5,
+      "servo_speed_ms/60": 600
     },
     "vl53l1x_1": {
       "enabled": true,
@@ -112,13 +116,18 @@
         "Unknown"
       ]
     },
+    "HCSR04":{
+      "enabled": false,
+      "debug": false,
+      "time_budget_ms": 50
+    },
     "ROI": {
       "enabled": false,
       "zones" : 4
     },
-    "debug": true,
     "angle_min": 20,
-    "angle_max": 180
+    "angle_max": 180,
+    "debug": true
   },
   "info": {
     "restart_counter": 0,

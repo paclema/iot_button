@@ -106,8 +106,10 @@ String getRSSI(){ return String(WiFi.RSSI());}
 String getHeapFree(){ return String((float)GET_FREE_HEAP/1000);}
 String mqttState(){ return String(mqttClient.state() );}
 String mqttBufferSize(){ return String(mqttClient.getBufferSize() );}
-String getPosition(){ return String(radar.getPosition() );}
-String getTargetPosition(){ return String(radar.getTargetPosition() );}
+String getPositionMotor1(){ return String(radar.getPosition(1) );}
+String getTargetPositionMotor1(){ return String(radar.getTargetPosition(1) );}
+String getPositionMotor2(){ return String(radar.getPosition(2) );}
+String getTargetPositionMotor2(){ return String(radar.getTargetPosition(2) );}
 String getMqttQueueString(){ return String((float)mqttQueueString.length()/1000 );}
 
 
@@ -464,8 +466,10 @@ void setup() {
     ws.addObjectToPublish("mqtt_state", mqttState);
     ws.addObjectToPublish("mqtt_buffer_size", mqttBufferSize);
     ws.addObjectToPublish("mqtt_queue_string_size", getMqttQueueString);
-    ws.addObjectToPublish("radar_position", getPosition);
-    ws.addObjectToPublish("radar_target_position", getTargetPosition);
+    ws.addObjectToPublish("radar_motor_1_position", getPositionMotor1);
+    ws.addObjectToPublish("radar_motor_1_target_position", getTargetPositionMotor1);
+    ws.addObjectToPublish("radar_motor_2_position", getPositionMotor2);
+    ws.addObjectToPublish("radar_motor_2_target_position", getTargetPositionMotor2);
 
 
   }

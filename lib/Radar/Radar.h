@@ -42,13 +42,13 @@ public:
 
   // Radar Servo motor:
   #ifdef ESP32
-    // RadarMotor motor;            // Using Hacked Servo
-    // ParallaxServoESP32 motor;    // Using Parallax Servo with ESP32Servo360
-    ParallaxServo motor;            // Using Parallax Servo
+    // RadarMotor motor;              // Using Hacked Servo
+    // ParallaxServoESP32 motor;      // Using Parallax Servo with ESP32Servo360
+    ParallaxServo motor1, motor2;     // Using Parallax Servo
 
   #elif defined(ESP8266)
     // RadarMotor motor;               // Using Hacked Servo
-    ParallaxServo motor;            // Using Parallax Servo
+    ParallaxServo motor1, motor2;      // Using Parallax Servo
   #endif
 
   // LinkedList<DistSensor*> distanceSensors = LinkedList<DistSensor*>();
@@ -68,8 +68,8 @@ public:
   void loop(void);
 
   void printStatus(void);
-  float getPosition(void);
-  float getTargetPosition(void);
+  float getPosition(int motorId);
+  float getTargetPosition(int motorId);
   bool getDistance(float &distance);
   bool readPoints(void);
   String getJsonPoints(void);
