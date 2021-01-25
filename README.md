@@ -2,15 +2,27 @@
 
 ## Features:
 
-* Store configs as json and certs on SPI Flash File System (SPIFFS).
-* ftp server to easily modify files stored on SPIFFS.
-* Angular 10 and Boootstrap 4 Web server to configure the device.
-* MQTT connection.
-* OTA updates.
+Web application:
+* Angular 10 and Bootstrap 4 web application to configure the device and visualize data.
+* Nebular UI Angular lib.
+* ng2-charts to visualize WS data graphs on dashboard web server endpoint.
+* Gzipped compression to store and serve the Webapp.
+
+Firmware:
+* ESP32 support.
+* Improved platformio targets and ESP partitions for Wemos D1 mini and Lolin D32 pro and OTA updates.
+* Store configs as JSON and certs on SPI Flash File System (SPIFFS).
+* AP+STA wifi mode with wifimulti and mDNS support
+* FTP server to easily modify files stored on SPIFFS.
+* WrapperOTA class to handle OTA updates.
+* WrapperWebSockets class to handle WS communication between device and webserver dashboard endpoint.
+* MQTT client as QoS2 to detect disconnection and enabled connection using user&pass and/or certificates.
+* Added configurable DeepSleep modes for ESP8266.
+* Webserver or AsyncWebserver support.
 
 ## Requirements:
 
-* nodemcuv2 or esp12
+* Wemos D1 mini (ESP8266) or Lolin D32 pro (ESP32)
 * push button on RST --> this will triger the pushh action after restart the board
 * push button on D5 --> to erase wifi data and restart in AP mode
 * CHPD (or EN) to VCC
