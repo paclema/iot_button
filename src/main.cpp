@@ -503,7 +503,7 @@ void loop() {
   }
 
   // Reset mqtt buffer if mqtt not connected to avoid memory leaking
-  if (!mqttClient.connected()){
+  if (mqttClient.state() != 0){
     mqttQueueString = "{\"data\":[";
   }
 
