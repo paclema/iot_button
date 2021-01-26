@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
-import { ConfigService } from '../config.service';
-import { EnrollmentService } from '../enrollment.service';
-import { PostConfigTabsService } from '../post-config-tabs.service';
+import { ConfigService } from '../services/config.service';
+import { EnrollmentService } from '../services/enrollment.service';
+import { PostConfigTabsService } from '../services/post-config-tabs.service';
 
 // For the (manual) Reactive Form:
 // import { FormGroup, FormControl } from '@angular/forms';

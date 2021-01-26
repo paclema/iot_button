@@ -45,6 +45,11 @@ Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
 ng build --prod --optimization=true --outputHashing=none; npm run postbuild
 ```
 
+To build and upload SPIFFS
+```console
+cd ./webserver; ng build --prod --optimization=true --outputHashing=none; npm run postbuild;cd ..; pio run --target uploadfs --environment d1_mini
+```
+
 To build for xammp:
 ```console
 ng build --prod --optimization=true --outputHashing=none --outputPath=C:/xampp/htdocs --deleteOutputPath=false
