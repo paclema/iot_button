@@ -9,3 +9,5 @@ data/.bak/certs
 
 data/certs/*
 !data/certs/README.md
+
+.vscode
