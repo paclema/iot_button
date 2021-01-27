@@ -446,6 +446,7 @@ void WebConfigServer::configureServer(AsyncWebServer *server){
       [& ,server](AsyncWebServerRequest *request, JsonVariant &json) {
     DynamicJsonDocument doc(CONFIG_JSON_SIZE);
     doc = json;
+    String response;
     if ( !doc.isNull()){
       // Serial.print("\nJSON received: ");
       // serializeJsonPretty(doc, Serial);
@@ -457,7 +458,6 @@ void WebConfigServer::configureServer(AsyncWebServer *server){
       WebConfigServer::parseIWebConfig(doc);
       // Save the config file with new configuration:
 
-      String response;
       if (WebConfigServer::saveWebConfigurationFile(CONFIG_FILE,doc)){
         response = "{\"message\": \"Configurations saved\"}";
         request->send(200, "text/json", response);
@@ -467,7 +467,10 @@ void WebConfigServer::configureServer(AsyncWebServer *server){
         request->send(400, "text/json", response);
         Serial.println("JSON POST /save_config: " + response);
       }
-
+    } else {
+      response = "{\"message\": \"Error: JSON received is Null or chunked\"}";
+      request->send(400, "text/json", response);
+      Serial.println("JSON POST /save_config: " + response);
     }
   });
   server->addHandler(handlerSaveConfig);
