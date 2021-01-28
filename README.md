@@ -22,10 +22,11 @@ Firmware:
 
 ## Requirements:
 
-* Wemos D1 mini (ESP8266) or Lolin D32 pro (ESP32)
-* push button on RST --> this will triger the pushh action after restart the board
-* push button on D5 --> to erase wifi data and restart in AP mode
-* CHPD (or EN) to VCC
+* Wemos D1 mini (ESP8266) or Lolin D32 pro (ESP32).
+* push button on RST --> this will triger the push action after restart the board.
+* D0 (GPIO16) connected to RST so Deep Sleep can wake up after the sleep time configured.
+* CHPD (or EN) to VCC.
+* Wemos D1 mini can use USB power or 3v3-5v on 5v pin.
 
 ### Add a new configuration object:
 1. Update the new object in the configuration file _/data/config.json_
