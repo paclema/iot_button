@@ -1,0 +1,4 @@
+(fp_lib_table
+  (lib (name wemos_d1_mini)(type KiCad)(uri C:/Users/pacle/Desktop/repos/kicad/d1_mini_kicad/library/wemos_d1_mini.pretty)(options "")(descr ""))
+  (lib (name Socket_Strips)(type KiCad)(uri C:/Users/pacle/Desktop/repos/kicad/Socket_Strips.pretty)(options "")(descr ""))
+)
