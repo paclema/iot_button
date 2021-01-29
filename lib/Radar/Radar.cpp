@@ -234,44 +234,50 @@ void Radar::loop(void){
 
 
   // For ParallaxServo:
-  this->motor1.handle();
-  // if (debug){
-  // Serial.print("Current angle: ");
-  // Serial.print(this->motor1.getAngle());
-  // Serial.print("/");
-  // Serial.print(this->motor1.getAngleTarget());
-  // Serial.print(" - ");
-  // Serial.println(this->motor1.getTurns());
-  // }
+  // MOTOR 1
+  if (this->motor1.handle()){
+    // if (debug){
+    // Serial.print("Current angle: ");
+    // Serial.print(this->motor1.getAngle());
+    // Serial.print("/");
+    // Serial.print(this->motor1.getAngleTarget());
+    // Serial.print(" - ");
+    // Serial.println(this->motor1.getTurns());
+    // }
 
-  if (this->motor1.enabled){
-    this->motor1.enableServo();
+    if (this->motor1.enabled){
+      this->motor1.enableServo();
 
-    // Move here accordingly:
-    if(this->motor1.getAngle() >= this->angleMax){
-      this->motor1.rotate(this->angleMin, 4);
+      // Move here accordingly:
+      if(this->motor1.getAngle() >= this->angleMax){
+        this->motor1.rotate(this->angleMin, 4);
+      }
+      else if(this->motor1.getAngle() <= this->angleMin){
+        this->motor1.rotate(this->angleMax, 4);
+      }
     }
-    else if(this->motor1.getAngle() <= this->angleMin){
-      this->motor1.rotate(this->angleMax, 4);
-    }
+    else this->motor1.disableServo();
+  } else {
+    if (debug) Serial.println("Motor 1 not powered on or feedback not available!");
   }
-  else this->motor1.disableServo();
 
+  // MOTOR 2
+  if (this->motor2.handle()){
+    if (this->motor2.enabled){
+      this->motor2.enableServo();
 
-  this->motor2.handle();
-  if (this->motor2.enabled){
-    this->motor2.enableServo();
-
-    // Move here accordingly:
-    if(this->motor2.getAngle() >= this->angleMax){
-      this->motor2.rotate(this->angleMin, 4);
+      // Move here accordingly:
+      if(this->motor2.getAngle() >= this->angleMax){
+        this->motor2.rotate(this->angleMin, 4);
+      }
+      else if(this->motor2.getAngle() <= this->angleMin){
+        this->motor2.rotate(this->angleMax, 4);
+      }
     }
-    else if(this->motor2.getAngle() <= this->angleMin){
-      this->motor2.rotate(this->angleMax, 4);
-    }
+    else this->motor2.disableServo();
+  } else {
+    if (debug) Serial.println("Motor 2 not powered on or feedback not available!");
   }
-  else this->motor2.disableServo();
-
 
 
 };

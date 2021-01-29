@@ -29,6 +29,11 @@ class ParallaxServoESP32 {
     int ERROR_ANGLE_OFFSET_US = 50;
     float CONSTANT_KP = 0.8;
 
+    // Feedback timeout:
+    // Parallax Feedback signal: PWM, 3.3V,  910 Hz, 2.7–97.1% duty cycle
+    // So the regular period is around 1099 microseconds. 
+    unsigned long pulseInTimeout = 2000UL;   // 2 Unsigned Long milliseconds timeout for pulseIn readings
+
     // Max pulse 220, Min pulse 20 to each dirrection
     int MIN_PULSE_SPEED_OFFSET_US = -5;    // Going Counter-clockwise a bit - can be smaller ( < -40)
     int MAX_PULSE_SPEED_OFFSET_US = 5;     // Going Clockwise  a bit - can be bigger (> 40)

@@ -66,11 +66,11 @@ void ParallaxServo::rotate(float degree, int threshold) {
 bool ParallaxServo::handle() {
   // Run pulseWidth measuring to figure out the current angle of the servo
   byte pin = this->feedbackPin;
-  unsigned long tHigh = pulseIn(pin, HIGH);
-  unsigned long tLow = pulseIn(pin, LOW);
+  unsigned long tHigh = pulseIn(pin, HIGH, this->pulseInTimeout);
+  unsigned long tLow = pulseIn(pin, LOW, this->pulseInTimeout);
   unsigned long  tCycle = tHigh + tLow;
   // Check if our cycle time was appropriate
-  if (!(tCycle > 1000 && tCycle < 1200)) {
+  if (!(tCycle > 1000 && tCycle < 1200) || tHigh == 0 || tLow == 0) {
     // Invalid cycle time, so try pulse measuring again
     // Serial.println("Invalid cycle time");
     return false;

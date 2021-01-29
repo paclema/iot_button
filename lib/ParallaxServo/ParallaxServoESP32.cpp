@@ -81,8 +81,8 @@ void ParallaxServoESP32::rotate(float degree, int threshold) {
 bool ParallaxServoESP32::handle() {
   // // Run pulseWidth measuring to figure out the current angle of the servo
   // byte pin = this->feedbackPin;
-  // unsigned long tHigh = pulseIn(pin, HIGH);
-  // unsigned long tLow = pulseIn(pin, LOW);
+  // unsigned long tHigh = pulseIn(pin, HIGH, this->pulseInTimeout);
+  // unsigned long tLow = pulseIn(pin, LOW, this->pulseInTimeout);
   // unsigned long  tCycle = tHigh + tLow;
   // // Check if our cycle time was appropriate
   // if (!(tCycle > 1000 && tCycle < 1200)) {
