@@ -14,7 +14,7 @@ import { HttpClientModule } from '@angular/common/http';
 import { ReplaceUnderscorePipe } from './replace-underscore.pipe';
 
 // Nebular:
-import { NbThemeModule } from '@nebular/theme';
+import { NbSpinnerModule, NbThemeModule } from '@nebular/theme';
 import { NbSidebarModule, NbLayoutModule, NbMenuModule,
          NbIconModule, NbTabsetModule, NbCardModule, NbToggleModule,
          NbButtonModule } from '@nebular/theme';
@@ -47,6 +47,7 @@ import { ChartsModule } from 'ng2-charts';
     NbMenuModule.forRoot(),
     NbIconModule,
     NbTabsetModule,
+    NbSpinnerModule,
     BrowserAnimationsModule,
     NbEvaIconsModule,
     NbCardModule,

@@ -78,6 +78,8 @@ export class ConfigTabsComponent implements OnInit {
   registrationForm: FormGroup;
   configTabsForm: FormGroup;
 
+  savingPOST = false;
+
 
   constructor(private _configService: ConfigService,
               private _enrollmentService: EnrollmentService,
@@ -230,16 +232,20 @@ export class ConfigTabsComponent implements OnInit {
 
   saveConfigTabs(){
     // console.log(this.configTabsForm.value);
-
+    this.savingPOST = true;
     this._postConfigTabsService.saveConfig(this.configTabsForm.value)
     .subscribe(
       response => {console.log('Success posting the data', response);
                 this.dataMsgPost = response;
-                this.submitted = true;},
+                this.submitted = true;
+                this.savingPOST = false;
+              },
       error => {console.log('Error posting the data', error);
                 this.errorMsgPost = error;
-                this.submitted = false;}
-    )
+                this.submitted = false;
+                this.savingPOST = false;
+              }
+    );
 
   }
 
