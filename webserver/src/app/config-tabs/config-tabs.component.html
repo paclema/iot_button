@@ -220,16 +220,17 @@
 <div id="buttons" class="float-right" style="margin-bottom: 20px; margin-right: 20px; float: right;">
 <!-- <div id="buttons" body class="panel-body"> -->
   <div class="col-md-12">
-    <button [nbSpinner]="savingPOST" [disabled]='!configTabsForm.valid || savingPOST' 
+
+    <!-- <button class="md-button" [nbSpinner]="savingPOST" [disabled]='!configTabsForm.valid || savingPOST' 
       nbSpinnerStatus="success" nbButton status="info" (click)="saveConfigTabs()">
       Save
-    </button>
+    </button> -->
 
-    <button (click)="saveConfigTabs()" [disabled]='!configTabsForm.valid || savingPOST' id="SaveConfig"
+    <button [nbSpinner]="savingPOST" nbSpinnerStatus="success" (click)="saveConfigTabs()" [disabled]='!configTabsForm.valid || savingPOST' id="SaveConfig"
     class="btn btn-primary ml-2" type="submit">
     <ng-container *ngIf="savingPOST; else elseTemplate">
       Saving...
-      <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+      <!-- <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> -->
     </ng-container>
     <ng-template #elseTemplate>
       Save
