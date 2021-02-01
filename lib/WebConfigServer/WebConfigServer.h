@@ -16,6 +16,7 @@
   #define CONFIG_JSON_SIZE 4096
 #endif
 #define DYNAMIC_JSON_DOCUMENT_SIZE CONFIG_JSON_SIZE   //  To redefine "AsyncJson.h" AsyncCallbackJsonWebHandler json doc max size
+#define MIN_HEAP_SIZE_FOR_SAVING_CONFIG 3000
 
 #define MQTT_TOPIC_MAX_SIZE_LIST 10
 #define JSON_MAX_SIZE_LIST 6
