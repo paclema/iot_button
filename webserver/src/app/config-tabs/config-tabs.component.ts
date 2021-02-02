@@ -104,11 +104,8 @@ export class ConfigTabsComponent implements OnInit {
 
   ngOnInit(): void {
 
-    // Subscribe to the Observable received within the HTTP request to get the data
-    this._configService.getConfigData()
-          .subscribe(data => this.configData = data,
-                      error => this.errorMsg = error);
-
+    // Load config.json configuration data:
+    this.loadConfigFile();
     // console.log(this.configData);
     // this.loadApiData();
 
@@ -140,9 +137,7 @@ export class ConfigTabsComponent implements OnInit {
           });
 
 
-    this.loadConfigFile();
-
-
+          
   }
 
   // For the Template Driven Form:
@@ -206,19 +201,21 @@ export class ConfigTabsComponent implements OnInit {
   }
 
   loadConfigFile(){
+    // Subscribe to the Observable received within the HTTP request to get the data
     this._configService.getConfigData()
-          .subscribe(
-            data =>{ 
-              this.buildTabsForm(data);
-              const iconConfig: NbIconConfig = { icon: 'info', pack: 'eva' };
-              for (const [key, value] of Object.entries(data)) {
-                this.toastrService.info('Configurations loaded',key, iconConfig);
-              };
-            },
-            error =>{ 
-              this.toastrService.danger(error,'Error');
-            }
-          );
+      .subscribe(
+        data =>{ 
+          this.configData = data;
+          this.buildTabsForm(data);
+          const iconConfig: NbIconConfig = { icon: 'info', pack: 'eva' };
+          for (const [key, value] of Object.entries(data)) {
+            this.toastrService.info('Configurations loaded',key, iconConfig);
+          };
+        },
+        error =>{ 
+          this.toastrService.danger(error,'Error');
+        }
+      );
   }
 
   get userName(){
