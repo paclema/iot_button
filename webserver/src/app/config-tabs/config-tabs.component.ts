@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { ConfigService } from '../services/config.service';
 import { EnrollmentService } from '../services/enrollment.service';
 import { PostConfigTabsService } from '../services/post-config-tabs.service';
@@ -11,7 +11,14 @@ import { ForbiddenNameValidator }  from './shared/user-name.validator';
 import { PasswordValidator }  from './shared/password.validator';
 
 // Nebular:
-import { NbCardModule } from '@nebular/theme';
+import { 
+  NbCardModule,
+  NbToastrService,
+  NbGlobalPosition,
+  NbToastrConfig,
+  NbPopoverDirective,
+  NbIconConfig,
+} from '@nebular/theme';
 
 
 @Component({
@@ -80,12 +87,17 @@ export class ConfigTabsComponent implements OnInit {
 
   savingPOST = false;
 
+  @ViewChild(NbPopoverDirective) popover: NbPopoverDirective;
 
-  constructor(private _configService: ConfigService,
-              private _enrollmentService: EnrollmentService,
-              private fb: FormBuilder,
-              private _postConfigTabsService: PostConfigTabsService,
-            ) {
+
+
+  constructor(
+    private _configService: ConfigService,
+    private _enrollmentService: EnrollmentService,
+    private fb: FormBuilder,
+    private _postConfigTabsService: PostConfigTabsService,
+    private toastrService: NbToastrService
+    ) {
 
     this.configTabsForm = this.fb.group({});
   }
@@ -195,8 +207,18 @@ export class ConfigTabsComponent implements OnInit {
 
   loadConfigFile(){
     this._configService.getConfigData()
-          .subscribe(data => this.buildTabsForm(data),
-                      error => this.errorMsg = error);
+          .subscribe(
+            data =>{ 
+              this.buildTabsForm(data);
+              const iconConfig: NbIconConfig = { icon: 'info', pack: 'eva' };
+              for (const [key, value] of Object.entries(data)) {
+                this.toastrService.info('Configurations loaded',key, iconConfig);
+              };
+            },
+            error =>{ 
+              this.toastrService.danger(error,'Error');
+            }
+          );
   }
 
   get userName(){
@@ -229,22 +251,32 @@ export class ConfigTabsComponent implements OnInit {
     )
 
   }
+  
+  // configToastr: Partial<NbToastrConfig> = {
+  //   position: NbGlobalPhysicalPosition.BOTTOM_LEFT,
+  //   // status: "warning",
+  //   duration: 10*1000
+  // };
 
   saveConfigTabs(){
     // console.log(this.configTabsForm.value);
     this.savingPOST = true;
     this._postConfigTabsService.saveConfig(this.configTabsForm.value)
     .subscribe(
-      response => {console.log('Success posting the data', response);
-                this.dataMsgPost = response;
-                this.submitted = true;
-                this.savingPOST = false;
-              },
-      error => {console.log('Error posting the data', error);
-                this.errorMsgPost = error;
-                this.submitted = false;
-                this.savingPOST = false;
-              }
+      response => {
+        console.log('Success posting the data', response);
+        for (const [key, value] of Object.entries(response)) {
+          this.toastrService.success(response[key],key,
+            // this.configToastr
+            );
+        }
+        this.savingPOST = false;
+        },
+      error => {
+        console.log('Error posting the data', error);
+        this.toastrService.danger(error,'Error');
+        this.savingPOST = false;
+      }
     );
 
   }
@@ -254,12 +286,16 @@ export class ConfigTabsComponent implements OnInit {
 
     this._postConfigTabsService.restartDevice()
     .subscribe(
-      response => {console.log('Success restarting the device', response);
-                this.dataMsgPost = response;
-                this.submitted = true;},
-      error => {console.log('Error restarting the device', error);
-                this.errorMsgPost = error;
-                this.submitted = false;}
+      response => {
+        console.log('Success restarting the device', response);
+        for (const [key, value] of Object.entries(response)) {
+          this.toastrService.success(response[key],key);
+          }
+        },
+      error => {
+        console.log('Error restarting the device', error);
+        this.toastrService.danger(error,'Error');
+        }
     )
 
   }
@@ -271,12 +307,16 @@ export class ConfigTabsComponent implements OnInit {
 
     this._postConfigTabsService.gpioTest(id, val)
     .subscribe(
-      response => {console.log('Success testing GPIO', response);
-                this.dataMsgPost = response;
-                this.submitted = true;},
-      error => {console.log('Error testing GPIO', error);
-                this.errorMsgPost = error;
-                this.submitted = false;}
+      response => {
+        console.log('Success testing GPIO', response);
+        for (const [key, value] of Object.entries(response)) {
+          this.toastrService.success(response[key],key);
+          }
+        },
+      error => {
+        console.log('Error testing GPIO', error);
+        this.toastrService.danger(error,'Error');
+      }
     )
 
   }
@@ -287,14 +327,20 @@ export class ConfigTabsComponent implements OnInit {
     // console.log(this.testFormModel);
     // this.errorMsgPost = false;
 
+    this.popover.hide();
+
     this._postConfigTabsService.restoreBackup("/config/config.json")
     .subscribe(
-      response => {console.log('Success restoring config.json', response);
-                this.dataMsgPost = response;
-                this.submitted = true;},
-      error => {console.log('Error restoring config.json', error);
-                this.errorMsgPost = error;
-                this.submitted = false;}
+      response => {
+        console.log('Success restoring config.json', response);
+        for (const [key, value] of Object.entries(response)) {
+          this.toastrService.success(response[key],key);
+          }
+        },
+      error => {
+        console.log('Error restoring config.json', error);
+        this.toastrService.danger(error,'Error');
+      }
     )
 
   }
