@@ -207,10 +207,8 @@ export class ConfigTabsComponent implements OnInit {
         data =>{ 
           this.configData = data;
           this.buildTabsForm(data);
-          const iconConfig: NbIconConfig = { icon: 'info', pack: 'eva' };
-          for (const [key, value] of Object.entries(data)) {
-            this.toastrService.info('Configurations loaded',key, iconConfig);
-          };
+          const iconConfig: Partial<NbToastrConfig> = { icon: 'info', duration: 3000 };
+          this.toastrService.info(Object.keys(data),'Configurations loaded', iconConfig);
         },
         error =>{ 
           this.toastrService.danger(error,'Error');
