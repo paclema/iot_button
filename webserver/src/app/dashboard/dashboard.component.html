@@ -4,8 +4,15 @@
   <div class="col-xxxl-3 col-xxl-4 col-lg-4 col-md-6">
     <nb-card>
       <nb-card-header>Websockets comunication</nb-card-header>
-      <button nbButton outline status="primary" (click)="sendMessage()">Send</button>
-      <button nbButton outline status="primary" (click)="sendMessageBroadcast()">Send Broadcast</button>
+       <nb-card-body>
+        <nb-form-field class="test">
+        <input nbInput fullWidth style="font-weight: 400" placeholder="Object" [(ngModel)]="wsObject">
+        <input nbInput fullWidth style="font-weight: 400" placeholder="Value" [(ngModel)]="wsValue">
+        <button nbButton outline style="float: right;" status="primary" (click)="sendMessage()"><nb-icon icon="arrow-ios-upward"></nb-icon>Send</button>
+        <button nbButton outline style="float: right;" status="primary" (click)="sendMessageBroadcast()"><nb-icon icon="arrowhead-up"></nb-icon>Send Broadcast</button>
+      </nb-form-field>
+      </nb-card-body>
+  
     </nb-card>
   </div>
 

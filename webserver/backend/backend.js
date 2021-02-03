@@ -27,7 +27,11 @@ app.post('/enroll', function(req, res){
 
 app.post('/save_config', function(req, res){
   console.log(req.body);
-  res.status(200).send({"message": "Configurations saved"});
+  // Emulate delay of 2s for response:
+  setTimeout(() => {
+    res.status(200).send({"message": "Configurations saved"}); 
+  }, 2000);
+  
 });
 
 app.post('/restart', function(req, res){
