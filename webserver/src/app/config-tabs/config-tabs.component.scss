@@ -4,3 +4,11 @@
     border-top-left-radius: 3px;
     border-top-right-radius: 3px;
 }
+
+// For nbButton:
+.md-button {
+    /*For Lower case use lowercase*/
+    /*For Upper case use capitalize*/
+    // text-transform: lowercase !important;
+    text-transform: none !important;
+}

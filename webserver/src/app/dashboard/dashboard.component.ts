@@ -1,7 +1,7 @@
 import { Component, OnInit, OnDestroy, ViewChild } from '@angular/core';
 import { webSocket } from "rxjs/webSocket";
 
-import { NbCardModule, NbButtonModule, NbToggleModule } from '@nebular/theme';
+import { NbCardModule, NbButtonModule, NbToggleModule, NbFormFieldModule} from '@nebular/theme';
 
 import { ChartDataSets, ChartOptions, ChartType } from 'chart.js';
 import { Color, BaseChartDirective, Label } from 'ng2-charts';
@@ -27,6 +27,10 @@ export class DashboardComponent implements OnInit, OnDestroy {
   //   serializer: msg => JSON.stringify(msg)
 
   });
+
+  wsObject: any;
+  wsValue: any;
+
 
   // dashboardData: JSON;
   dashboardData = {};
@@ -159,6 +163,11 @@ export class DashboardComponent implements OnInit, OnDestroy {
       this.lineChartLabels.push(i.toString());
     }
     this.lineChartColors[0] = this.lineChartColorsBase[0];
+
+    this.wsObject = "";
+    this.wsValue = "";
+
+    
   }
 
   ngOnInit(): void {
@@ -210,16 +219,26 @@ export class DashboardComponent implements OnInit, OnDestroy {
     // this.webSocket.send({ message: this.msgCtrl.value });
     // this.msgCtrl.setValue('');
     // this.subject.next(JSON.parse('{"message": "dashboard sent some message"}'));
-    this.subject.next({message: 'dashboard sent some message'});
+
+    // this.subject.next({message: 'dashboard sent some message'});
     // This will send a message to the server once a connection is made. Remember value is serialized with JSON.stringify by default!
+    
+    if( this.wsObject == "") 
+      this.subject.next({ "message": this.wsValue});
+    else 
+      this.subject.next({ [this.wsObject] : this.wsValue});
+    
   }
 
   sendMessageBroadcast() {
     // this.webSocket.send({ message: this.msgCtrl.value });
     // this.msgCtrl.setValue('');
     // this.subject.next(JSON.parse('{"broadcast": "hi everyone"}'));
-    this.subject.next({broadcast: 'hi everyone'});
+    // this.subject.next({broadcast: 'hi everyone'});
     // This will send a message to the server once a connection is made. Remember value is serialized with JSON.stringify by default!
+    
+    this.subject.next({broadcast: this.wsValue});
+
   }
 
   // This function its added to use keyvalue pipe under *ngFor to get the

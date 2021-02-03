@@ -446,28 +446,40 @@ void WebConfigServer::configureServer(AsyncWebServer *server){
       [& ,server](AsyncWebServerRequest *request, JsonVariant &json) {
     DynamicJsonDocument doc(CONFIG_JSON_SIZE);
     doc = json;
+    String response;
     if ( !doc.isNull()){
-      // Serial.print("\nJSON received: ");
-      // serializeJsonPretty(doc, Serial);
-      // Serial.println("");
+      size_t freeBytes =  ESP.getFreeHeap() - (CONFIG_JSON_SIZE);
+      Serial.println("Free Heap bytes: " + String(freeBytes));
+      if ( freeBytes >= MIN_HEAP_SIZE_FOR_SAVING_CONFIG){
+        // Serial.print("\nJSON received: ");
+        // serializeJsonPretty(doc, Serial);
+        // Serial.println("");
 
-      // Parse file to Config struct object:
-      WebConfigServer::parseConfig(doc);
-      // Parse file to IWebConfig objects:
-      WebConfigServer::parseIWebConfig(doc);
-      // Save the config file with new configuration:
+        // Parse file to Config struct object:
+        WebConfigServer::parseConfig(doc);
+        // Parse file to IWebConfig objects:
+        WebConfigServer::parseIWebConfig(doc);
+        // Save the config file with new configuration:
 
-      String response;
-      if (WebConfigServer::saveWebConfigurationFile(CONFIG_FILE,doc)){
-        response = "{\"message\": \"Configurations saved\"}";
-        request->send(200, "text/json", response);
-        Serial.println("JSON POST /save_config: " + response);
+        if (WebConfigServer::saveWebConfigurationFile(CONFIG_FILE,doc)){
+          response = "{\"message\": \"Configurations saved\"}";
+          request->send(200, "text/json", response);
+          Serial.println("JSON POST /save_config: " + response);
+        } else {
+          response = "{\"message\": \"Error saving the configuration\"}";
+          request->send(503, "text/json", response);
+          Serial.println("JSON POST /save_config: " + response);
+        }
       } else {
-        response = "{\"message\": \"Error saving the configuration\"}";
-        request->send(400, "text/json", response);
-        Serial.println("JSON POST /save_config: " + response);
+      response = "{\"message\": \"Error: Not enought memory for saving configurations. Free Heap bytes: " +String(freeBytes)+ "\"}";
+      request->send(507, "text/json", response);
+      Serial.println("JSON POST /save_config: " + response);
       }
 
+    } else {
+      response = "{\"message\": \"Error: JSON received is Null or chunked\"}";
+      request->send(400, "text/json", response);
+      Serial.println("JSON POST /save_config: " + response);
     }
   });
   server->addHandler(handlerSaveConfig);

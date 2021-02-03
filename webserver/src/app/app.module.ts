@@ -14,14 +14,35 @@ import { HttpClientModule } from '@angular/common/http';
 import { ReplaceUnderscorePipe } from './replace-underscore.pipe';
 
 // Nebular:
-import { NbThemeModule } from '@nebular/theme';
-import { NbSidebarModule, NbLayoutModule, NbMenuModule,
-         NbIconModule, NbTabsetModule, NbCardModule, NbToggleModule,
-         NbButtonModule } from '@nebular/theme';
+import { 
+  NbFormFieldModule,
+  NbInputModule,
+  NbSpinnerModule,
+  NbThemeModule,
+  NbToastrModule,
+  NbSidebarModule,
+  NbLayoutModule,
+  NbMenuModule,
+  NbIconModule,
+  NbTabsetModule,
+  NbCardModule,
+  NbToggleModule,
+  NbButtonModule,
+  NbToastrConfig,
+  NbGlobalPhysicalPosition,
+  NbPopoverModule
+} from '@nebular/theme';
 import { NbEvaIconsModule } from '@nebular/eva-icons';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
 import { ChartsModule } from 'ng2-charts';
+
+
+const configToastr: Partial<NbToastrConfig> = {
+  position: NbGlobalPhysicalPosition.BOTTOM_LEFT,
+  // status: "warning",
+  duration: 6*1000    // Duration in ms
+};
 
 
 @NgModule({
@@ -47,6 +68,13 @@ import { ChartsModule } from 'ng2-charts';
     NbMenuModule.forRoot(),
     NbIconModule,
     NbTabsetModule,
+    NbSpinnerModule,
+    NbFormFieldModule,
+    NbInputModule,
+    // NbToastrModule.forRoot(config),
+    // NbToastrModule.forRoot({ position: 'bottom-left' }),
+    NbToastrModule.forRoot(configToastr),
+    NbPopoverModule,
     BrowserAnimationsModule,
     NbEvaIconsModule,
     NbCardModule,
