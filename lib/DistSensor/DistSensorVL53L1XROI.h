@@ -5,17 +5,10 @@
 #include <DistSensor.h>
 
 #include <Wire.h>
-#include <tof_gestures.h>
 #include <vl53l1_api.h>
-#include <tof_gestures_DIRSWIPE_1.h>
-// Add  lib_deps on platformio.ini
 
 /*
-People Counting Using a Single ST Time-of-Flight Sensor
-Copyright 2019 Vladimir I. Yershov vlad.yer@gmail.com
-
-This example illustrates direction recognition with the
-single VL53L1X TOF sensor. Two Regions Of Interest(ROI)
+For Two Regions Of Interest(ROI)
 are defined in SPAD sensor array:
   ROI1	  ROI2
 0,15	12,15
@@ -26,16 +19,6 @@ are defined in SPAD sensor array:
   ####----####
   ####----####
 	3,0		15,0
-Data measurements distance0 and distance1 cyclically readed
-from both ROIs.
-Then STM32duino_Proximity_Gesture library used for event
-interpretation.
-NOTE:
-tof_gestures_DIRSWIPE_1.cpp and tof_gestures_DIRSWIPE_1.h
-need to be modified for  handMustCoverBoth parameter support
-
-This code is for WEMOS D1 mini Lite, but with board and pins
-adjustments will work with any Arduino
 */
 
 // Pinout with D1 mini:
@@ -91,10 +74,13 @@ public:
   String distance_mode;
   String distance_mode_options[JSON_MAX_SIZE_LIST]; //["Short", "Medium", "Long", "Unknown"]
   int zones = 0;
+  int status = 0;
+  int32_t CalDistanceMilliMeter = 200;
 
   // Two ROI configurations
   VL53L1_UserRoi_t	roiConfig1 = { 12, 15, 15, 0 };
   VL53L1_UserRoi_t	roiConfig2 = { 0, 15, 3, 0 };
+  int distance[2] = { 0, 0 };
 
   // Four ROI configurations
   // VL53L1_UserRoi_t	roiZone1 = { 0, 15, 3, 0 };
@@ -107,18 +93,10 @@ public:
   VL53L1_UserRoi_t	roiZone3 = { 0, 7, 15, 4 };
   VL53L1_UserRoi_t	roiZone4 = { 0, 3, 15, 0 };
 
-  // Four ROI configurations on array:
   VL53L1_UserRoi_t	roiZone[4];
 
   int roiDistances[4] = { 0, 0, 0, 0 };
 
-  Gesture_DIRSWIPE_1_Data_t gestureDirSwipeData;
-  int status, i, distance[2] = { 0, 0 };
-  int left = 0, right = 0, cnt = 0, oldcnt;
-  volatile int LightON = 0, OLED_dimmed = 0, OLED_OFF_timeout = 10000;
-  long timeMark = 0, DisplayUpdateTime = 0;
-
-  int rangeThresholdCounter_mm = 1200;
 
   // String distance_mode;
   // String distance_mode_options[JSON_MAX_SIZE_LIST]; //["Short", "Medium", "Long", "Unknown"]
@@ -131,7 +109,7 @@ public:
   int calibrate(int CalDistanceMilliMeter);
   void disableSensor(void);
   bool sensorRead(float *distance);
-  int sensorCountPersons(void);
+  bool sensorRead2Roi(void);
   String getSensorRange(void);
   void printSensorStatus(void);
 
@@ -155,34 +133,6 @@ public:
     Serial.print(F("VL53L1X: "));
     Serial.println(wordData, HEX);
   }
-
-  inline void dispUpdate() {	// 33mS
-  	// OLED_dimmed = 0;
-  	// display.clearDisplay();
-  	// display.setCursor(0, 0);
-  	// if (right)display.println("--->");
-  	// else display.println("<---");
-  	// display.print(cnt);
-  	// if (LightON)	display.print(" * ");
-  	// else display.print("   ");
-  	// display.display();
-  	// DisplayUpdateTime = millis();
-  }
-
-  void lighton(void) {
-  	pinMode(light_on, OUTPUT);
-  	digitalWrite(light_on, LOW);
-  	delay(100);
-  	pinMode(light_on, INPUT);
-  }
-
-  void lightoff(void) {
-  	pinMode(light_off, OUTPUT);
-  	digitalWrite(light_off, LOW);
-  	delay(100);
-  	pinMode(light_off, INPUT);
-  }
-
 
 };
 #endif

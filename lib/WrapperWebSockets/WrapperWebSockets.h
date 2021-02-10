@@ -6,7 +6,7 @@
 // WebSockets Includes
 #include <WebSocketsServer.h>
 
-#define  MAX_LIST_OBJECT_FUNCTIONS 10
+#define  MAX_LIST_OBJECT_FUNCTIONS 20
 
 static WebSocketsServer webSocket = WebSocketsServer(81);
 

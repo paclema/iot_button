@@ -26,7 +26,7 @@ void DistSensorVL53L1XROI::setup(void){
 
   // Creating 4 ROI definition
   for (uint8_t x = 0; x < 4; x++) {
-    roiZone[i] = { 0, uint8_t(15-4*x), 15, uint8_t(15-3*x) };
+    roiZone[x] = { 0, uint8_t(15-4*x), 15, uint8_t(15-3*x) };
   }
 
 
@@ -45,10 +45,6 @@ void DistSensorVL53L1XROI::setup(void){
 	checkDev(Dev);
 	delay(1000);
 
-	// with modified DIRDWIPE lib
-	tof_gestures_initDIRSWIPE_1(rangeThresholdCounter_mm, 0, 1000, false, &gestureDirSwipeData);
-	// with NOT modified DIRDWIPE lib
-	//	tof_gestures_initDIRSWIPE_1(800, 0, 1000, &gestureDirSwipeData);
 
 	status += VL53L1_WaitDeviceBooted(Dev);
 	status += VL53L1_DataInit(Dev);
@@ -71,8 +67,7 @@ void DistSensorVL53L1XROI::setup(void){
 
 
   // CALIBRATION:
-  int32_t CalDistanceMilliMeter = 200;
-  // status += DistSensorVL53L1XROI::calibrate(CalDistanceMilliMeter);
+  // status += DistSensorVL53L1XROI::calibrate(this->CalDistanceMilliMeter);
 
 
   // status += VL53L1_SetMeasurementTimingBudgetMicroSeconds(Dev, 10000);	// 73Hz
@@ -222,7 +217,7 @@ bool DistSensorVL53L1XROI::sensorRead(float *distance){
     Serial.println("");
   #else
     Serial.print("RangeStatus: ");
-    for (i = 0; i < 4; i++) {
+    for (int i = 0; i < 4; i++) {
       // switching ROI configs
       status = VL53L1_SetUserROI(Dev, &roiZone[i]);
     //		while (digitalRead(INT));	// slightly faster
@@ -254,75 +249,115 @@ bool DistSensorVL53L1XROI::sensorRead(float *distance){
 }
 
 
-int DistSensorVL53L1XROI::sensorCountPersons(void){
+bool DistSensorVL53L1XROI::sensorRead2Roi(void){
   static VL53L1_RangingMeasurementData_t RangingData;
-	int gesture_code;
 
-
+  // Wait to get measurement:
+  
 	status = VL53L1_SetUserROI(Dev, &roiConfig1);
-
 	while (digitalRead(INT));	// slightly faster
-//	status = VL53L1_WaitMeasurementDataReady(Dev);
+	// status = VL53L1_WaitMeasurementDataReady(Dev);
 	if (!status) status = VL53L1_GetRangingMeasurementData(Dev, &RangingData);	//4mS
 	VL53L1_clear_interrupt_and_enable_next_range(Dev, VL53L1_DEVICEMEASUREMENTMODE_SINGLESHOT);	//2mS
-	if (status == 0) distance[0] = RangingData.RangeMilliMeter;
+	if (status == 0){
+    // distance[0] = RangingData.RangeMilliMeter;
+    distance[0] = (RangingData.RangeMilliMeter/10)*10;
+  } 
 
 	status = VL53L1_SetUserROI(Dev, &roiConfig2);
-
 	while (digitalRead(INT));	// slightly faster
-//	status = VL53L1_WaitMeasurementDataReady(Dev);
+	// status = VL53L1_WaitMeasurementDataReady(Dev);
 	if (!status) status = VL53L1_GetRangingMeasurementData(Dev, &RangingData);	//4mS
 	VL53L1_clear_interrupt_and_enable_next_range(Dev, VL53L1_DEVICEMEASUREMENTMODE_SINGLESHOT);	//2mS
-	if (status == 0) distance[1] = RangingData.RangeMilliMeter;
+	if (status == 0){
+    // distance[1] = RangingData.RangeMilliMeter;
+    distance[1] = (RangingData.RangeMilliMeter/10)*10;
+  }
+  
+  
 
-	gesture_code = tof_gestures_detectDIRSWIPE_1(distance[0], distance[1], &gestureDirSwipeData);	//0mS
+  // Get Measurement if it´s ready:
+  /*
+  uint8_t isReady;
 
-	switch (gesture_code)
-	{
-	case GESTURES_SWIPE_LEFT_RIGHT:
-		cnt++;
-		right = 1;
-		break;
-	case GESTURES_SWIPE_RIGHT_LEFT:
-		cnt--;
-		left = 1;
-		break;
-	default:
-		break;
-	}
-
-	if (distance[0] < rangeThresholdCounter_mm || distance[1] < rangeThresholdCounter_mm) { timeMark = millis(); }
-
-	if (cnt != oldcnt) {
-		oldcnt = cnt;
-		if (cnt < 0) {
-			LightON = 1;
-			lighton();
-		}
-		else {
-			LightON = 0;
-			lightoff();
-		}
-		dispUpdate();
-		left = 0; right = 0;
-	}
-
-	if (millis() - timeMark < 500) {
-		// suitable to use with SerialPlot:  https://bitbucket.org/hyOzd/serialplot
-		// Serial.printf("%d,%d,%d\n\r", distance[0], distance[1], cnt * 500);
-    // Serial.print("Distances: " + distance[0] + ", " + distance[1] + ":---> " + (cnt * 500));
-    Serial.print("Distances: ");
-    Serial.print(distance[0]);
-    Serial.print(", ");
-    Serial.print(distance[1]);
-    Serial.print(": counter ---> ");
-		Serial.print((cnt));	
-    Serial.print(" --- gesture code: ");
-		Serial.println((gesture_code));	
-    timeMark = millis(); 
+  status = VL53L1_SetUserROI(Dev, &roiConfig1);
+  status = VL53L1_GetMeasurementDataReady(Dev, &isReady);
+	if (!status){
+    if(isReady){
+      status = VL53L1_GetRangingMeasurementData(Dev, &RangingData);
+      if (!status){ 
+        // distance[0] = RangingData.RangeMilliMeter;
+        distance[0] = (RangingData.RangeMilliMeter/10)*10;
+      }
+      // else Serial.print(F("\t\t\t error measurement. sensor 000000 \n"));
+      VL53L1_ClearInterruptAndStartMeasurement(Dev);
     }
+    // else Serial.printf("\t\t NOT READY. sensor 000000 --- STATUS: %d\n", status);
 
-	return cnt;
+  }
+
+
+
+	status = VL53L1_SetUserROI(Dev, &roiConfig2);
+  status = VL53L1_GetMeasurementDataReady(Dev, &isReady);
+	if (!status){
+    if(isReady){
+      status = VL53L1_GetRangingMeasurementData(Dev, &RangingData);
+      if (!status) {
+        // distance[1] = RangingData.RangeMilliMeter;
+        distance[1] = (RangingData.RangeMilliMeter/10)*10;
+      }
+      // else Serial.print(F("\t\t\t error measurement. sensor 111111 \n"));
+      VL53L1_ClearInterruptAndStartMeasurement(Dev);
+    }
+    // else Serial.printf("\t\t NOT READY. sensor 111111 --- STATUS: %d\n", status);
+  }
+  */
+  
+
+
+
+  // Get one measurement:
+  /*
+  uint8_t isReady;
+
+  // non-blocking check for data ready
+  status = VL53L1_GetMeasurementDataReady(Dev, &isReady);
+  // Serial.printf("VL53L1_GetMeasurementDataReady Status: %d\n", status);
+  if(!status) {
+    if(isReady) {
+      static VL53L1_RangingMeasurementData_t RangingData;
+      status = VL53L1_GetRangingMeasurementData(Dev, &RangingData);
+      if(!status) {
+        distance[0] = RangingData.RangeMilliMeter;
+
+        Serial.print(RangingData.RangeStatus);
+        Serial.print(F(","));
+        Serial.print(RangingData.RangeMilliMeter);
+        Serial.print(F(","));
+        Serial.print(RangingData.SignalRateRtnMegaCps/65536.0);
+        Serial.print(F(","));
+        Serial.println(RangingData.AmbientRateRtnMegaCps/65336.0);
+      }
+      VL53L1_ClearInterruptAndStartMeasurement(Dev);
+      startMs = millis();
+    }
+    else if((uint16_t)(millis() - startMs) > VL53L1_RANGE_COMPLETION_POLLING_TIMEOUT_MS) {
+      Serial.print(F("Timeout waiting for data ready.\n"));
+      VL53L1_ClearInterruptAndStartMeasurement(Dev);
+      startMs = millis();
+    }
+  } else {
+    Serial.print(F("Error getting data ready: "));
+    Serial.println(status);
+  }
+  */
+
+  // Optional polling delay; should be smaller than INTER_MEASUREMENT_PERIOD_MS,
+  // and MUST be smaller than VL53L1_RANGE_COMPLETION_POLLING_TIMEOUT_MS
+  // delay(10);
+
+	return status;
 }
 
 
