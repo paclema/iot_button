@@ -53,8 +53,28 @@ void DistSensorVL53L1XROI::setup(void){
 	status += VL53L1_WaitDeviceBooted(Dev);
 	status += VL53L1_DataInit(Dev);
 	status += VL53L1_StaticInit(Dev);
-  status += VL53L1_SetDistanceMode(Dev, VL53L1_DISTANCEMODE_SHORT);
-	// status += VL53L1_SetDistanceMode(Dev, VL53L1_DISTANCEMODE_MEDIUM);
+
+
+  VL53L1_PresetModes currentPresetMode;
+	status += VL53L1_GetPresetMode(Dev, &currentPresetMode);
+  Serial.printf("Current preset mode: %d - status:%d\n", currentPresetMode, status);
+
+	status += VL53L1_SetPresetMode(Dev, VL53L1_PRESETMODE_AUTONOMOUS);
+  status += VL53L1_GetPresetMode(Dev, &currentPresetMode);
+  Serial.printf("Performing set preset mode: %d - status:%d\n", currentPresetMode, status);
+
+
+	status += VL53L1_SetDistanceMode(Dev, VL53L1_DISTANCEMODE_MEDIUM);
+	// status += VL53L1_SetDistanceMode(Dev, VL53L1_DISTANCEMODE_LONG);
+	// status += VL53L1_SetDistanceMode(Dev, VL53L1_DISTANCEMODE_SHORT);
+
+
+
+  // CALIBRATION:
+  int32_t CalDistanceMilliMeter = 200;
+  // status += DistSensorVL53L1XROI::calibrate(CalDistanceMilliMeter);
+
+
   // status += VL53L1_SetMeasurementTimingBudgetMicroSeconds(Dev, 10000);	// 73Hz
   // status += VL53L1_SetInterMeasurementPeriodMilliSeconds(Dev, 15);
   status += VL53L1_SetMeasurementTimingBudgetMicroSeconds(Dev, MEASUREMENT_BUDGET_MS * 1000);
@@ -69,6 +89,58 @@ void DistSensorVL53L1XROI::setup(void){
   }
 
 
+}
+
+
+int DistSensorVL53L1XROI::calibrate(int32_t CalDistanceMilliMeter){
+  // Use and object at this distance:
+  // int32_t CalDistanceMilliMeter = 200;
+  int delayTime = 0;
+  if ( this->debug) Serial.printf("CALIBRATION for test distance %dmm\n", CalDistanceMilliMeter);
+  delay(delayTime);
+
+  // SPAD
+	status += VL53L1_PerformRefSpadManagement(Dev);
+  if ( this->debug) Serial.printf("Performing VL53L1_PerformRefSpadManagement: %d\n", status);
+  delay(delayTime);
+
+  // Offset
+	status += VL53L1_PerformOffsetSimpleCalibration(Dev, CalDistanceMilliMeter);
+  if ( this->debug) Serial.printf("Performing VL53L1_PerformOffsetSimpleCalibration: %d\n", status);
+  delay(delayTime);
+	status += VL53L1_PerformOffsetCalibration(Dev, CalDistanceMilliMeter);
+  if ( this->debug) Serial.printf("Performing VL53L1_PerformOffsetCalibration: %d\n", status);
+  delay(delayTime);
+  status += VL53L1_SetOffsetCalibrationMode(Dev, 2);
+  if ( this->debug) Serial.printf("Performing VL53L1_SetOffsetCalibrationMode: %d\n", status);
+  delay(delayTime);
+
+  // Xtalk
+  // uint8_t pXTalkCompensationEnable = 1;  //state 0=disabled or 1 = enabled
+  uint8_t pXTalkCompensationEnable;         //state 0=disabled or 1 = enabled
+	status += VL53L1_GetXTalkCompensationEnable(Dev, &pXTalkCompensationEnable);
+  if ( this->debug) Serial.printf("Performing VL53L1_GetXTalkCompensationEnable: %d - enabled: %d\n", status, pXTalkCompensationEnable);
+  delay(delayTime);
+  uint8_t XTalkCompensationEnable = 1;      //state 0=disabled or 1 = enabled
+  status += VL53L1_SetXTalkCompensationEnable(Dev, XTalkCompensationEnable);
+  if ( this->debug) Serial.printf("Performing VL53L1_SetXTalkCompensationEnable: %d - enabled: %d\n", status, XTalkCompensationEnable);
+  delay(delayTime);
+  status += VL53L1_PerformSingleTargetXTalkCalibration(Dev, CalDistanceMilliMeter);
+  if ( this->debug) Serial.printf("Performing VL53L1_PerformSingleTargetXTalkCalibration: %d\n", status);
+  delay(delayTime);
+
+  // Calibration
+  VL53L1_CalibrationData_t calibrationData;
+	status += VL53L1_GetCalibrationData(Dev, &calibrationData);
+  if ( this->debug) Serial.printf("Performing VL53L1_GetCalibrationData: %d\n", status);
+  delay(delayTime);
+	status += VL53L1_SetCalibrationData(Dev, &calibrationData);
+  if ( this->debug) Serial.printf("Performing VL53L1_SetCalibrationData: %d\n", status);
+  delay(delayTime);
+
+
+  if ( this->debug) Serial.printf("CALIBRATION DONE. Status: %d\n", status);
+  return status;
 }
 
 
@@ -244,10 +316,11 @@ int DistSensorVL53L1XROI::sensorCountPersons(void){
     Serial.print(", ");
     Serial.print(distance[1]);
     Serial.print(": counter ---> ");
-		Serial.println((cnt));	}
-
-		// sensorDistance_1 = distance[0];
-		// sensorDistance_2 = distance[1];
+		Serial.print((cnt));	
+    Serial.print(" --- gesture code: ");
+		Serial.println((gesture_code));	
+    timeMark = millis(); 
+    }
 
 	return cnt;
 }

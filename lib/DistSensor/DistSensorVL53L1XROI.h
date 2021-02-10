@@ -50,7 +50,8 @@ adjustments will work with any Arduino
 #define SDA			4
 #define SCL			5   // D1
 #define XSHUT		14	// D5
-#define INT			16  // D0
+// #define INT			16  // D0
+#define INT			12  // D6
 
 #define light_on	0	//D3
 // #define light_off	4	//D2
@@ -69,7 +70,7 @@ adjustments will work with any Arduino
 
 // Timing budget set through VL53L1_SetMeasurementTimingBudgetMicroSeconds().
 // #define MEASUREMENT_BUDGET_MS 50
-#define MEASUREMENT_BUDGET_MS 0
+#define MEASUREMENT_BUDGET_MS 33
 
 // Interval between measurements, set through
 // VL53L1_SetInterMeasurementPeriodMilliSeconds(). According to the API user
@@ -77,7 +78,7 @@ adjustments will work with any Arduino
 // timing budget + 4 ms." The STM32Cube example from ST uses 500 ms, but we
 // reduce this to 55 ms to allow faster readings.
 // #define INTER_MEASUREMENT_PERIOD_MS 55
-#define INTER_MEASUREMENT_PERIOD_MS 15
+#define INTER_MEASUREMENT_PERIOD_MS (MEASUREMENT_BUDGET_MS + 4)
 
 
 class DistSensorVL53L1XROI: public DistSensor {
@@ -117,7 +118,7 @@ public:
   volatile int LightON = 0, OLED_dimmed = 0, OLED_OFF_timeout = 10000;
   long timeMark = 0, DisplayUpdateTime = 0;
 
-  int rangeThresholdCounter_mm = 600;
+  int rangeThresholdCounter_mm = 1200;
 
   // String distance_mode;
   // String distance_mode_options[JSON_MAX_SIZE_LIST]; //["Short", "Medium", "Long", "Unknown"]
@@ -127,6 +128,7 @@ public:
   ~DistSensorVL53L1XROI();
 
   void setup(void);
+  int calibrate(int CalDistanceMilliMeter);
   void disableSensor(void);
   bool sensorRead(float *distance);
   int sensorCountPersons(void);
