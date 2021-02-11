@@ -39,7 +39,6 @@ unsigned long previousMqttReconnectionMillis = millis();
 unsigned int mqttReconnectionTime = 10000;
 int mqttRetries = 0;
 int mqttMaxRetries = 10;
-String mqttQueueString = "{\"data\":[";
 
 
 // WebConfigServer Configuration
@@ -94,10 +93,10 @@ unsigned long previousMainLoopMillis = 0;
 #include <WrapperWebSockets.h>
 WrapperWebSockets ws;
 
-// Radar:
-#include "Radar.h"
-// Radar *radar =  new radar("radar");
-Radar radar;
+// PeopleCounter:
+#include "PeopleCounter.h"
+// PeopleCounter *PeopleCounter =  new PeopleCounter("PeopleCounter");
+PeopleCounter peopleCounter;
 
 
 // Websocket functions to publish:
@@ -106,11 +105,13 @@ String getRSSI(){ return String(WiFi.RSSI());}
 String getHeapFree(){ return String((float)GET_FREE_HEAP/1000);}
 String mqttState(){ return String(mqttClient.state() );}
 String mqttBufferSize(){ return String(mqttClient.getBufferSize() );}
-String getPositionMotor1(){ return String(radar.getPosition(1) );}
-String getTargetPositionMotor1(){ return String(radar.getTargetPosition(1) );}
-String getPositionMotor2(){ return String(radar.getPosition(2) );}
-String getTargetPositionMotor2(){ return String(radar.getTargetPosition(2) );}
-String getMqttQueueString(){ return String((float)mqttQueueString.length()/1000 );}
+String getPeopleCount(){ return String(peopleCounter.getPeopleCount());}
+String getZone1(){ return String(peopleCounter.getDistZone(0));}
+String getZone2(){ return String(peopleCounter.getDistZone(1));}
+String getStatusFront(){ return String(peopleCounter.getStatusFront());}
+String getStatusBack(){ return String(peopleCounter.getStatusBack());}
+String getStatusPersonNow(){ return String(peopleCounter.getStatusPersonNow());}
+String getCurrentGesture(){ return String(peopleCounter.getCurrentGesture());}
 
 
 
@@ -374,8 +375,8 @@ void reconnect(void) {
   //delay(1000);
   Serial.print("--- Free heap: "); Serial.println(ESP.getFreeHeap());
 
-  // Add radar object into WebConfigServer IWebCOnfig object list to parse its configurations from config.json
-  config.addConfig(&radar, "radar");
+  // Add PeopleCounter object into WebConfigServer IWebCOnfig object list to parse its configurations from config.json
+  config.addConfig(&peopleCounter, "radar");
 
   config.begin();
   networkRestart();
@@ -392,8 +393,9 @@ void reconnect(void) {
   }
 
 
-  // Enable Radar services:
-  radar.enableRadarServices();
+  // Enable PeopleCounter services:
+  peopleCounter.setMQTTClient(&mqttClient);
+  peopleCounter.enablePeopleCounterServices();
 
 
 }
@@ -465,11 +467,13 @@ void setup() {
     ws.addObjectToPublish("RSSI", getRSSI);
     ws.addObjectToPublish("mqtt_state", mqttState);
     ws.addObjectToPublish("mqtt_buffer_size", mqttBufferSize);
-    ws.addObjectToPublish("mqtt_queue_string_size", getMqttQueueString);
-    ws.addObjectToPublish("radar_motor_1_position", getPositionMotor1);
-    ws.addObjectToPublish("radar_motor_1_target_position", getTargetPositionMotor1);
-    ws.addObjectToPublish("radar_motor_2_position", getPositionMotor2);
-    ws.addObjectToPublish("radar_motor_2_target_position", getTargetPositionMotor2);
+    ws.addObjectToPublish("dist_zone_1", getZone1);
+    ws.addObjectToPublish("dist_zone_2", getZone2);
+    ws.addObjectToPublish("status_front", getStatusFront);
+    ws.addObjectToPublish("status_back", getStatusBack);
+    ws.addObjectToPublish("status_person_now", getStatusPersonNow);
+    ws.addObjectToPublish("current_gesture", getCurrentGesture);
+    ws.addObjectToPublish("people_count", getPeopleCount);
 
 
   }
@@ -502,11 +506,6 @@ void loop() {
     mqttClient.loop();
   }
 
-  // Reset mqtt buffer if mqtt not connected to avoid memory leaking
-  if (mqttClient.state() != 0){
-    mqttQueueString = "{\"data\":[";
-  }
-
 
   // Handle WebConfigServer for not asyc webserver:
   #ifndef USE_ASYNC_WEBSERVER
@@ -528,8 +527,8 @@ void loop() {
   }
 
 
-  // Radar services loop:
-  radar.loop();
+  // PeopleCounter services loop:
+  peopleCounter.loop();
 
 
 
@@ -538,41 +537,26 @@ void loop() {
       (currentLoopMillis - previousLoopMillis > (unsigned)config.device.loop_time_ms)) {
     // Here starts the device loop configured:
 
-    // float radarAngle = 0;
-    // float radarDistance = 0;
-    // radarAngle = radar.getPosition();
-    radar.printStatus();
+
+    peopleCounter.printStatus();
 
 
-    // If radar measure is not available, mqtt is not sent:
-    // if (radar.getDistance(radarDistance)){
-    if (radar.readPoints()){
+    // Publish mqtt sensor feedback:
+    if(mqttClient.connected() && (config.device.publish_time_ms != 0) &&
+        (currentLoopMillis - previousMQTTPublishMillis > (unsigned)config.device.publish_time_ms)) {
+      previousMQTTPublishMillis = currentLoopMillis;
+      // Here starts the MQTT publish loop configured:
 
+      String msg_pub = "{ \"people_count\": " +  peopleCounter.getPeopleCount() + " }";
+      String base_topic_pub = "/" + config.mqtt.id_name + "/";
+      String topic_pub = base_topic_pub + "data";
+      mqttClient.setBufferSize((uint16_t)(msg_pub.length() + 100));
+      mqttClient.publish(topic_pub.c_str(), msg_pub.c_str(), msg_pub.length());
+      // Serial.println("MQTT published: " + msg_pub + " -- loop: " + config.device.publish_time_ms);
 
-      // String msg_pub ="{\"angle\":" + String(radarAngle) + ", \"distance\" :"+ String(radarDistance) +"}";
-      String msg_pub = radar.getJsonPoints();
-      mqttQueueString += msg_pub;
-
-      // Publish mqtt sensor feedback:
-      if(mqttClient.connected() && (config.device.publish_time_ms != 0) &&
-          (currentLoopMillis - previousMQTTPublishMillis > (unsigned)config.device.publish_time_ms)) {
-        previousMQTTPublishMillis = currentLoopMillis;
-        // Here starts the MQTT publish loop configured:
-
-          mqttQueueString += "]}";
-
-          String base_topic_pub = "/" + config.mqtt.id_name + "/";
-          String topic_pub = base_topic_pub + "data";
-          mqttClient.setBufferSize((uint16_t)(mqttQueueString.length() + 100));
-          mqttClient.publish(topic_pub.c_str(), mqttQueueString.c_str(), mqttQueueString.length());
-          // Serial.println("MQTT published: " + msg_pub + " -- loop: " + config.device.publish_time_ms);
-
-          mqttQueueString = "{\"data\":[";
-          previousMQTTPublishMillis = currentLoopMillis;
-      } else {
-        mqttQueueString += ",";
-      }
+      previousMQTTPublishMillis = currentLoopMillis;
     }
+    
     previousLoopMillis = currentLoopMillis;
   }
 
