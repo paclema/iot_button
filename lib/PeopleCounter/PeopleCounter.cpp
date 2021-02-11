@@ -123,8 +123,11 @@ void PeopleCounter::loop(void){
     case 5:
       newGesture = PERSON_TRY_TO_LEAVE;
       break;
+    case 3:
+      newGesture = ERROR_PERSON_TOO_FAST;
+      break;
     default:
-      newGesture = ERROR_DETECTING_PERSON;
+      newGesture = PERSON_NOT_FULL_DETECTED;
       break;
     }
     Serial.println();
@@ -197,6 +200,9 @@ void PeopleCounter::notifyChange(PeopleCounterGesture gesture){
     break;
   case PERSON_TRY_TO_LEAVE:
     msgGesture = "Person try to leave";
+    break;
+  case ERROR_PERSON_TOO_FAST:
+    msgGesture = "Error person moved to fast";
     break;
   case ERROR_DETECTING_PERSON:
     msgGesture = "Error detecting detecting person";

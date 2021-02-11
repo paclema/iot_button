@@ -12,19 +12,6 @@
 // this using namespace for example.
 // #include <SimpleList.h>
 #include "IWebConfig.h"
-
-// #include "PeopleCounterMotor.h"
-// #include "DistSensor.h"
-// #include "DistSensorFactory.h"
-// ParallaxServo class can work with ESP8266 or ESP32:
-// #include "ParallaxServo.h"
-
-// #ifdef ESP32
-// // To use paclema/ESP32Servo360:
-// #include "ParallaxServoESP32.h"
-// // #elif defined(ESP8266)
-// #endif
-
 #include "DistSensorVL53L1XROI.h"
 
 
@@ -37,8 +24,9 @@ typedef int8_t PeopleCounterGesture;
 #define PERSON_TRY_TO_ENTER             ((PeopleCounterGesture)   3)
 #define PERSON_TRY_TO_LEAVE             ((PeopleCounterGesture)   4)
 
-#define ERROR_DETECTING_PERSON          ((PeopleCounterGesture)  -1)
-#define PERSON_NOT_FULL_DETECTED        ((PeopleCounterGesture)  -2)
+#define ERROR_PERSON_TOO_FAST           ((PeopleCounterGesture)  -1)
+#define ERROR_DETECTING_PERSON          ((PeopleCounterGesture)  -2)
+#define PERSON_NOT_FULL_DETECTED        ((PeopleCounterGesture)  -3)
 
 
 
