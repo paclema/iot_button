@@ -10,15 +10,29 @@
 /*
 For Two Regions Of Interest(ROI)
 are defined in SPAD sensor array:
+
+// NARROW:
   ROI1	  ROI2
-0,15	12,15
-  ####----####
-  ####----####
-  ####----####
+0,15	     12,15
+  ####--------####
+  ####--------####
+  ####--------####
   ...
-  ####----####
-  ####----####
-	3,0		15,0
+  ####--------####
+  ####--------####
+	   3,0		     15,0
+
+// WIDE:
+  ROI1	  ROI2
+0,15	     12,15
+  #######--#######
+  #######--#######
+  #######--#######
+  ...
+  #######--#######
+  #######--#######
+	   3,0		     15,0
+
 */
 
 // Pinout with D1 mini:
@@ -74,12 +88,16 @@ public:
   String distance_mode;
   String distance_mode_options[JSON_MAX_SIZE_LIST]; //["Short", "Medium", "Long", "Unknown"]
   int zones = 0;
-  int status = 0;
+  VL53L1_Error status = 0;
   int32_t CalDistanceMilliMeter = 200;
 
   // Two ROI configurations
-  VL53L1_UserRoi_t	roiConfig1 = { 12, 15, 15, 0 };
-  VL53L1_UserRoi_t	roiConfig2 = { 0, 15, 3, 0 };
+  //NARROW:
+  // VL53L1_UserRoi_t	roiConfig1 = { 12, 15, 15, 0 };
+  // VL53L1_UserRoi_t	roiConfig2 = { 0, 15, 3, 0 };
+  //WIDE:
+  VL53L1_UserRoi_t	roiConfig1 = { 9, 15, 15, 0 };
+  VL53L1_UserRoi_t	roiConfig2 = { 0, 15, 6, 0 };
   int distance[2] = { 0, 0 };
 
   // Four ROI configurations
