@@ -157,16 +157,16 @@ void PeopleCounter::loop(void){
 		// Serial.println();	
     // timeMark = millis(); 
 
-    String msgStatusPerson = "{ ";
+    String msgStatusPerson = "[";
     for (int i=0; i<STATUS_PERSON_ARRAY_SIZE; i++){
       msgStatusPerson += String(statusPerson[i]);
-      if (i != 4) msgStatusPerson += ", ";
+      if (i != 4) msgStatusPerson += ",";
     }
-    msgStatusPerson += " }";
+    msgStatusPerson += "]";
     Serial.println(" - statusPerson[5]: " + msgStatusPerson + " - currentGesture: " + currentGesture);
 
     String topic_pub = "/iot-door/data/statusPerson";
-    String msg_pub = "statusPerson[5]:" + msgStatusPerson;
+    String msg_pub = "{ \"statusPerson\": " + msgStatusPerson + " }";
     mqttClient->publish(topic_pub.c_str(), msg_pub.c_str(), msg_pub.length());
     }
 
@@ -193,8 +193,8 @@ void PeopleCounter::notifyChange(PeopleCounterGesture gesture){
     msgStatusPerson += String(statusPerson[i]);
     if (i != 4) msgStatusPerson += ",";
   }
-  
   msgStatusPerson += "]";
+  
   switch (gesture){
   case PERSON_ENTERS:
     msgGesture = "Person enters";
