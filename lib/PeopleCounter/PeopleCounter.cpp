@@ -188,6 +188,13 @@ void PeopleCounter::printStatus(void){
 void PeopleCounter::notifyChange(PeopleCounterGesture gesture){
 
   String msgGesture;
+  String msgStatusPerson = "[";
+  for (int i=0; i<STATUS_PERSON_ARRAY_SIZE; i++){
+    msgStatusPerson += String(statusPerson[i]);
+    if (i != 4) msgStatusPerson += ",";
+  }
+  
+  msgStatusPerson += "]";
   switch (gesture){
   case PERSON_ENTERS:
     msgGesture = "Person enters";
@@ -202,25 +209,18 @@ void PeopleCounter::notifyChange(PeopleCounterGesture gesture){
     msgGesture = "Person try to leave";
     break;
   case ERROR_PERSON_TOO_FAST:
-    msgGesture = "Error person moved to fast";
+    msgGesture = "Error person moved to fast: " + msgStatusPerson;
     break;
   case ERROR_DETECTING_PERSON:
-    msgGesture = "Error detecting detecting person";
+    msgGesture = "Error detecting person: " + msgStatusPerson;
     break;
   default:
-    msgGesture = "PeopleCounterGesture not implemented";
+    msgGesture = "PeopleCounterGesture not implemented: " + msgStatusPerson;
     break;
   }
   Serial.print(msgGesture);
   Serial.printf(" - cnt: %d", cnt);
 
-
-  String msgStatusPerson = "{ ";
-  for (int i=0; i<STATUS_PERSON_ARRAY_SIZE; i++){
-    msgStatusPerson += String(statusPerson[i]);
-    if (i != 4) msgStatusPerson += ", ";
-  }
-  msgStatusPerson += " }";
   Serial.println(" - statusPerson[5]: " + msgStatusPerson + " - currentGesture: " + currentGesture);
 
 
