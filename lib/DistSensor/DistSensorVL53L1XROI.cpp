@@ -251,9 +251,9 @@ bool DistSensorVL53L1XROI::sensorRead(float *distance){
 
 bool DistSensorVL53L1XROI::sensorRead2Roi(void){
   static VL53L1_RangingMeasurementData_t RangingData;
+  int newDistance[2] = { 0, 0 };
 
   // Wait to get measurement:
-  
 	status = VL53L1_SetUserROI(Dev, &roiConfig1);
 	while (digitalRead(INT));	// slightly faster
 	// status = VL53L1_WaitMeasurementDataReady(Dev);
@@ -261,7 +261,7 @@ bool DistSensorVL53L1XROI::sensorRead2Roi(void){
 	VL53L1_clear_interrupt_and_enable_next_range(Dev, VL53L1_DEVICEMEASUREMENTMODE_SINGLESHOT);	//2mS
 	if (status == 0){
     // distance[0] = RangingData.RangeMilliMeter;
-    distance[0] = (RangingData.RangeMilliMeter/10)*10;
+    newDistance[0] = (RangingData.RangeMilliMeter/10)*10;
   } 
 
 	status = VL53L1_SetUserROI(Dev, &roiConfig2);
@@ -271,7 +271,12 @@ bool DistSensorVL53L1XROI::sensorRead2Roi(void){
 	VL53L1_clear_interrupt_and_enable_next_range(Dev, VL53L1_DEVICEMEASUREMENTMODE_SINGLESHOT);	//2mS
 	if (status == 0){
     // distance[1] = RangingData.RangeMilliMeter;
-    distance[1] = (RangingData.RangeMilliMeter/10)*10;
+    newDistance[1] = (RangingData.RangeMilliMeter/10)*10;
+  }
+
+  if (newDistance[0] != 0 && newDistance[1] != 0){
+    this->distance[0] = newDistance[0];
+    this->distance[1] = newDistance[1];
   }
   
   
