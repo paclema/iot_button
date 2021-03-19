@@ -88,6 +88,20 @@ void PeopleCounter::loop(void){
     statusPersonIndex++;
     statusPerson[statusPersonIndex] = statusPersonNow;
     statusPersonLast = statusPersonNow;
+    
+    currentGesture = PERSON_IN_RANGE;
+    // If a person try to enter or leave several times in the same measurement like [0,1,3,1,3] or [0,2,3,2,3] or [0,1,3,2,3]
+    // We should remove the status repeated at index 3 and 4: [0,1,3,-,-] or [0,2,3,-,-] to still keep track until the person leaves:
+    if (statusPersonIndex == 4  && statusPerson[2] == statusPerson[4]) {
+      
+      currentGesture = PERSON_IN_RANGE_IN_OUT;
+
+      PeopleCounter::notifyChange(currentGesture);
+      statusPersonIndex = 2;
+      statusPerson[3] = 0;
+      statusPerson[4] = 0;
+    }
+
   } else if (statusPersonNow == 0 && statusPersonLast == 0){
     statusPersonIndex = 0;
   }
@@ -207,6 +221,12 @@ void PeopleCounter::notifyChange(PeopleCounterGesture gesture){
     break;
   case PERSON_TRY_TO_LEAVE:
     msgGesture = "Person try to leave";
+    break;
+  case PERSON_IN_RANGE:
+    msgGesture = "Person under ranging";
+    break;
+  case PERSON_IN_RANGE_IN_OUT:
+    msgGesture = "Person in and out under ranging";
     break;
   case ERROR_PERSON_TOO_FAST:
     msgGesture = "Error person moved to fast: " + msgStatusPerson;
