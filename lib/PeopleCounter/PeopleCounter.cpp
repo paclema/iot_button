@@ -85,11 +85,18 @@ void PeopleCounter::loop(void){
 
   statusPersonNow = statusFront + statusBack;
   if (statusPersonLast != statusPersonNow){
+    if (statusPersonIndex == 0){
+      currentGesture = PERSON_IN_RANGE_START;
+      PeopleCounter::notifyChange(currentGesture);
+    } else if (statusPersonIndex == 3){
+      currentGesture = PERSON_IN_RANGE_END;
+      PeopleCounter::notifyChange(currentGesture);
+    } else currentGesture = PERSON_IN_RANGE;
+
     statusPersonIndex++;
     statusPerson[statusPersonIndex] = statusPersonNow;
     statusPersonLast = statusPersonNow;
     
-    currentGesture = PERSON_IN_RANGE;
     // If a person try to enter or leave several times in the same measurement like [0,1,3,1,3] or [0,2,3,2,3] or [0,1,3,2,3]
     // We should remove the status repeated at index 3 and 4: [0,1,3,-,-] or [0,2,3,-,-] to still keep track until the person leaves:
     if (statusPersonIndex == 4  && statusPerson[2] == statusPerson[4]) {
@@ -182,7 +189,7 @@ void PeopleCounter::loop(void){
     String topic_pub = "/iot-door/data/statusPerson";
     String msg_pub = "{ \"statusPerson\": " + msgStatusPerson + " }";
     mqttClient->publish(topic_pub.c_str(), msg_pub.c_str(), msg_pub.length());
-    }
+  }
 
 
 
@@ -224,6 +231,12 @@ void PeopleCounter::notifyChange(PeopleCounterGesture gesture){
     break;
   case PERSON_IN_RANGE:
     msgGesture = "Person under ranging";
+    break;
+  case PERSON_IN_RANGE_START:
+    msgGesture = "Person under ranging starts";
+    break;
+  case PERSON_IN_RANGE_END:
+    msgGesture = "Person under ranging ends";
     break;
   case PERSON_IN_RANGE_IN_OUT:
     msgGesture = "Person in and out under ranging";
