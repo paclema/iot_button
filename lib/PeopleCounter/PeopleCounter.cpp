@@ -75,6 +75,8 @@ void PeopleCounter::setupDistSensors(void){
 
 void PeopleCounter::loop(void){
 
+  this->LDRValue = analogRead(A0);
+
   bool readStatus = sensor.sensorRead2Roi();
 
   // CHECK GESTURE USING ALGORITHM:
@@ -272,7 +274,14 @@ void PeopleCounter::notifyChange(PeopleCounterGesture gesture){
   mqttClient->publish(topic_pub.c_str(), msg_pub.c_str(), msg_pub.length());
 
   topic_pub = "/iot-door/data";
-  msg_pub = "{ \"people_count\": " + String(this->cnt) + " }";
+  msg_pub = "{";
+  msg_pub += "\"peopleCount\": " + String(this->cnt) + ", ";
+  msg_pub += "\"statusPerson\": " + msgStatusPerson + ", ";
+  msg_pub += "\"LDR\": " + String(this->LDRValue) + " }";
+  mqttClient->publish(topic_pub.c_str(), msg_pub.c_str(), msg_pub.length());
+
+  topic_pub = "/iot-door/data/statusPerson";
+  msg_pub = "{ \"statusPerson\": " + msgStatusPerson + " }";
   mqttClient->publish(topic_pub.c_str(), msg_pub.c_str(), msg_pub.length());
 
 }

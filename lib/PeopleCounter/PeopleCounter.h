@@ -55,6 +55,8 @@ private:
   PubSubClient *mqttClient;
   Ticker ledOn, ledOff;
 
+  int LDRValue = 0;
+
 public:
 
   DistSensorVL53L1XROI sensor;
@@ -80,6 +82,7 @@ public:
   String getStatusBack(){ return String(statusBack); };
   String getStatusPersonNow(){ return String(statusPersonNow); };
   String getCurrentGesture(){ return String(currentGesture); };
+  String getLDR(void){ return String(LDRValue); };
 
 
   void setDebug(bool d){ this->debug = d; };

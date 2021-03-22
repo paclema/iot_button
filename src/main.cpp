@@ -112,6 +112,7 @@ String getStatusFront(){ return String(peopleCounter.getStatusFront());}
 String getStatusBack(){ return String(peopleCounter.getStatusBack());}
 String getStatusPersonNow(){ return String(peopleCounter.getStatusPersonNow());}
 String getCurrentGesture(){ return String(peopleCounter.getCurrentGesture());}
+String getLDR(){ return String(peopleCounter.getLDR());}
 
 
 
@@ -474,6 +475,7 @@ void setup() {
     ws.addObjectToPublish("status_person_now", getStatusPersonNow);
     ws.addObjectToPublish("current_gesture", getCurrentGesture);
     ws.addObjectToPublish("people_count", getPeopleCount);
+    ws.addObjectToPublish("LDR", getLDR);
 
 
   }
@@ -547,7 +549,8 @@ void loop() {
       previousMQTTPublishMillis = currentLoopMillis;
       // Here starts the MQTT publish loop configured:
 
-      String msg_pub = "{ \"people_count\": " +  peopleCounter.getPeopleCount() + " }";
+      String msg_pub = "{ \"peopleCount\": " + peopleCounter.getPeopleCount() + ", ";
+      msg_pub += "\"LDR\": " + peopleCounter.getLDR() + " }";
       String base_topic_pub = "/" + config.mqtt.id_name + "/";
       String topic_pub = base_topic_pub + "data";
       mqttClient.setBufferSize((uint16_t)(msg_pub.length() + 100));
