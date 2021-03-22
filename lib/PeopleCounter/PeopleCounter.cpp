@@ -111,6 +111,9 @@ void PeopleCounter::loop(void){
       statusPerson[4] = 0;
     }
 
+    // Notify statusPerson after new status added to the list:
+    PeopleCounter::notifyStatusPerson();
+
   } else if (statusPersonNow == 0 && statusPersonLast == 0){
     statusPersonIndex = 0;
   }
@@ -187,10 +190,6 @@ void PeopleCounter::loop(void){
     }
     msgStatusPerson += "]";
     Serial.println(" - statusPerson[5]: " + msgStatusPerson + " - currentGesture: " + currentGesture);
-
-    String topic_pub = "/iot-door/data/statusPerson";
-    String msg_pub = "{ \"statusPerson\": " + msgStatusPerson + " }";
-    mqttClient->publish(topic_pub.c_str(), msg_pub.c_str(), msg_pub.length());
   }
 
 
@@ -255,9 +254,7 @@ void PeopleCounter::notifyChange(PeopleCounterGesture gesture){
   }
   Serial.print(msgGesture);
   Serial.printf(" - cnt: %d", cnt);
-
-  Serial.println(" - statusPerson[5]: " + msgStatusPerson + " - currentGesture: " + currentGesture);
-
+  Serial.println(" - currentGesture: " + currentGesture);
 
   // Blink LED_BUILTIN once for 100ms:
   ledOn.once_ms(0, PeopleCounter::blink , true);
@@ -280,11 +277,25 @@ void PeopleCounter::notifyChange(PeopleCounterGesture gesture){
   msg_pub += "\"LDR\": " + String(this->LDRValue) + " }";
   mqttClient->publish(topic_pub.c_str(), msg_pub.c_str(), msg_pub.length());
 
-  topic_pub = "/iot-door/data/statusPerson";
-  msg_pub = "{ \"statusPerson\": " + msgStatusPerson + " }";
-  mqttClient->publish(topic_pub.c_str(), msg_pub.c_str(), msg_pub.length());
-
+  PeopleCounter::notifyStatusPerson();
 }
 
 
+void PeopleCounter::notifyStatusPerson(){
+
+  String msgStatusPerson = "[";
+  for (int i=0; i<statusPersonIndex; i++){
+    msgStatusPerson += String(statusPerson[i]);
+    if (i != (statusPersonIndex-1)) msgStatusPerson += ",";
+  }
+  msgStatusPerson += "]";
+  
+  Serial.println(" - statusPerson[5]: " + msgStatusPerson);
+
+  // Notify via MQTT:
+  String topic_pub = "/iot-door/data/statusPerson";
+  String msg_pub = "{ \"statusPerson\": " + msgStatusPerson + " }";
+  mqttClient->publish(topic_pub.c_str(), msg_pub.c_str(), msg_pub.length());
+
+}
 

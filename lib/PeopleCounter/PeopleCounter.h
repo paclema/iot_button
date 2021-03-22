@@ -72,6 +72,7 @@ public:
   void loop(void);
 
   void notifyChange(PeopleCounterGesture);
+  void notifyStatusPerson();
   void setMQTTClient(PubSubClient *client){ mqttClient = client; }
 
   void printStatus(void);
