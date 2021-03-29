@@ -48,10 +48,10 @@ void PeopleCounter::enablePeopleCounterServices(void){
   sensor.setType("VL53L1X_ROI");
   sensor.setup();
 
-  distFront.begin(SMOOTHED_AVERAGE, 10);
+  distFront.begin(SMOOTHED_AVERAGE, 5);
   // distFront.begin(SMOOTHED_EXPONENTIAL, 10);
 
-  distBack.begin(SMOOTHED_AVERAGE, 10);
+  distBack.begin(SMOOTHED_AVERAGE, 5);
   // distBack.begin(SMOOTHED_EXPONENTIAL, 10);
 
 
@@ -87,6 +87,8 @@ void PeopleCounter::loop(void){
   distFront.add(sensor.distance[0]);
   distBack.add(sensor.distance[1]);
 
+  smoothedDist[0] = distFront.get();
+  smoothedDist[1] = distBack.get();
 
   // CHECK GESTURE USING ALGORITHM:
   // if (sensor.distance[0] < rangeThresholdCounter_mm) statusFront = 2;
@@ -94,9 +96,9 @@ void PeopleCounter::loop(void){
   // if (sensor.distance[1] < rangeThresholdCounter_mm) statusBack = 1;
   // else statusBack = 0;
 
-  if (distFront.get() < rangeThresholdCounter_mm) statusFront = 2;
+  if (smoothedDist[0] < rangeThresholdCounter_mm) statusFront = 2;
   else statusFront = 0;
-  if (distBack.get() < rangeThresholdCounter_mm) statusBack = 1;
+  if (smoothedDist[1] < rangeThresholdCounter_mm) statusBack = 1;
   else statusBack = 0;
   
 

@@ -59,13 +59,14 @@ private:
 
   int LDRValue = 0;
 
+  Smoothed <int> distFront;
+  Smoothed <int> distBack;
+
+  int smoothedDist[2] = {0,0};
+
 public:
 
   DistSensorVL53L1XROI sensor;
-
-  Smoothed <int> distFront;
-  Smoothed <int> distBack;
-  
 
   PeopleCounter(void);
   PeopleCounter(String name);
@@ -85,10 +86,7 @@ public:
 
   String getPeopleCount(void){ return String(cnt); };
   String getDistZone(int i){ return String(sensor.distance[i]); };
-  String getDistZoneSmoothed(int i){ 
-    if(i==0) return String(distFront.get()); 
-    else if(i==1) return String(distBack.get()); 
-  };
+  String getDistZoneSmoothed(int i){ return(String(smoothedDist[i])); };
   String getStatusFront(){ return String(statusFront); };
   String getStatusBack(){ return String(statusBack); };
   String getStatusPersonNow(){ return String(statusPersonNow); };
