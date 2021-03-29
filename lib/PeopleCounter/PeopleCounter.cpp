@@ -75,7 +75,7 @@ void PeopleCounter::setupDistSensors(void){
 
 void PeopleCounter::loop(void){
 
-  this->LDRValue = analogRead(A0);
+   this->LDRValue = analogRead(A0);
 
   bool readStatus = sensor.sensorRead2Roi();
 
@@ -98,10 +98,13 @@ void PeopleCounter::loop(void){
     statusPersonIndex++;
     statusPerson[statusPersonIndex] = statusPersonNow;
     statusPersonLast = statusPersonNow;
+
+    // Notify statusPerson after new status added to the list:
+    PeopleCounter::notifyStatusPerson();
     
     // If a person try to enter or leave several times in the same measurement like [0,1,3,1,3] or [0,2,3,2,3] or [0,1,3,2,3]
     // We should remove the status repeated at index 3 and 4: [0,1,3,-,-] or [0,2,3,-,-] to still keep track until the person leaves:
-    if (statusPersonIndex == 4  && statusPerson[2] == statusPerson[4]) {
+    if (statusPersonIndex == 4  && statusPerson[2] == 3 && statusPerson[2] == statusPerson[4]) {
       
       currentGesture = PERSON_IN_RANGE_IN_OUT;
 
@@ -110,9 +113,6 @@ void PeopleCounter::loop(void){
       statusPerson[3] = 0;
       statusPerson[4] = 0;
     }
-
-    // Notify statusPerson after new status added to the list:
-    PeopleCounter::notifyStatusPerson();
 
   } else if (statusPersonNow == 0 && statusPersonLast == 0){
     statusPersonIndex = 0;
@@ -277,7 +277,7 @@ void PeopleCounter::notifyChange(PeopleCounterGesture gesture){
   msg_pub += "\"LDR\": " + String(this->LDRValue) + " }";
   mqttClient->publish(topic_pub.c_str(), msg_pub.c_str(), msg_pub.length());
 
-  PeopleCounter::notifyStatusPerson();
+  // PeopleCounter::notifyStatusPerson();
 }
 
 
