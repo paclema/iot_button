@@ -63,6 +63,7 @@ private:
   Smoothed <int> distBack;
 
   int smoothedDist[2] = {0,0};
+  int smoothNumReadings = 10;
 
 public:
 

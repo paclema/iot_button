@@ -23,6 +23,7 @@ void PeopleCounter::parseWebConfig(JsonObjectConst configObject){
 
   // PeopleCounter IWebConfig object:
   this->debug = configObject["debug"] | false;
+  this->smoothNumReadings = configObject["smooth_num_readings"] | 10;
 
 
   // VL53L1X with ROI sensor:
@@ -48,11 +49,11 @@ void PeopleCounter::enablePeopleCounterServices(void){
   sensor.setType("VL53L1X_ROI");
   sensor.setup();
 
-  distFront.begin(SMOOTHED_AVERAGE, 5);
-  // distFront.begin(SMOOTHED_EXPONENTIAL, 10);
+  distFront.begin(SMOOTHED_AVERAGE, smoothNumReadings);
+  // distFront.begin(SMOOTHED_EXPONENTIAL, smoothNumReadings);
 
-  distBack.begin(SMOOTHED_AVERAGE, 5);
-  // distBack.begin(SMOOTHED_EXPONENTIAL, 10);
+  distBack.begin(SMOOTHED_AVERAGE, smoothNumReadings);
+  // distBack.begin(SMOOTHED_EXPONENTIAL, smoothNumReadings);  this->peopleCounterInitialized = true;
 
 
   this->peopleCounterInitialized = true;

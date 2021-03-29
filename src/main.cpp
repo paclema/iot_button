@@ -471,8 +471,8 @@ void setup() {
     ws.addObjectToPublish("mqtt_state", mqttState);
     ws.addObjectToPublish("mqtt_buffer_size", mqttBufferSize);
     ws.addObjectToPublish("dist_zone_1", getZone1);
-    ws.addObjectToPublish("dist_smoothed_zone_1", getZoneSmoothed1);
     ws.addObjectToPublish("dist_zone_2", getZone2);
+    ws.addObjectToPublish("dist_smoothed_zone_1", getZoneSmoothed1);
     ws.addObjectToPublish("dist_smoothed_zone_2", getZoneSmoothed2);
     ws.addObjectToPublish("status_front", getStatusFront);
     ws.addObjectToPublish("status_back", getStatusBack);
