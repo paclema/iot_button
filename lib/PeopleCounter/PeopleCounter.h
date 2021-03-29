@@ -71,7 +71,7 @@ public:
   void setupDistSensors(void);
   void loop(void);
 
-  void notifyChange(PeopleCounterGesture);
+  void notifyGesture(PeopleCounterGesture);
   void notifyStatusPerson();
   void setMQTTClient(PubSubClient *client){ mqttClient = client; }
 

@@ -1,7 +1,7 @@
 {
   "network": {
-    "AP_SSID": "iotdevice",
-    "AP_password": "iotdevice",
+    "AP_SSID": "iotdoor",
+    "AP_password": "iotdoor",
     "AP_channel": 6,
     "AP_SSID_hidden": false,
     "AP_max_connection": 4,
@@ -13,11 +13,10 @@
     "hostname": "iotdoor"
   },
   "mqtt": {
-    "enabled": false,
-    "reconnect_mqtt": false,
-    "server": "broker.ddns.net",
+    "enabled": true,
+    "reconnect_mqtt": true,
     "port": 1883,
-    "id_name": "iot-button",
+    "id_name": "iot-door",
     "enable_user_and_pass": true,
     "user_name": "user_name",
     "user_password": "user_password",
@@ -43,7 +42,7 @@
     },
     "WebSockets": {
       "enabled": true,
-      "publish_time_ms": 100
+      "publish_time_ms": 50
     },
     "deep_sleep": {
       "enabled": false,
@@ -69,7 +68,7 @@
   "device": {
     "track_restart_counter": true,
     "loop_time_ms": 20,
-    "publish_time_ms":100
+    "publish_time_ms":30000
   },
   "PeopleCounter": {
     "vl53l1x": {
@@ -90,7 +89,7 @@
       "zones" : 4
     },
     "debug": true,
-    "person_threshold_mm": 1200
+    "person_threshold_mm": 800
 
   },
   "info": {
