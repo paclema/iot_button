@@ -89,10 +89,10 @@ void PeopleCounter::loop(void){
   if (statusPersonLast != statusPersonNow){
     if (statusPersonIndex == 0){
       currentGesture = PERSON_IN_RANGE_START;
-      PeopleCounter::notifyChange(currentGesture);
+      PeopleCounter::notifyGesture(currentGesture);
     } else if (statusPersonIndex == 3){
       currentGesture = PERSON_IN_RANGE_END;
-      PeopleCounter::notifyChange(currentGesture);
+      PeopleCounter::notifyGesture(currentGesture);
     } else currentGesture = PERSON_IN_RANGE;
 
     statusPersonIndex++;
@@ -108,7 +108,7 @@ void PeopleCounter::loop(void){
       
       currentGesture = PERSON_IN_RANGE_IN_OUT;
 
-      PeopleCounter::notifyChange(currentGesture);
+      PeopleCounter::notifyGesture(currentGesture);
       statusPersonIndex = 2;
       statusPerson[3] = 0;
       statusPerson[4] = 0;
@@ -125,7 +125,7 @@ void PeopleCounter::loop(void){
 
     PeopleCounterGesture newGesture;
     int statusPersonTotal = 0;
-    for (int i=0; i<STATUS_PERSON_ARRAY_SIZE; i++){
+    for (int i=0; i<=STATUS_PERSON_ARRAY_SIZE; i++){
       statusPersonTotal += statusPerson[i];
     }
 
@@ -159,11 +159,11 @@ void PeopleCounter::loop(void){
     Serial.println();
 
     currentGesture = newGesture;
-    PeopleCounter::notifyChange(newGesture);
+    PeopleCounter::notifyGesture(newGesture);
     statusPersonIndex = 0;
     statusPersonNow = 0;
     statusPersonLast = 0;
-    for (int i=0; i<STATUS_PERSON_ARRAY_SIZE; i++){
+    for (int i=0; i<=STATUS_PERSON_ARRAY_SIZE; i++){
       statusPerson[i] = 0;
     }
   } else {
@@ -171,8 +171,8 @@ void PeopleCounter::loop(void){
   }
 
 
-  if ( sensor.distance[0] < rangeThresholdCounter_mm || sensor.distance[1] < rangeThresholdCounter_mm) { timeMark = millis(); }
-  if (millis() - timeMark < 500) {
+  // if ( sensor.distance[0] < rangeThresholdCounter_mm || sensor.distance[1] < rangeThresholdCounter_mm) { timeMark = millis(); }
+  // if (millis() - timeMark < 500) {
 
     // Serial.print("Distances: ");
     // Serial.print(sensor.distance[0]);
@@ -183,14 +183,14 @@ void PeopleCounter::loop(void){
 		// Serial.println();	
     // timeMark = millis(); 
 
-    String msgStatusPerson = "[";
-    for (int i=0; i<STATUS_PERSON_ARRAY_SIZE; i++){
-      msgStatusPerson += String(statusPerson[i]);
-      if (i != 4) msgStatusPerson += ",";
-    }
-    msgStatusPerson += "]";
-    Serial.println(" - statusPerson[5]: " + msgStatusPerson + " - currentGesture: " + currentGesture);
-  }
+  //   String msgStatusPerson = "[";
+  //   for (int i=0; i<STATUS_PERSON_ARRAY_SIZE; i++){
+  //     msgStatusPerson += String(statusPerson[i]);
+  //     if (i != 4) msgStatusPerson += ",";
+  //   }
+  //   msgStatusPerson += "]";
+  //   Serial.println(" - statusPerson[5]: " + msgStatusPerson + " - currentGesture: " + currentGesture);
+  // }
 
 
 
@@ -207,11 +207,11 @@ void PeopleCounter::printStatus(void){
 };
 
 
-void PeopleCounter::notifyChange(PeopleCounterGesture gesture){
+void PeopleCounter::notifyGesture(PeopleCounterGesture gesture){
 
   String msgGesture;
   String msgStatusPerson = "[";
-  for (int i=0; i<STATUS_PERSON_ARRAY_SIZE; i++){
+  for (int i=0; i<=STATUS_PERSON_ARRAY_SIZE; i++){
     msgStatusPerson += String(statusPerson[i]);
     if (i != 4) msgStatusPerson += ",";
   }
@@ -273,7 +273,7 @@ void PeopleCounter::notifyChange(PeopleCounterGesture gesture){
   topic_pub = "/iot-door/data";
   msg_pub = "{";
   msg_pub += "\"peopleCount\": " + String(this->cnt) + ", ";
-  msg_pub += "\"statusPerson\": " + msgStatusPerson + ", ";
+  // msg_pub += "\"statusPerson\": " + msgStatusPerson + ", ";
   msg_pub += "\"LDR\": " + String(this->LDRValue) + " }";
   mqttClient->publish(topic_pub.c_str(), msg_pub.c_str(), msg_pub.length());
 
@@ -284,9 +284,9 @@ void PeopleCounter::notifyChange(PeopleCounterGesture gesture){
 void PeopleCounter::notifyStatusPerson(){
 
   String msgStatusPerson = "[";
-  for (int i=0; i<statusPersonIndex; i++){
+  for (int i=0; i<=statusPersonIndex; i++){
     msgStatusPerson += String(statusPerson[i]);
-    if (i != (statusPersonIndex-1)) msgStatusPerson += ",";
+    if (i != (statusPersonIndex)) msgStatusPerson += ",";
   }
   msgStatusPerson += "]";
   
