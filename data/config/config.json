@@ -10,7 +10,7 @@
     "ip_address": "192.168.1.2",
     "subnet": "255.255.255.0",
     "dns_Server": "192.168.1.1",
-    "hostname": "iotdevice"
+    "hostname": "iotdoor"
   },
   "mqtt": {
     "enabled": false,
@@ -71,26 +71,8 @@
     "loop_time_ms": 20,
     "publish_time_ms":100
   },
-  "radar": {
-    "motor_1":{
-      "enabled": true,
-      "debug": true,
-      "control_pin": 0,
-      "feedback_pin": 12,
-      "angle_accuracy": 1,
-      "motor_speed_pulse": 5,
-      "servo_speed_ms/60": 600
-    },
-    "motor_2":{
-      "enabled": true,
-      "debug": true,
-      "control_pin": 2,
-      "feedback_pin": 13,
-      "angle_accuracy": 1,
-      "motor_speed_pulse": 5,
-      "servo_speed_ms/60": 600
-    },
-    "vl53l1x_1": {
+  "PeopleCounter": {
+    "vl53l1x": {
       "enabled": true,
       "debug": true,
       "time_budget_ms": 20,
@@ -103,31 +85,13 @@
         "Unknown"
       ]
     },
-    "vl53l1x_2": {
-      "enabled": true,
-      "debug": true,
-      "time_budget_ms": 20,
-      "XSHUT_pin": 14,
-      "I2c_address": 43,
-      "distance_mode_options": [
-        "Short",
-        "Medium",
-        "Long",
-        "Unknown"
-      ]
-    },
-    "HCSR04":{
-      "enabled": false,
-      "debug": false,
-      "time_budget_ms": 50
-    },
     "ROI": {
-      "enabled": false,
+      "enabled": true,
       "zones" : 4
     },
-    "angle_min": 20,
-    "angle_max": 180,
-    "debug": true
+    "debug": true,
+    "person_threshold_mm": 1200
+
   },
   "info": {
     "restart_counter": 0,

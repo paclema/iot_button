@@ -23,7 +23,7 @@ void PeopleCounter::parseWebConfig(JsonObjectConst configObject){
 
   // PeopleCounter IWebConfig object:
   this->debug = configObject["debug"] | false;
-
+  this->rangeThresholdCounter_mm = configObject["person_threshold_mm"] | 1200;
 
   // VL53L1X with ROI sensor:
   if (configObject["vl53l1x"]["enabled"]){

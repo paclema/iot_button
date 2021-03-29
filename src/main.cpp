@@ -377,7 +377,7 @@ void reconnect(void) {
   Serial.print("--- Free heap: "); Serial.println(ESP.getFreeHeap());
 
   // Add PeopleCounter object into WebConfigServer IWebCOnfig object list to parse its configurations from config.json
-  config.addConfig(&peopleCounter, "radar");
+  config.addConfig(&peopleCounter, "PeopleCounter");
 
   config.begin();
   networkRestart();
