@@ -48,6 +48,12 @@ void PeopleCounter::enablePeopleCounterServices(void){
   sensor.setType("VL53L1X_ROI");
   sensor.setup();
 
+  distFront.begin(SMOOTHED_AVERAGE, 10);
+  // distFront.begin(SMOOTHED_EXPONENTIAL, 10);
+
+  distBack.begin(SMOOTHED_AVERAGE, 10);
+  // distBack.begin(SMOOTHED_EXPONENTIAL, 10);
+
 
   this->peopleCounterInitialized = true;
 };
@@ -78,12 +84,21 @@ void PeopleCounter::loop(void){
    this->LDRValue = analogRead(A0);
 
   bool readStatus = sensor.sensorRead2Roi();
+  distFront.add(sensor.distance[0]);
+  distBack.add(sensor.distance[1]);
+
 
   // CHECK GESTURE USING ALGORITHM:
-  if (sensor.distance[0] < rangeThresholdCounter_mm) statusFront = 2;
+  // if (sensor.distance[0] < rangeThresholdCounter_mm) statusFront = 2;
+  // else statusFront = 0;
+  // if (sensor.distance[1] < rangeThresholdCounter_mm) statusBack = 1;
+  // else statusBack = 0;
+
+  if (distFront.get() < rangeThresholdCounter_mm) statusFront = 2;
   else statusFront = 0;
-  if (sensor.distance[1] < rangeThresholdCounter_mm) statusBack = 1;
+  if (distBack.get() < rangeThresholdCounter_mm) statusBack = 1;
   else statusBack = 0;
+  
 
   statusPersonNow = statusFront + statusBack;
   if (statusPersonLast != statusPersonNow){
@@ -171,7 +186,7 @@ void PeopleCounter::loop(void){
   }
 
 
-  if ( sensor.distance[0] < rangeThresholdCounter_mm || sensor.distance[1] < rangeThresholdCounter_mm) { timeMark = millis(); }
+  if ( distFront.get() < rangeThresholdCounter_mm || distBack.get() < rangeThresholdCounter_mm) { timeMark = millis(); }
   if (millis() - timeMark < 500) {
 
     // Serial.print("Distances: ");

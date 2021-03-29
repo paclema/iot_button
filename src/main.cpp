@@ -107,7 +107,9 @@ String mqttState(){ return String(mqttClient.state() );}
 String mqttBufferSize(){ return String(mqttClient.getBufferSize() );}
 String getPeopleCount(){ return String(peopleCounter.getPeopleCount());}
 String getZone1(){ return String(peopleCounter.getDistZone(0));}
+String getZoneSmoothed1(){ return String(peopleCounter.getDistZoneSmoothed(0));}
 String getZone2(){ return String(peopleCounter.getDistZone(1));}
+String getZoneSmoothed2(){ return String(peopleCounter.getDistZoneSmoothed(1));}
 String getStatusFront(){ return String(peopleCounter.getStatusFront());}
 String getStatusBack(){ return String(peopleCounter.getStatusBack());}
 String getStatusPersonNow(){ return String(peopleCounter.getStatusPersonNow());}
@@ -469,7 +471,9 @@ void setup() {
     ws.addObjectToPublish("mqtt_state", mqttState);
     ws.addObjectToPublish("mqtt_buffer_size", mqttBufferSize);
     ws.addObjectToPublish("dist_zone_1", getZone1);
+    ws.addObjectToPublish("dist_smoothed_zone_1", getZoneSmoothed1);
     ws.addObjectToPublish("dist_zone_2", getZone2);
+    ws.addObjectToPublish("dist_smoothed_zone_2", getZoneSmoothed2);
     ws.addObjectToPublish("status_front", getStatusFront);
     ws.addObjectToPublish("status_back", getStatusBack);
     ws.addObjectToPublish("status_person_now", getStatusPersonNow);
