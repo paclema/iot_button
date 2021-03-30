@@ -396,6 +396,7 @@ void reconnect(void) {
 
   // Enable PeopleCounter services:
   peopleCounter.setMQTTClient(&mqttClient);
+  peopleCounter.setMQTTBaseTopic("/" + config.mqtt.id_name);
   peopleCounter.enablePeopleCounterServices();
 
 

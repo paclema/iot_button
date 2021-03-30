@@ -253,24 +253,23 @@ void PeopleCounter::notifyGesture(PeopleCounterGesture gesture){
     break;
   }
   Serial.print(msgGesture);
-  Serial.printf(" - cnt: %d", cnt);
-  Serial.println(" - currentGesture: " + currentGesture);
-
+  Serial.printf(" - cnt: %d\n", cnt);
+  
   // Blink LED_BUILTIN once for 100ms:
   ledOn.once_ms(0, PeopleCounter::blink , true);
   ledOff.once_ms(100, PeopleCounter::blink, false);
 
   
   // Notify via MQTT:
-  String topic_pub = "/iot-door/data/PeopleCounterGesture";
+  String topic_pub = this->mqttBaseTopic + "/data/PeopleCounterGesture";
   String msg_pub = String(gesture);
   mqttClient->publish(topic_pub.c_str(), msg_pub.c_str(), msg_pub.length());
 
-  topic_pub = "/iot-door/data/PeopleCounterGesture/decoded";
+  topic_pub = this->mqttBaseTopic + "/data/PeopleCounterGesture/decoded";
   msg_pub = msgGesture;
   mqttClient->publish(topic_pub.c_str(), msg_pub.c_str(), msg_pub.length());
 
-  topic_pub = "/iot-door/data";
+  topic_pub = this->mqttBaseTopic + "/data";
   msg_pub = "{";
   msg_pub += "\"peopleCount\": " + String(this->cnt) + ", ";
   // msg_pub += "\"statusPerson\": " + msgStatusPerson + ", ";
@@ -293,7 +292,7 @@ void PeopleCounter::notifyStatusPerson(){
   Serial.println(" - statusPerson[5]: " + msgStatusPerson);
 
   // Notify via MQTT:
-  String topic_pub = "/iot-door/data/statusPerson";
+  String topic_pub = this->mqttBaseTopic + "/data/statusPerson";
   String msg_pub = "{ \"statusPerson\": " + msgStatusPerson + " }";
   mqttClient->publish(topic_pub.c_str(), msg_pub.c_str(), msg_pub.length());
 
