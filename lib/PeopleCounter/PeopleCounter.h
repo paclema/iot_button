@@ -57,6 +57,8 @@ private:
 
   int LDRValue = 0;
 
+  String mqttBaseTopic = "/";
+
 public:
 
   DistSensorVL53L1XROI sensor;
@@ -73,7 +75,8 @@ public:
 
   void notifyGesture(PeopleCounterGesture);
   void notifyStatusPerson();
-  void setMQTTClient(PubSubClient *client){ mqttClient = client; }
+  void setMQTTClient(PubSubClient *client){ this->mqttClient = client; }
+  void setMQTTBaseTopic(String topic){ this->mqttBaseTopic = topic; }
 
   void printStatus(void);
 

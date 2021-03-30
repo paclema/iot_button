@@ -15,6 +15,7 @@
   "mqtt": {
     "enabled": true,
     "reconnect_mqtt": true,
+    "server": "broker.ddns.net",
     "port": 1883,
     "id_name": "iot-door",
     "enable_user_and_pass": true,
