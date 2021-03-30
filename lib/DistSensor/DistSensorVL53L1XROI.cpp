@@ -255,8 +255,8 @@ bool DistSensorVL53L1XROI::sensorRead2Roi(void){
   // Wait to get measurement:
   
 	status = VL53L1_SetUserROI(Dev, &roiConfig1);
-	while (digitalRead(INT));	// slightly faster
-	// status = VL53L1_WaitMeasurementDataReady(Dev);
+	// while (digitalRead(INT));	// slightly faster
+	status = VL53L1_WaitMeasurementDataReady(Dev);
 	if (!status) status = VL53L1_GetRangingMeasurementData(Dev, &RangingData);	//4mS
 	VL53L1_clear_interrupt_and_enable_next_range(Dev, VL53L1_DEVICEMEASUREMENTMODE_SINGLESHOT);	//2mS
 	if (status == 0){
@@ -265,8 +265,8 @@ bool DistSensorVL53L1XROI::sensorRead2Roi(void){
   } 
 
 	status = VL53L1_SetUserROI(Dev, &roiConfig2);
-	while (digitalRead(INT));	// slightly faster
-	// status = VL53L1_WaitMeasurementDataReady(Dev);
+	// while (digitalRead(INT));	// slightly faster
+	status = VL53L1_WaitMeasurementDataReady(Dev);
 	if (!status) status = VL53L1_GetRangingMeasurementData(Dev, &RangingData);	//4mS
 	VL53L1_clear_interrupt_and_enable_next_range(Dev, VL53L1_DEVICEMEASUREMENTMODE_SINGLESHOT);	//2mS
 	if (status == 0){
