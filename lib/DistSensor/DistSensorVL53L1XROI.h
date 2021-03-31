@@ -93,11 +93,11 @@ public:
 
   // Two ROI configurations
   //NARROW:
-  // VL53L1_UserRoi_t	roiConfig1 = { 12, 15, 15, 0 };
-  // VL53L1_UserRoi_t	roiConfig2 = { 0, 15, 3, 0 };
+  VL53L1_UserRoi_t	roiConfig1 = { 12, 15, 15, 0 };
+  VL53L1_UserRoi_t	roiConfig2 = { 0, 15, 3, 0 };
   //WIDE:
-  VL53L1_UserRoi_t	roiConfig1 = { 9, 15, 15, 0 };
-  VL53L1_UserRoi_t	roiConfig2 = { 0, 15, 6, 0 };
+  // VL53L1_UserRoi_t	roiConfig1 = { 9, 15, 15, 0 };
+  // VL53L1_UserRoi_t	roiConfig2 = { 0, 15, 6, 0 };
   int distance[2] = { 0, 0 };
 
   // Four ROI configurations
