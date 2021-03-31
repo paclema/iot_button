@@ -77,13 +77,18 @@ void PeopleCounter::loop(void){
 
    this->LDRValue = analogRead(A0);
 
-  bool readStatus = sensor.sensorRead2Roi();
+  VL53L1_Error readStatus = sensor.sensorRead2Roi();
 
   // CHECK GESTURE USING ALGORITHM:
-  if (sensor.distance[0] < rangeThresholdCounter_mm) statusFront = 2;
-  else statusFront = 0;
-  if (sensor.distance[1] < rangeThresholdCounter_mm) statusBack = 1;
-  else statusBack = 0;
+  if (readStatus == VL53L1_ERROR_NONE){
+    if (sensor.distance[0] < rangeThresholdCounter_mm) statusFront = 2;
+    else statusFront = 0;
+    if (sensor.distance[1] < rangeThresholdCounter_mm) statusBack = 1;
+    else statusBack = 0;
+  } else {
+      currentGesture = ERROR_READING_SENSOR;
+      PeopleCounter::notifyGesture(currentGesture);
+  }
 
   statusPersonNow = statusFront + statusBack;
   if (statusPersonLast != statusPersonNow){
@@ -153,7 +158,7 @@ void PeopleCounter::loop(void){
       newGesture = ERROR_PERSON_TOO_FAST;
       break;
     default:
-      newGesture = PERSON_NOT_FULL_DETECTED;
+      newGesture = ERROR_PERSON_NOT_FULL_DETECTED;
       break;
     }
     Serial.println();
@@ -248,6 +253,12 @@ void PeopleCounter::notifyGesture(PeopleCounterGesture gesture){
   case ERROR_DETECTING_PERSON:
     msgGesture = "Error detecting person: " + msgStatusPerson;
     break;
+  case ERROR_PERSON_NOT_FULL_DETECTED:
+    msgGesture = "Error person nut full detected: " + msgStatusPerson;
+    break;
+  case ERROR_READING_SENSOR:
+    msgGesture = "Error reading distance sensor: " + msgStatusPerson;
+    break;
   default:
     msgGesture = "PeopleCounterGesture not implemented: " + msgStatusPerson;
     break;
@@ -269,13 +280,15 @@ void PeopleCounter::notifyGesture(PeopleCounterGesture gesture){
   msg_pub = msgGesture;
   mqttClient->publish(topic_pub.c_str(), msg_pub.c_str(), msg_pub.length());
 
-  topic_pub = this->mqttBaseTopic + "/data";
-  msg_pub = "{";
-  msg_pub += "\"peopleCount\": " + String(this->cnt) + ", ";
-  // msg_pub += "\"statusPerson\": " + msgStatusPerson + ", ";
-  msg_pub += "\"LDR\": " + String(this->LDRValue) + " }";
-  mqttClient->publish(topic_pub.c_str(), msg_pub.c_str(), msg_pub.length());
-
+  if (gesture == PERSON_ENTERS || gesture == PERSON_LEAVES){
+    topic_pub = this->mqttBaseTopic + "/data";
+    msg_pub = "{";
+    msg_pub += "\"peopleCount\": " + String(this->cnt) + ", ";
+    // msg_pub += "\"statusPerson\": " + msgStatusPerson + ", ";
+    msg_pub += "\"LDR\": " + String(this->LDRValue) + " }";
+    mqttClient->publish(topic_pub.c_str(), msg_pub.c_str(), msg_pub.length());
+  }
+  
   // PeopleCounter::notifyStatusPerson();
 }
 

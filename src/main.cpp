@@ -530,17 +530,13 @@ void loop() {
   }
 
 
-  // PeopleCounter services loop:
-  peopleCounter.loop();
-
-
-
   // Main Loop:
   if((config.device.loop_time_ms != 0 ) &&
       (currentLoopMillis - previousLoopMillis > (unsigned)config.device.loop_time_ms)) {
     // Here starts the device loop configured:
 
-
+    // PeopleCounter services loop:
+    peopleCounter.loop();
     peopleCounter.printStatus();
 
 

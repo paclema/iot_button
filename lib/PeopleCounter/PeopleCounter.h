@@ -18,19 +18,20 @@
 #define STATUS_PERSON_ARRAY_SIZE 5
 
 typedef int8_t PeopleCounterGesture;
-#define NO_PERSON_DETECTED              ((PeopleCounterGesture)   0)
-#define PERSON_ENTERS                   ((PeopleCounterGesture)   1)
-#define PERSON_LEAVES                   ((PeopleCounterGesture)   2)
-#define PERSON_TRY_TO_ENTER             ((PeopleCounterGesture)   3)
-#define PERSON_TRY_TO_LEAVE             ((PeopleCounterGesture)   4)
-#define PERSON_IN_RANGE                 ((PeopleCounterGesture)   5)
-#define PERSON_IN_RANGE_START           ((PeopleCounterGesture)   6)
-#define PERSON_IN_RANGE_END             ((PeopleCounterGesture)   7)
-#define PERSON_IN_RANGE_IN_OUT          ((PeopleCounterGesture)   8)
+#define NO_PERSON_DETECTED                ((PeopleCounterGesture)   0)
+#define PERSON_ENTERS                     ((PeopleCounterGesture)   1)
+#define PERSON_LEAVES                     ((PeopleCounterGesture)   2)
+#define PERSON_TRY_TO_ENTER               ((PeopleCounterGesture)   3)
+#define PERSON_TRY_TO_LEAVE               ((PeopleCounterGesture)   4)
+#define PERSON_IN_RANGE                   ((PeopleCounterGesture)   5)
+#define PERSON_IN_RANGE_START             ((PeopleCounterGesture)   6)
+#define PERSON_IN_RANGE_END               ((PeopleCounterGesture)   7)
+#define PERSON_IN_RANGE_IN_OUT            ((PeopleCounterGesture)   8)
 
-#define ERROR_PERSON_TOO_FAST           ((PeopleCounterGesture)  -1)
-#define ERROR_DETECTING_PERSON          ((PeopleCounterGesture)  -2)
-#define PERSON_NOT_FULL_DETECTED        ((PeopleCounterGesture)  -3)
+#define ERROR_PERSON_TOO_FAST             ((PeopleCounterGesture)  -1)
+#define ERROR_DETECTING_PERSON            ((PeopleCounterGesture)  -2)
+#define ERROR_PERSON_NOT_FULL_DETECTED    ((PeopleCounterGesture)  -3)
+#define ERROR_READING_SENSOR              ((PeopleCounterGesture)  -4)
 
 
 
