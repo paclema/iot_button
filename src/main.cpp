@@ -154,12 +154,18 @@ void networkRestart(void){
       wifiMulti.addAP(config.network.ssid_name.c_str(),config.network.ssid_password.c_str());
 
       Serial.print("Connecting to ");Serial.println(config.network.ssid_name);
-      while (wifiMulti.run() != WL_CONNECTED) {
+      int retries = 0;
+      int maxRetries = 20;
+      while ((wifiMulti.run() != WL_CONNECTED)) {
         delay(200);
+        retries++;
         Serial.print('.');
+        if (retries >= maxRetries) break;
       }
-      Serial.print("\n\nConnected to ");Serial.print(WiFi.SSID());
-      Serial.print("\nIP address:\t");Serial.println(WiFi.localIP());
+      if (retries < maxRetries) {
+        Serial.print("\n\nConnected to ");Serial.print(WiFi.SSID());
+        Serial.print("\nIP address:\t");Serial.println(WiFi.localIP());
+      } else {Serial.print("\n\nNot Connected to ");Serial.print(config.network.ssid_name);Serial.println(" max retries reached.");}
     }
 
     // Configure device hostname:

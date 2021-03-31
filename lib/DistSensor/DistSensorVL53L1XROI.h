@@ -127,7 +127,7 @@ public:
   int calibrate(int CalDistanceMilliMeter);
   void disableSensor(void);
   bool sensorRead(float *distance);
-  bool sensorRead2Roi(void);
+  VL53L1_Error sensorRead2Roi(void);
   String getSensorRange(void);
   void printSensorStatus(void);
 

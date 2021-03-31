@@ -9,7 +9,7 @@ float originY = 0;
 float maxDistance = 1200;
 float angleSensorFOV = 27/2;
 
-boolean shadowFOV = true;
+boolean shadowFOV = false;
 
 
 int angle, dist;
@@ -190,7 +190,7 @@ void drawLine(int angle, int dist) {
 
     strokeWeight(9);
     stroke(0,255,0);
-    translate(width/2,height-height*0.06);
+    translate(originX, originY);
 
    line(0,0,(width/2)*cos(radians(angle)),(-width/2)*sin(radians(angle)));
 
@@ -230,7 +230,7 @@ void drawObject(int angle, int dist) {
 
     strokeWeight(9);
     stroke(255,0,0);
-    translate(width/2,height-height*0.06);
+    translate(originX, originY);
 
     float pixleDist = (dist/40.0)*(width/2.0);                        // covers the distance from the sensor from cm to pixels
     float pd=(width/2)-pixleDist;

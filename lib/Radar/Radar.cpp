@@ -162,7 +162,7 @@ void Radar::enableRadarServices(void){
   } else Serial.println("   - Motor 2 -> disabled");
   this->motor2.setup();
   // this->motor2.rotate((this->angleMax + this->angleMin)/2, 4);
-  this->motor2.rotate(this->angleMin, 4);
+  this->motor2.rotate((this->angleMin + 180), 4);
 
   // Distance sensors:
   Radar::disableDistSensors();
@@ -267,11 +267,11 @@ void Radar::loop(void){
       this->motor2.enableServo();
 
       // Move here accordingly:
-      if(this->motor2.getAngle() >= this->angleMax){
-        this->motor2.rotate(this->angleMin, 4);
+      if(this->motor2.getAngle() >= (this->angleMax + 180)){
+        this->motor2.rotate((this->angleMin + 180), 4);
       }
-      else if(this->motor2.getAngle() <= this->angleMin){
-        this->motor2.rotate(this->angleMax, 4);
+      else if(this->motor2.getAngle() <= (this->angleMin + 180)){
+        this->motor2.rotate((this->angleMax + 180), 4);
       }
     }
     else this->motor2.disableServo();

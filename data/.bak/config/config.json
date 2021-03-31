@@ -126,7 +126,7 @@
       "zones" : 4
     },
     "angle_min": 20,
-    "angle_max": 180,
+    "angle_max": 150,
     "debug": true
   },
   "info": {
