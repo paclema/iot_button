@@ -216,9 +216,9 @@ void PeopleCounter::notifyGesture(PeopleCounterGesture gesture){
 
   String msgGesture;
   String msgStatusPerson = "[";
-  for (int i=0; i<=STATUS_PERSON_ARRAY_SIZE; i++){
+  for (int i=0; i<=statusPersonIndex; i++){
     msgStatusPerson += String(statusPerson[i]);
-    if (i != 4) msgStatusPerson += ",";
+    if (i != (statusPersonIndex)) msgStatusPerson += ",";
   }
   msgStatusPerson += "]";
   
@@ -254,7 +254,7 @@ void PeopleCounter::notifyGesture(PeopleCounterGesture gesture){
     msgGesture = "Error detecting person: " + msgStatusPerson;
     break;
   case ERROR_PERSON_NOT_FULL_DETECTED:
-    msgGesture = "Error person nut full detected: " + msgStatusPerson;
+    msgGesture = "Error person not full detected: " + msgStatusPerson;
     break;
   case ERROR_READING_SENSOR:
     msgGesture = "Error reading distance sensor: " + msgStatusPerson;
