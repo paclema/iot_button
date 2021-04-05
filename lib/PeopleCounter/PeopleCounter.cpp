@@ -4,6 +4,10 @@
 
 PeopleCounter::PeopleCounter(void) {
   this->nameConfigObject = "PeopleCounter";
+
+  this->pixels.updateType(NEO_GRB + NEO_KHZ800);
+  this->pixels.updateLength(1);
+  this->pixels.setPin(D3);
 };
 
 
@@ -44,9 +48,26 @@ void PeopleCounter::enablePeopleCounterServices(void){
   Serial.println("--- PeopleCounter: ");
   Serial.printf("   - Debug: %s\n", this->debug ? "true" : "false");
 
+  // Distance sensor vl53l1x:
   sensor.setName("vl53l1x");
   sensor.setType("VL53L1X_ROI");
   sensor.setup();
+  
+  // WS2812B led:
+  pixels.begin(); // INITIALIZE NeoPixel strip object (REQUIRED)
+  pixels.clear(); // Set all pixel colors to 'off'
+  for(int i=0; i<1; i++) { // For each pixel...
+
+  // pixels.Color() takes RGB values, from 0,0,0 up to 255,255,255
+  // Here we're using a moderately bright green color:
+  pixels.setPixelColor(i, pixels.Color(255, 255, 255));
+
+  pixels.show();   // Send the updated pixel colors to the hardware.
+
+  // delay(DELAYVAL); // Pause before next pass through loop
+}
+
+
 
 
   this->peopleCounterInitialized = true;
@@ -248,7 +269,7 @@ void PeopleCounter::notifyGesture(PeopleCounterGesture gesture){
     msgGesture = "Person in and out under ranging";
     break;
   case ERROR_PERSON_TOO_FAST:
-    msgGesture = "Error person moved to fast: " + msgStatusPerson;
+    msgGesture = "Error person moved too fast: " + msgStatusPerson;
     break;
   case ERROR_DETECTING_PERSON:
     msgGesture = "Error detecting person: " + msgStatusPerson;

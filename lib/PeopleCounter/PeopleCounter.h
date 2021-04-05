@@ -14,6 +14,10 @@
 #include "IWebConfig.h"
 #include "DistSensorVL53L1XROI.h"
 
+#include <Adafruit_NeoPixel.h>
+#define LED_PIN    12
+#define LED_COUNT 1
+
 
 #define STATUS_PERSON_ARRAY_SIZE 5
 
@@ -59,6 +63,10 @@ private:
   int LDRValue = 0;
 
   String mqttBaseTopic = "/";
+
+  Adafruit_NeoPixel pixels;    // Pin D6 or GPIO12
+  // Adafruit_NeoPixel pixels(LED_COUNT, LED_PIN, NEO_GRB + NEO_KHZ800);    // Pin D6 or GPIO12
+
 
 public:
 
