@@ -28,6 +28,7 @@ class Radar: public IWebConfig {
 private:
   float angleMin = 0;
   float angleMax = 0;
+  float angleMotorsOffset = 180;
 
   bool debug = false;
   bool radarInitialized  = false;

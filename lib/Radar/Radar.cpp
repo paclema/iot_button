@@ -23,6 +23,7 @@ void Radar::parseWebConfig(JsonObjectConst configObject){
   this->debug = configObject["debug"] | false;
   this->angleMin = configObject["angle_min"];
   this->angleMax = configObject["angle_max"];
+  this->angleMotorsOffset = configObject["angle_motors_offset"];
 
   // Radar motor1:
   String nameMotor = "motor_1";
@@ -162,7 +163,7 @@ void Radar::enableRadarServices(void){
   } else Serial.println("   - Motor 2 -> disabled");
   this->motor2.setup();
   // this->motor2.rotate((this->angleMax + this->angleMin)/2, 4);
-  this->motor2.rotate((this->angleMin + 180), 4);
+  this->motor2.rotate((this->angleMin), 4);
 
   // Distance sensors:
   Radar::disableDistSensors();
@@ -267,11 +268,11 @@ void Radar::loop(void){
       this->motor2.enableServo();
 
       // Move here accordingly:
-      if(this->motor2.getAngle() >= (this->angleMax + 180)){
-        this->motor2.rotate((this->angleMin + 180), 4);
+      if(this->motor2.getAngle() >= (this->angleMax)){
+        this->motor2.rotate((this->angleMin), 4);
       }
-      else if(this->motor2.getAngle() <= (this->angleMin + 180)){
-        this->motor2.rotate((this->angleMax + 180), 4);
+      else if(this->motor2.getAngle() <= (this->angleMin)){
+        this->motor2.rotate((this->angleMax), 4);
       }
     }
     else this->motor2.disableServo();
@@ -355,7 +356,7 @@ bool Radar::readPoints(void){
         rPoints[index].fov_angle = 27;
         index++;
       } else if (nameSensor ==  "vl53l1x_2"){
-        rPoints[index].angle = this->motor2.getAngle();
+        rPoints[index].angle = this->motor2.getAngle() + this->angleMotorsOffset;
         rPoints[index].distance = distance[0];
         rPoints[index].fov_angle = 27;
         index++;

@@ -127,6 +127,7 @@
     },
     "angle_min": 20,
     "angle_max": 150,
+    "angle_motors_offset": 180,
     "debug": true
   },
   "info": {
