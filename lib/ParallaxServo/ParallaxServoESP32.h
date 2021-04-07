@@ -58,6 +58,7 @@ class ParallaxServoESP32 {
     bool enabled;
     float angleAccuracy = 0;
     float servoSpeed = 0;
+    float angleOffset = 0;
 
     ParallaxServoESP32();
     ParallaxServoESP32(byte pinControl, byte pinFeedback);

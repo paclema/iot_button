@@ -79,7 +79,8 @@
       "feedback_pin": 12,
       "angle_accuracy": 1,
       "motor_speed_pulse": 5,
-      "servo_speed_ms/60": 600
+      "servo_speed_ms/60": 600,
+      "angle_offset": 0
     },
     "motor_2":{
       "enabled": true,
@@ -88,7 +89,8 @@
       "feedback_pin": 13,
       "angle_accuracy": 1,
       "motor_speed_pulse": 5,
-      "servo_speed_ms/60": 600
+      "servo_speed_ms/60": 600,
+      "angle_offset": 180
     },
     "vl53l1x_1": {
       "enabled": true,
@@ -127,7 +129,6 @@
     },
     "angle_min": 20,
     "angle_max": 150,
-    "angle_motors_offset": 180,
     "debug": true
   },
   "info": {

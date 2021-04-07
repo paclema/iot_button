@@ -23,7 +23,6 @@ void Radar::parseWebConfig(JsonObjectConst configObject){
   this->debug = configObject["debug"] | false;
   this->angleMin = configObject["angle_min"];
   this->angleMax = configObject["angle_max"];
-  this->angleMotorsOffset = configObject["angle_motors_offset"];
 
   // Radar motor1:
   String nameMotor = "motor_1";
@@ -33,6 +32,7 @@ void Radar::parseWebConfig(JsonObjectConst configObject){
   this->motor1.setSpeedPulse(configObject[nameMotor]["motor_speed_pulse"]);
   this->motor1.angleAccuracy = configObject[nameMotor]["angle_accuracy"];
   this->motor1.servoSpeed = float(configObject[nameMotor]["servo_speed_ms/60"])/60;
+  this->motor1.angleOffset = float(configObject[nameMotor]["angle_offset"]);
   this->motor1.setDebug(configObject[nameMotor]["debug"] | false);
 
   // Radar motor1:
@@ -42,7 +42,7 @@ void Radar::parseWebConfig(JsonObjectConst configObject){
   this->motor2.setServoFeedback(configObject[nameMotor]["feedback_pin"]);
   this->motor2.setSpeedPulse(configObject[nameMotor]["motor_speed_pulse"]);
   this->motor2.angleAccuracy = configObject[nameMotor]["angle_accuracy"];
-  this->motor2.servoSpeed = float(configObject[nameMotor]["servo_speed_ms/60"])/60;
+  this->motor2.angleOffset = float(configObject[nameMotor]["angle_offset"]);
   this->motor2.setDebug(configObject[nameMotor]["debug"] | false);
 
 
@@ -343,7 +343,7 @@ bool Radar::readPoints(void){
       if (nameSensor == "VL53L1X_ROI") {
         // rPoints[index].fov_angle = sensorTemp->getFovAngle();
         int numPoints = 4;  //TODO: get the num depending on ROI zones
-        float angle = this->motor1.getAngle();
+        float angle = this->motor1.getAngle() + this->motor1.angleOffset;
         for(int j = 0; j < numPoints; j++){
           rPoints[index+j].angle = angle-(27./2) + (27./8) + (27./4)*(j);
           rPoints[index+j].distance = distance[j];
@@ -351,22 +351,22 @@ bool Radar::readPoints(void){
         }
         index = index + 4;
       } else if (nameSensor ==  "vl53l1x_1"){
-        rPoints[index].angle = this->motor1.getAngle();
+        rPoints[index].angle = this->motor1.getAngle() + this->motor1.angleOffset;
         rPoints[index].distance = distance[0];
         rPoints[index].fov_angle = 27;
         index++;
       } else if (nameSensor ==  "vl53l1x_2"){
-        rPoints[index].angle = this->motor2.getAngle() + this->angleMotorsOffset;
+        rPoints[index].angle = this->motor2.getAngle() + this->motor2.angleOffset;
         rPoints[index].distance = distance[0];
         rPoints[index].fov_angle = 27;
         index++;
       } else if (nameSensor == "VL53L0X"){
-        rPoints[index].angle = this->motor1.getAngle();
+        rPoints[index].angle = this->motor1.getAngle() + this->motor1.angleOffset;
         rPoints[index].distance = distance[0];
         rPoints[index].fov_angle = 27;
         index++;
       } else if (nameSensor == "HCSR04"){
-        rPoints[index].angle = this->motor1.getAngle();
+        rPoints[index].angle = this->motor1.getAngle() + this->motor1.angleOffset;
         rPoints[index].distance = distance[0];
         rPoints[index].fov_angle = 27;
         index++;
