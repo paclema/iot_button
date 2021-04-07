@@ -4,10 +4,6 @@
 
 PeopleCounter::PeopleCounter(void) {
   this->nameConfigObject = "PeopleCounter";
-
-  this->pixels.updateType(NEO_GRB + NEO_KHZ800);
-  this->pixels.updateLength(1);
-  this->pixels.setPin(D3);
 };
 
 
@@ -28,6 +24,12 @@ void PeopleCounter::parseWebConfig(JsonObjectConst configObject){
   // PeopleCounter IWebConfig object:
   this->debug = configObject["debug"] | false;
   this->rangeThresholdCounter_mm = configObject["person_threshold_mm"] | 1200;
+  this->ledEnabled = configObject["LED_strip"]["enabled"] | false;
+  this->ledPin = configObject["LED_strip"]["pin"];
+  this->ledCount = configObject["LED_strip"]["count"];
+  this->ledBrightness = configObject["LED_strip"]["brightness"];
+  // this->ledType = configObject["LED_strip"]["type"];
+
 
   // VL53L1X with ROI sensor:
   if (configObject["vl53l1x"]["enabled"]){
@@ -48,27 +50,17 @@ void PeopleCounter::enablePeopleCounterServices(void){
   Serial.println("--- PeopleCounter: ");
   Serial.printf("   - Debug: %s\n", this->debug ? "true" : "false");
 
+  // LED strip WS2812B led:
+  Serial.printf("   - LED strip: %s\n", this->debug ? "true" : "false");
+  Serial.printf("       - Enabled: %s\n", this->ledEnabled ? "true" : "false");
+  Serial.printf("       - Brightness: %d\n", this->ledBrightness);
+
+  if (this->ledEnabled) PeopleCounter::setupLEDStrip();
   // Distance sensor vl53l1x:
   sensor.setName("vl53l1x");
   sensor.setType("VL53L1X_ROI");
   sensor.setup();
   
-  // WS2812B led:
-  pixels.begin(); // INITIALIZE NeoPixel strip object (REQUIRED)
-  pixels.clear(); // Set all pixel colors to 'off'
-  for(int i=0; i<1; i++) { // For each pixel...
-
-  // pixels.Color() takes RGB values, from 0,0,0 up to 255,255,255
-  // Here we're using a moderately bright green color:
-  pixels.setPixelColor(i, pixels.Color(255, 255, 255));
-
-  pixels.show();   // Send the updated pixel colors to the hardware.
-
-  // delay(DELAYVAL); // Pause before next pass through loop
-}
-
-
-
 
   this->peopleCounterInitialized = true;
 };
@@ -92,6 +84,26 @@ void PeopleCounter::disableDistSensors(void){
 
 void PeopleCounter::setupDistSensors(void){
 
+};
+
+void PeopleCounter::setupLEDStrip(void){
+  this->pixels.updateType(this->ledType);
+  this->pixels.updateLength(this->ledCount);
+  this->pixels.setPin(this->ledPin);
+
+  this->pixels.begin();
+  this->pixels.clear();
+  PeopleCounter::setLEDStripColor(255,255,255);
+};
+
+void PeopleCounter::setLEDStripColor(uint8_t r, uint8_t g, uint8_t b){
+  // this->pixels.clear();
+  for(int i=0; i<this->ledCount; i++) { 
+    // pixels.Color() takes RGB values, from 0,0,0 up to 255,255,255
+    Serial.printf("Pixel %d changed with %d brightness\n", i, this->ledBrightness );
+    this->pixels.setPixelColor(i, this->pixels.Color(r, g, b, this->ledBrightness));
+    this->pixels.show();
+  }
 };
 
 void PeopleCounter::loop(void){

@@ -64,8 +64,14 @@ private:
 
   String mqttBaseTopic = "/";
 
+  // LED strip WS2812B :
   Adafruit_NeoPixel pixels;    // Pin D6 or GPIO12
   // Adafruit_NeoPixel pixels(LED_COUNT, LED_PIN, NEO_GRB + NEO_KHZ800);    // Pin D6 or GPIO12
+  bool ledEnabled = false;
+  uint16_t ledCount = 1;
+  uint16_t ledPin = D3;
+  uint8_t ledBrightness = 255;  // 0-255
+  neoPixelType ledType = NEO_GRB + NEO_KHZ800;
 
 
 public:
@@ -80,6 +86,8 @@ public:
   void enablePeopleCounterServices(void);
   void disableDistSensors(void);
   void setupDistSensors(void);
+  void setupLEDStrip(void);
+  void setLEDStripColor(uint8_t r, uint8_t g, uint8_t b);
   void loop(void);
 
   void notifyGesture(PeopleCounterGesture);

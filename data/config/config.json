@@ -89,6 +89,12 @@
       "enabled": true,
       "zones" : 4
     },
+    "LED_strip" : {
+      "enabled": true,
+      "pin": 0,
+      "count": 1,
+      "brightness": 255
+    },
     "debug": true,
     "person_threshold_mm": 800
 
