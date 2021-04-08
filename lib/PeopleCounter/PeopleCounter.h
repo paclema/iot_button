@@ -15,8 +15,6 @@
 #include "DistSensorVL53L1XROI.h"
 
 #include <Adafruit_NeoPixel.h>
-#define LED_PIN    12
-#define LED_COUNT 1
 
 
 #define STATUS_PERSON_ARRAY_SIZE 5
