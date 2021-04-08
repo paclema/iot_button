@@ -72,6 +72,7 @@ private:
   uint16_t ledPin = D3;
   uint8_t ledBrightness = 255;  // 0-255
   neoPixelType ledType = NEO_GRB + NEO_KHZ800;
+  uint32_t ledDefaultColor = pixels.Color(255,255,255);
 
 
 public:
@@ -87,6 +88,7 @@ public:
   void disableDistSensors(void);
   void setupDistSensors(void);
   void setupLEDStrip(void);
+  void setLEDStripColor(uint32_t c);
   void setLEDStripColor(uint8_t r, uint8_t g, uint8_t b);
   void loop(void);
 
