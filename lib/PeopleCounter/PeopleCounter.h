@@ -14,6 +14,10 @@
 #include "IWebConfig.h"
 #include "DistSensorVL53L1XROI.h"
 
+#include <Adafruit_NeoPixel.h>
+#define LED_PIN    12
+#define LED_COUNT 1
+
 
 #define STATUS_PERSON_ARRAY_SIZE 5
 
@@ -60,6 +64,17 @@ private:
 
   String mqttBaseTopic = "/";
 
+  // LED strip WS2812B :
+  Adafruit_NeoPixel pixels;    // Pin D6 or GPIO12
+  // Adafruit_NeoPixel pixels(LED_COUNT, LED_PIN, NEO_GRB + NEO_KHZ800);    // Pin D6 or GPIO12
+  bool ledEnabled = false;
+  uint16_t ledCount = 1;
+  uint16_t ledPin = D3;
+  uint8_t ledBrightness = 255;  // 0-255
+  neoPixelType ledType = NEO_GRB + NEO_KHZ800;
+  uint32_t ledDefaultColor = pixels.Color(255,255,255);
+
+
 public:
 
   DistSensorVL53L1XROI sensor;
@@ -72,6 +87,9 @@ public:
   void enablePeopleCounterServices(void);
   void disableDistSensors(void);
   void setupDistSensors(void);
+  void setupLEDStrip(void);
+  void setLEDStripColor(uint32_t c);
+  void setLEDStripColor(uint8_t r, uint8_t g, uint8_t b);
   void loop(void);
 
   void notifyGesture(PeopleCounterGesture);

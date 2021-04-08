@@ -24,6 +24,12 @@ void PeopleCounter::parseWebConfig(JsonObjectConst configObject){
   // PeopleCounter IWebConfig object:
   this->debug = configObject["debug"] | false;
   this->rangeThresholdCounter_mm = configObject["person_threshold_mm"] | 1200;
+  this->ledEnabled = configObject["LED_strip"]["enabled"] | false;
+  this->ledPin = configObject["LED_strip"]["pin"];
+  this->ledCount = configObject["LED_strip"]["count"];
+  this->ledBrightness = configObject["LED_strip"]["brightness"];
+  // this->ledType = configObject["LED_strip"]["type"];
+
 
   // VL53L1X with ROI sensor:
   if (configObject["vl53l1x"]["enabled"]){
@@ -44,10 +50,20 @@ void PeopleCounter::enablePeopleCounterServices(void){
   Serial.println("--- PeopleCounter: ");
   Serial.printf("   - Debug: %s\n", this->debug ? "true" : "false");
 
+
+  // LED strip WS2812B led:
+  PeopleCounter::setupLEDStrip();
+  Serial.printf("   - LED strip: %s\n", this->debug ? "true" : "false");
+  Serial.printf("       - Enabled: %s\n", this->ledEnabled ? "true" : "false");
+  Serial.printf("       - Brightness: %d\n", this->ledBrightness);
+  Serial.printf("       - Default color: %d\n", this->ledDefaultColor);
+
+
+  // Distance sensor vl53l1x:
   sensor.setName("vl53l1x");
   sensor.setType("VL53L1X_ROI");
   sensor.setup();
-
+  
 
   this->peopleCounterInitialized = true;
 };
@@ -73,9 +89,40 @@ void PeopleCounter::setupDistSensors(void){
 
 };
 
+void PeopleCounter::setupLEDStrip(void){
+  this->pixels.updateType(this->ledType);
+  this->pixels.updateLength(this->ledCount);
+  this->pixels.setPin(this->ledPin);
+
+  this->pixels.begin();
+  this->pixels.clear();
+  PeopleCounter::setLEDStripColor(this->ledDefaultColor);
+
+};
+
+void PeopleCounter::setLEDStripColor(uint32_t c){
+  // uint32_t c is a color of type pixels.Color(r,g,b) also can be 0xFF0000 for red and 0xFFFFFF for white
+  // this->pixels.clear();
+  for(int i=0; i<this->ledCount; i++) { 
+    this->pixels.setPixelColor(i,c);
+    pixels.setBrightness(this->ledBrightness);
+    this->pixels.show();
+  }
+};
+
+void PeopleCounter::setLEDStripColor(uint8_t r, uint8_t g, uint8_t b){
+  PeopleCounter::setLEDStripColor(this->pixels.Color(r,g,b));
+};
+
 void PeopleCounter::loop(void){
 
-   this->LDRValue = analogRead(A0);
+  this->LDRValue = analogRead(A0);
+
+  if (!this->ledEnabled) {
+    // this->pixels.clear();
+    this->pixels.setBrightness(0);
+    this->pixels.show();
+  }
 
   VL53L1_Error readStatus = sensor.sensorRead2Roi();
 
@@ -98,7 +145,10 @@ void PeopleCounter::loop(void){
     } else if (statusPersonIndex == 3){
       currentGesture = PERSON_IN_RANGE_END;
       PeopleCounter::notifyGesture(currentGesture);
-    } else currentGesture = PERSON_IN_RANGE;
+    } else { 
+      currentGesture = PERSON_IN_RANGE;
+      PeopleCounter::notifyGesture(currentGesture);
+    }
 
     statusPersonIndex++;
     statusPerson[statusPersonIndex] = statusPersonNow;
@@ -225,42 +275,55 @@ void PeopleCounter::notifyGesture(PeopleCounterGesture gesture){
   switch (gesture){
   case PERSON_ENTERS:
     msgGesture = "Person enters";
+    PeopleCounter::setLEDStripColor(this->ledDefaultColor);;
     break;
   case PERSON_LEAVES:
     msgGesture = "Person leaves";
+    PeopleCounter::setLEDStripColor(this->ledDefaultColor);
     break;
   case PERSON_TRY_TO_ENTER:
     msgGesture = "Person try to enter";
+    PeopleCounter::setLEDStripColor(200,200,255);
     break;
   case PERSON_TRY_TO_LEAVE:
     msgGesture = "Person try to leave";
+    PeopleCounter::setLEDStripColor(200,200,255);
     break;
   case PERSON_IN_RANGE:
     msgGesture = "Person under ranging";
+    PeopleCounter::setLEDStripColor(0,0,255);
     break;
   case PERSON_IN_RANGE_START:
     msgGesture = "Person under ranging starts";
+    PeopleCounter::setLEDStripColor(255,255,0);
     break;
   case PERSON_IN_RANGE_END:
     msgGesture = "Person under ranging ends";
+    PeopleCounter::setLEDStripColor(255,255,0);
     break;
   case PERSON_IN_RANGE_IN_OUT:
     msgGesture = "Person in and out under ranging";
+    PeopleCounter::setLEDStripColor(255,255,0);
     break;
   case ERROR_PERSON_TOO_FAST:
-    msgGesture = "Error person moved to fast: " + msgStatusPerson;
+    msgGesture = "Error person moved too fast: " + msgStatusPerson;
+    PeopleCounter::setLEDStripColor(255,0,0);
     break;
   case ERROR_DETECTING_PERSON:
     msgGesture = "Error detecting person: " + msgStatusPerson;
+    PeopleCounter::setLEDStripColor(255,0,0);
     break;
   case ERROR_PERSON_NOT_FULL_DETECTED:
     msgGesture = "Error person not full detected: " + msgStatusPerson;
+    PeopleCounter::setLEDStripColor(255,0,0);
     break;
   case ERROR_READING_SENSOR:
     msgGesture = "Error reading distance sensor: " + msgStatusPerson;
+    PeopleCounter::setLEDStripColor(255,0,0);
     break;
   default:
     msgGesture = "PeopleCounterGesture not implemented: " + msgStatusPerson;
+    PeopleCounter::setLEDStripColor(255,0,0);
     break;
   }
   Serial.print(msgGesture);
