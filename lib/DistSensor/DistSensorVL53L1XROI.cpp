@@ -267,27 +267,40 @@ VL53L1_Error DistSensorVL53L1XROI::sensorRead2Roi(void){
   static VL53L1_RangingMeasurementData_t RangingData;
   int newDistance[2] = { 0, 0 };
 
-  // Wait to get measurement:
+  //MODE:  Waiting to get measurement:
+  //---------------------------------
   
-	status = VL53L1_SetUserROI(Dev, &roiConfig1);
-	// while (digitalRead(INT));	// slightly faster
-	status = VL53L1_WaitMeasurementDataReady(Dev);
-	if (!status) status = VL53L1_GetRangingMeasurementData(Dev, &RangingData);	//4mS
-	VL53L1_clear_interrupt_and_enable_next_range(Dev, VL53L1_DEVICEMEASUREMENTMODE_SINGLESHOT);	//2mS
-	if (status == VL53L1_ERROR_NONE){
-    newDistance[0] = RangingData.RangeMilliMeter;
-    // newDistance[0] = (RangingData.RangeMilliMeter/10)*10;
-  } 
-
-	status = VL53L1_SetUserROI(Dev, &roiConfig2);
-	// while (digitalRead(INT));	// slightly faster
-	status = VL53L1_WaitMeasurementDataReady(Dev);
-	if (!status) status = VL53L1_GetRangingMeasurementData(Dev, &RangingData);	//4mS
-	VL53L1_clear_interrupt_and_enable_next_range(Dev, VL53L1_DEVICEMEASUREMENTMODE_SINGLESHOT);	//2mS
-	if (status == VL53L1_ERROR_NONE){
-    newDistance[1] = RangingData.RangeMilliMeter;
-    // newDistance[1] = (RangingData.RangeMilliMeter/10)*10;
+  for (unsigned int i = 0; i < this->zones; i++){
+    status = VL53L1_SetUserROI(Dev, &roiZones[i]);
+    // while (digitalRead(INT));	// slightly faster
+    status = VL53L1_WaitMeasurementDataReady(Dev);
+    if (!status) status = VL53L1_GetRangingMeasurementData(Dev, &RangingData);	//4mS
+    VL53L1_clear_interrupt_and_enable_next_range(Dev, VL53L1_DEVICEMEASUREMENTMODE_SINGLESHOT);	//2mS
+    if (status == VL53L1_ERROR_NONE){
+      newDistance[i] = RangingData.RangeMilliMeter;
+      // newDistance[i] = (RangingData.RangeMilliMeter/10)*10;
+    } 
   }
+
+	// status = VL53L1_SetUserROI(Dev, &roiConfig1);
+	// // while (digitalRead(INT));	// slightly faster
+	// status = VL53L1_WaitMeasurementDataReady(Dev);
+	// if (!status) status = VL53L1_GetRangingMeasurementData(Dev, &RangingData);	//4mS
+	// VL53L1_clear_interrupt_and_enable_next_range(Dev, VL53L1_DEVICEMEASUREMENTMODE_SINGLESHOT);	//2mS
+	// if (status == VL53L1_ERROR_NONE){
+  //   newDistance[0] = RangingData.RangeMilliMeter;
+  //   // newDistance[0] = (RangingData.RangeMilliMeter/10)*10;
+  // } 
+
+	// status = VL53L1_SetUserROI(Dev, &roiConfig2);
+	// // while (digitalRead(INT));	// slightly faster
+	// status = VL53L1_WaitMeasurementDataReady(Dev);
+	// if (!status) status = VL53L1_GetRangingMeasurementData(Dev, &RangingData);	//4mS
+	// VL53L1_clear_interrupt_and_enable_next_range(Dev, VL53L1_DEVICEMEASUREMENTMODE_SINGLESHOT);	//2mS
+	// if (status == VL53L1_ERROR_NONE){
+  //   newDistance[1] = RangingData.RangeMilliMeter;
+  //   // newDistance[1] = (RangingData.RangeMilliMeter/10)*10;
+  // }
 
   if (status == VL53L1_ERROR_NONE){
     this->distance[0] = newDistance[0];
@@ -296,7 +309,8 @@ VL53L1_Error DistSensorVL53L1XROI::sensorRead2Roi(void){
   
   
 
-  // Get Measurement if it´s ready:
+  //MODE: Get Measurement if it´s ready:
+  //-----------------------------------
   /*
   uint8_t isReady;
 
@@ -315,8 +329,6 @@ VL53L1_Error DistSensorVL53L1XROI::sensorRead2Roi(void){
     // else Serial.printf("\t\t NOT READY. sensor 000000 --- STATUS: %d\n", status);
 
   }
-
-
 
 	status = VL53L1_SetUserROI(Dev, &roiConfig2);
   status = VL53L1_GetMeasurementDataReady(Dev, &isReady);
@@ -337,7 +349,8 @@ VL53L1_Error DistSensorVL53L1XROI::sensorRead2Roi(void){
 
 
 
-  // Get one measurement:
+  // MODE: Get one measurement:
+  //--------------------------
   /*
   uint8_t isReady;
 
