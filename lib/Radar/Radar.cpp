@@ -48,7 +48,7 @@ void Radar::parseWebConfig(JsonObjectConst configObject){
 
   // HCSR04 sensor:
   if (configObject["HCSR04"]["enabled"]){
-    // if (this->debug) Serial.println("\tHCSR04 must be created");
+    if (this->debug) Serial.println("\tHCSR04 must be created");
 
     DistSensor *distanceSensor = getDistanceSensor("HCSR04", "HCSR04");
     distanceSensor->setEnable(configObject["HCSR04"]["enabled"] | false);
@@ -62,8 +62,8 @@ void Radar::parseWebConfig(JsonObjectConst configObject){
 
   // VL53L1X sensor:
   String nameSensor = "vl53l1x_1";
-  if (configObject[nameSensor]["enabled"]){
-    // if (this->debug) Serial.println("\tvl53l1x must be created");
+  if (configObject[nameSensor]["enabled"] && !configObject["ROI"]["enabled"]){
+    if (this->debug) Serial.println("\t " + nameSensor +" must be created\n");
 
     // As VL53L1X with or whithout use different libraries, we have to remove
     // the VL53L1X_ROI object if it was created and create a VL53L1X one:
@@ -75,7 +75,7 @@ void Radar::parseWebConfig(JsonObjectConst configObject){
     distanceSensor->setTimeBudget(configObject[nameSensor]["time_budget_ms"]);
 
   } else {
-    // if (this->debug) Serial.println("\tvl53l1x must be removed");
+    if (this->debug) Serial.println("\t " + nameSensor +" must be removed\n");
     removeDistanceSensor(nameSensor);
 
   }
@@ -85,7 +85,7 @@ void Radar::parseWebConfig(JsonObjectConst configObject){
   // Serial.print("\tCONFIGURING: ");
   // serializeJsonPretty(configObject[nameSensor], Serial);
   if (configObject[nameSensor]["enabled"]){
-    // if (this->debug) Serial.println("\tvl53l1x must be created");
+    if (this->debug) Serial.println("\t " + nameSensor +" must be created\n");
 
     // As VL53L1X with or whithout use different libraries, we have to remove
     // the VL53L1X_ROI object if it was created and create a VL53L1X one:
@@ -97,27 +97,28 @@ void Radar::parseWebConfig(JsonObjectConst configObject){
     distanceSensor->setTimeBudget(configObject[nameSensor]["time_budget_ms"]);
 
   } else {
-    // if (this->debug) Serial.println("\tvl53l1x must be removed");
+    if (this->debug) Serial.println("\t " + nameSensor +" must be removed\n");
     removeDistanceSensor(nameSensor);
 
   }
 
 
   // VL53L1X with ROI sensor:
+  nameSensor = "VL53L1X_ROI";
   if (configObject["ROI"]["enabled"]){
-    // if (this->debug) Serial.println("\tROI must be created");
+    if (this->debug) Serial.println("\t " + nameSensor +" must be created\n");
 
     // As VL53L1X with or whithout use different libraries, we have to remove
     // the VL53L1X object if it was created and create a VL53L1X_ROI one:
     removeDistanceSensor("vl53l1x_1");
-    DistSensor *distanceSensor = getDistanceSensor("VL53L1X_ROI", "VL53L1X_ROI");
+    DistSensor *distanceSensor = getDistanceSensor(nameSensor, "VL53L1X_ROI");
 
     distanceSensor->setEnable(configObject["ROI"]["enabled"] | false);
     distanceSensor->setDebug(configObject["vl53l1x_1"]["debug"] | false);
     distanceSensor->setTimeBudget(configObject["vl53l1x_1"]["time_budget_ms"]);
 
   } else {
-    // if (this->debug) Serial.println("\tROI must be removed");
+    if (this->debug) Serial.println("\t " + nameSensor +" must be removed\n");
     removeDistanceSensor("VL53L1X_ROI");
 
   }
@@ -259,7 +260,7 @@ void Radar::loop(void){
     }
     else this->motor1.disableServo();
   } else {
-    if (debug) Serial.println("Motor 1 not powered on or feedback not available!");
+    if (this->motor1.isDebug()) Serial.println("Motor 1 not powered on or feedback not available!");
   }
 
   // MOTOR 2
@@ -277,7 +278,7 @@ void Radar::loop(void){
     }
     else this->motor2.disableServo();
   } else {
-    if (debug) Serial.println("Motor 2 not powered on or feedback not available!");
+    if (this->motor2.isDebug()) Serial.println("Motor 2 not powered on or feedback not available!");
   }
 
 
@@ -438,8 +439,10 @@ void Radar::removeDistanceSensor(String name){
   if (sensorId != -1){
     // This sensor is in distanceSensors list
     // distanceSensorTemp = this->distanceSensors.remove(sensorId);
-    this->distanceSensors.remove(sensorId);
+    distanceSensorTemp = distanceSensors.get(sensorId);
+    // this->distanceSensors.remove(sensorId);
     delete distanceSensorTemp;
     distanceSensorTemp = NULL;
+    this->distanceSensors.remove(sensorId);
   }
 };
