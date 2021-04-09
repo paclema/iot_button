@@ -51,7 +51,7 @@ void DistSensorVL53L1XROI::setup(void){
 	delay(1000);
 
   Serial.printf("Configured roiZones[]: \n");
-  for (int i = 1; i < this->zones; i++){
+  for (int i = 0; i < this->zones; i++){
   // for (int i = 0; i < 4; i++){
     Serial.printf("\t-- roiZones[%d]:\n", i);
     Serial.printf("\t\t -TopLeftX: %d\n", roiZones[i].TopLeftX);
