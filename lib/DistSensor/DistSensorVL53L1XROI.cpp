@@ -7,7 +7,12 @@ DistSensorVL53L1XROI::DistSensorVL53L1XROI(void) {
 
 
 DistSensorVL53L1XROI::~DistSensorVL53L1XROI(void) {
-  if (this->debug) Serial.println("\t\tDestroying DistSensorVL53L1XROI");
+  status = VL53L1_stop_range(Dev);
+  if (this->debug){
+  Serial.println("\t\tDestroying DistSensorVL53L1XROI");
+  Serial.print("\t\tStopping current range: ");
+  Serial.println(status);
+  }
 };
 
 
@@ -45,6 +50,15 @@ void DistSensorVL53L1XROI::setup(void){
 	checkDev(Dev);
 	delay(1000);
 
+  Serial.printf("Configured roiZones[]: \n");
+  for (int i = 1; i < this->zones; i++){
+  // for (int i = 0; i < 4; i++){
+    Serial.printf("\t-- roiZones[%d]:\n", i);
+    Serial.printf("\t\t -TopLeftX: %d\n", roiZones[i].TopLeftX);
+    Serial.printf("\t\t -TopLeftY: %d\n", roiZones[i].TopLeftY);
+    Serial.printf("\t\t -BotRightX: %d\n", roiZones[i].BotRightX);
+    Serial.printf("\t\t -BotRightY: %d\n", roiZones[i].BotRightY);
+  }
 
 	status += VL53L1_WaitDeviceBooted(Dev);
 	status += VL53L1_DataInit(Dev);
@@ -87,7 +101,7 @@ void DistSensorVL53L1XROI::setup(void){
 }
 
 
-int DistSensorVL53L1XROI::calibrate(int32_t CalDistanceMilliMeter){
+VL53L1_Error DistSensorVL53L1XROI::calibrate(int32_t CalDistanceMilliMeter){
   // Use and object at this distance:
   // int32_t CalDistanceMilliMeter = 200;
   int delayTime = 0;
@@ -253,26 +267,40 @@ VL53L1_Error DistSensorVL53L1XROI::sensorRead2Roi(void){
   static VL53L1_RangingMeasurementData_t RangingData;
   int newDistance[2] = { 0, 0 };
 
-  // Wait to get measurement:
-	status = VL53L1_SetUserROI(Dev, &roiConfig1);
-	// while (digitalRead(INT));	// slightly faster
-	status = VL53L1_WaitMeasurementDataReady(Dev);
-	if (!status) status = VL53L1_GetRangingMeasurementData(Dev, &RangingData);	//4mS
-	VL53L1_clear_interrupt_and_enable_next_range(Dev, VL53L1_DEVICEMEASUREMENTMODE_SINGLESHOT);	//2mS
-	if (status == VL53L1_ERROR_NONE){
-    newDistance[0] = RangingData.RangeMilliMeter;
-    // newDistance[0] = (RangingData.RangeMilliMeter/10)*10;
-  } 
-
-	status = VL53L1_SetUserROI(Dev, &roiConfig2);
-	// while (digitalRead(INT));	// slightly faster
-	status = VL53L1_WaitMeasurementDataReady(Dev);
-	if (!status) status = VL53L1_GetRangingMeasurementData(Dev, &RangingData);	//4mS
-	VL53L1_clear_interrupt_and_enable_next_range(Dev, VL53L1_DEVICEMEASUREMENTMODE_SINGLESHOT);	//2mS
-	if (status == VL53L1_ERROR_NONE){
-    newDistance[1] = RangingData.RangeMilliMeter;
-    // newDistance[1] = (RangingData.RangeMilliMeter/10)*10;
+  //MODE:  Waiting to get measurement:
+  //---------------------------------
+  
+  for (unsigned int i = 0; i < this->zones; i++){
+    status = VL53L1_SetUserROI(Dev, &roiZones[i]);
+    // while (digitalRead(INT));	// slightly faster
+    status = VL53L1_WaitMeasurementDataReady(Dev);
+    if (!status) status = VL53L1_GetRangingMeasurementData(Dev, &RangingData);	//4mS
+    VL53L1_clear_interrupt_and_enable_next_range(Dev, VL53L1_DEVICEMEASUREMENTMODE_SINGLESHOT);	//2mS
+    if (status == VL53L1_ERROR_NONE){
+      newDistance[i] = RangingData.RangeMilliMeter;
+      // newDistance[i] = (RangingData.RangeMilliMeter/10)*10;
+    } 
   }
+
+	// status = VL53L1_SetUserROI(Dev, &roiConfig1);
+	// // while (digitalRead(INT));	// slightly faster
+	// status = VL53L1_WaitMeasurementDataReady(Dev);
+	// if (!status) status = VL53L1_GetRangingMeasurementData(Dev, &RangingData);	//4mS
+	// VL53L1_clear_interrupt_and_enable_next_range(Dev, VL53L1_DEVICEMEASUREMENTMODE_SINGLESHOT);	//2mS
+	// if (status == VL53L1_ERROR_NONE){
+  //   newDistance[0] = RangingData.RangeMilliMeter;
+  //   // newDistance[0] = (RangingData.RangeMilliMeter/10)*10;
+  // } 
+
+	// status = VL53L1_SetUserROI(Dev, &roiConfig2);
+	// // while (digitalRead(INT));	// slightly faster
+	// status = VL53L1_WaitMeasurementDataReady(Dev);
+	// if (!status) status = VL53L1_GetRangingMeasurementData(Dev, &RangingData);	//4mS
+	// VL53L1_clear_interrupt_and_enable_next_range(Dev, VL53L1_DEVICEMEASUREMENTMODE_SINGLESHOT);	//2mS
+	// if (status == VL53L1_ERROR_NONE){
+  //   newDistance[1] = RangingData.RangeMilliMeter;
+  //   // newDistance[1] = (RangingData.RangeMilliMeter/10)*10;
+  // }
 
   if (status == VL53L1_ERROR_NONE){
     this->distance[0] = newDistance[0];
@@ -281,7 +309,8 @@ VL53L1_Error DistSensorVL53L1XROI::sensorRead2Roi(void){
   
   
 
-  // Get Measurement if it´s ready:
+  //MODE: Get Measurement if it´s ready:
+  //-----------------------------------
   /*
   uint8_t isReady;
 
@@ -300,8 +329,6 @@ VL53L1_Error DistSensorVL53L1XROI::sensorRead2Roi(void){
     // else Serial.printf("\t\t NOT READY. sensor 000000 --- STATUS: %d\n", status);
 
   }
-
-
 
 	status = VL53L1_SetUserROI(Dev, &roiConfig2);
   status = VL53L1_GetMeasurementDataReady(Dev, &isReady);
@@ -322,7 +349,8 @@ VL53L1_Error DistSensorVL53L1XROI::sensorRead2Roi(void){
 
 
 
-  // Get one measurement:
+  // MODE: Get one measurement:
+  //--------------------------
   /*
   uint8_t isReady;
 
@@ -385,4 +413,24 @@ void DistSensorVL53L1XROI::parseWebConfig(JsonObjectConst configObject){
   // }
   this->zones = configObject["ROI"]["zones"];
 
+  // Parse each zone into roiZones[] configs depending on the number of zones selected:
+  for (unsigned int i = 0; i < this->zones; i++){
+    char zoneName[20];
+    sprintf(zoneName, "zone_%d",i+1);
+    Serial.printf("Parsing zone object: %s\n", zoneName);
+    this->roiZones[i].TopLeftX = configObject["ROI"][zoneName][0].as<uint8_t>();
+    this->roiZones[i].TopLeftY = configObject["ROI"][zoneName][1].as<uint8_t>();
+    this->roiZones[i].BotRightX = configObject["ROI"][zoneName][2].as<uint8_t>();
+    this->roiZones[i].BotRightY = configObject["ROI"][zoneName][3].as<uint8_t>();
+  }
+
+  Serial.printf("Configured roiZones[]: \n");
+  for (int i = 0; i < this->zones; i++){
+  // for (int i = 0; i < 4; i++){
+    Serial.printf("\t-- roiZones[%d]:\n", i);
+    Serial.printf("\t\t -TopLeftX: %d\n", roiZones[i].TopLeftX);
+    Serial.printf("\t\t -TopLeftY: %d\n", roiZones[i].TopLeftY);
+    Serial.printf("\t\t -BotRightX: %d\n", roiZones[i].BotRightX);
+    Serial.printf("\t\t -BotRightY: %d\n", roiZones[i].BotRightY);
+  }
 }

@@ -23,9 +23,10 @@ void ParallaxServo::setup() {
   if (debug){
     Serial.print("\tcontrolPin: ");
     Serial.print(this->controlPin);
-    Serial.print("\t");
-    Serial.print(" feedbackPin: ");
-    Serial.println(this->feedbackPin);
+    Serial.print("\tfeedbackPin: ");
+    Serial.print(this->feedbackPin);
+    Serial.print("\tangleOffset: ");
+    Serial.println(this->angleOffset);
   }
   setServoControl(this->controlPin);
   setServoFeedback(this->feedbackPin);

@@ -95,9 +95,8 @@ public:
   //NARROW:
   VL53L1_UserRoi_t	roiConfig1 = { 12, 15, 15, 0 };
   VL53L1_UserRoi_t	roiConfig2 = { 0, 15, 3, 0 };
-  //WIDE:
-  // VL53L1_UserRoi_t	roiConfig1 = { 9, 15, 15, 0 };
-  // VL53L1_UserRoi_t	roiConfig2 = { 0, 15, 6, 0 };
+  VL53L1_UserRoi_t	roiZones[4];  // By sensor constrains, 4 zones max.
+  
   int distance[2] = { 0, 0 };
 
   // Four ROI configurations
@@ -124,7 +123,7 @@ public:
   ~DistSensorVL53L1XROI();
 
   void setup(void);
-  int calibrate(int CalDistanceMilliMeter);
+  VL53L1_Error calibrate(int32_t CalDistanceMilliMeter);
   void disableSensor(void);
   bool sensorRead(float *distance);
   VL53L1_Error sensorRead2Roi(void);

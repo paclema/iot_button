@@ -32,6 +32,7 @@ void Radar::parseWebConfig(JsonObjectConst configObject){
   this->motor1.setSpeedPulse(configObject[nameMotor]["motor_speed_pulse"]);
   this->motor1.angleAccuracy = configObject[nameMotor]["angle_accuracy"];
   this->motor1.servoSpeed = float(configObject[nameMotor]["servo_speed_ms/60"])/60;
+  this->motor1.angleOffset = float(configObject[nameMotor]["angle_offset"]);
   this->motor1.setDebug(configObject[nameMotor]["debug"] | false);
 
   // Radar motor1:
@@ -41,13 +42,13 @@ void Radar::parseWebConfig(JsonObjectConst configObject){
   this->motor2.setServoFeedback(configObject[nameMotor]["feedback_pin"]);
   this->motor2.setSpeedPulse(configObject[nameMotor]["motor_speed_pulse"]);
   this->motor2.angleAccuracy = configObject[nameMotor]["angle_accuracy"];
-  this->motor2.servoSpeed = float(configObject[nameMotor]["servo_speed_ms/60"])/60;
+  this->motor2.angleOffset = float(configObject[nameMotor]["angle_offset"]);
   this->motor2.setDebug(configObject[nameMotor]["debug"] | false);
 
 
   // HCSR04 sensor:
   if (configObject["HCSR04"]["enabled"]){
-    // if (this->debug) Serial.println("\tHCSR04 must be created");
+    if (this->debug) Serial.println("\tHCSR04 must be created");
 
     DistSensor *distanceSensor = getDistanceSensor("HCSR04", "HCSR04");
     distanceSensor->setEnable(configObject["HCSR04"]["enabled"] | false);
@@ -61,8 +62,8 @@ void Radar::parseWebConfig(JsonObjectConst configObject){
 
   // VL53L1X sensor:
   String nameSensor = "vl53l1x_1";
-  if (configObject[nameSensor]["enabled"]){
-    // if (this->debug) Serial.println("\tvl53l1x must be created");
+  if (configObject[nameSensor]["enabled"] && !configObject["ROI"]["enabled"]){
+    if (this->debug) Serial.println("\t " + nameSensor +" must be created\n");
 
     // As VL53L1X with or whithout use different libraries, we have to remove
     // the VL53L1X_ROI object if it was created and create a VL53L1X one:
@@ -74,7 +75,7 @@ void Radar::parseWebConfig(JsonObjectConst configObject){
     distanceSensor->setTimeBudget(configObject[nameSensor]["time_budget_ms"]);
 
   } else {
-    // if (this->debug) Serial.println("\tvl53l1x must be removed");
+    if (this->debug) Serial.println("\t " + nameSensor +" must be removed\n");
     removeDistanceSensor(nameSensor);
 
   }
@@ -84,7 +85,7 @@ void Radar::parseWebConfig(JsonObjectConst configObject){
   // Serial.print("\tCONFIGURING: ");
   // serializeJsonPretty(configObject[nameSensor], Serial);
   if (configObject[nameSensor]["enabled"]){
-    // if (this->debug) Serial.println("\tvl53l1x must be created");
+    if (this->debug) Serial.println("\t " + nameSensor +" must be created\n");
 
     // As VL53L1X with or whithout use different libraries, we have to remove
     // the VL53L1X_ROI object if it was created and create a VL53L1X one:
@@ -96,27 +97,28 @@ void Radar::parseWebConfig(JsonObjectConst configObject){
     distanceSensor->setTimeBudget(configObject[nameSensor]["time_budget_ms"]);
 
   } else {
-    // if (this->debug) Serial.println("\tvl53l1x must be removed");
+    if (this->debug) Serial.println("\t " + nameSensor +" must be removed\n");
     removeDistanceSensor(nameSensor);
 
   }
 
 
   // VL53L1X with ROI sensor:
+  nameSensor = "VL53L1X_ROI";
   if (configObject["ROI"]["enabled"]){
-    // if (this->debug) Serial.println("\tROI must be created");
+    if (this->debug) Serial.println("\t " + nameSensor +" must be created\n");
 
     // As VL53L1X with or whithout use different libraries, we have to remove
     // the VL53L1X object if it was created and create a VL53L1X_ROI one:
     removeDistanceSensor("vl53l1x_1");
-    DistSensor *distanceSensor = getDistanceSensor("VL53L1X_ROI", "VL53L1X_ROI");
+    DistSensor *distanceSensor = getDistanceSensor(nameSensor, "VL53L1X_ROI");
 
     distanceSensor->setEnable(configObject["ROI"]["enabled"] | false);
     distanceSensor->setDebug(configObject["vl53l1x_1"]["debug"] | false);
     distanceSensor->setTimeBudget(configObject["vl53l1x_1"]["time_budget_ms"]);
 
   } else {
-    // if (this->debug) Serial.println("\tROI must be removed");
+    if (this->debug) Serial.println("\t " + nameSensor +" must be removed\n");
     removeDistanceSensor("VL53L1X_ROI");
 
   }
@@ -162,7 +164,7 @@ void Radar::enableRadarServices(void){
   } else Serial.println("   - Motor 2 -> disabled");
   this->motor2.setup();
   // this->motor2.rotate((this->angleMax + this->angleMin)/2, 4);
-  this->motor2.rotate((this->angleMin + 180), 4);
+  this->motor2.rotate((this->angleMin), 4);
 
   // Distance sensors:
   Radar::disableDistSensors();
@@ -258,7 +260,7 @@ void Radar::loop(void){
     }
     else this->motor1.disableServo();
   } else {
-    if (debug) Serial.println("Motor 1 not powered on or feedback not available!");
+    if (this->motor1.isDebug()) Serial.println("Motor 1 not powered on or feedback not available!");
   }
 
   // MOTOR 2
@@ -267,16 +269,16 @@ void Radar::loop(void){
       this->motor2.enableServo();
 
       // Move here accordingly:
-      if(this->motor2.getAngle() >= (this->angleMax + 180)){
-        this->motor2.rotate((this->angleMin + 180), 4);
+      if(this->motor2.getAngle() >= (this->angleMax)){
+        this->motor2.rotate((this->angleMin), 4);
       }
-      else if(this->motor2.getAngle() <= (this->angleMin + 180)){
-        this->motor2.rotate((this->angleMax + 180), 4);
+      else if(this->motor2.getAngle() <= (this->angleMin)){
+        this->motor2.rotate((this->angleMax), 4);
       }
     }
     else this->motor2.disableServo();
   } else {
-    if (debug) Serial.println("Motor 2 not powered on or feedback not available!");
+    if (this->motor2.isDebug()) Serial.println("Motor 2 not powered on or feedback not available!");
   }
 
 
@@ -342,7 +344,7 @@ bool Radar::readPoints(void){
       if (nameSensor == "VL53L1X_ROI") {
         // rPoints[index].fov_angle = sensorTemp->getFovAngle();
         int numPoints = 4;  //TODO: get the num depending on ROI zones
-        float angle = this->motor1.getAngle();
+        float angle = this->motor1.getAngle() + this->motor1.angleOffset;
         for(int j = 0; j < numPoints; j++){
           rPoints[index+j].angle = angle-(27./2) + (27./8) + (27./4)*(j);
           rPoints[index+j].distance = distance[j];
@@ -350,22 +352,22 @@ bool Radar::readPoints(void){
         }
         index = index + 4;
       } else if (nameSensor ==  "vl53l1x_1"){
-        rPoints[index].angle = this->motor1.getAngle();
+        rPoints[index].angle = this->motor1.getAngle() + this->motor1.angleOffset;
         rPoints[index].distance = distance[0];
         rPoints[index].fov_angle = 27;
         index++;
       } else if (nameSensor ==  "vl53l1x_2"){
-        rPoints[index].angle = this->motor2.getAngle();
+        rPoints[index].angle = this->motor2.getAngle() + this->motor2.angleOffset;
         rPoints[index].distance = distance[0];
         rPoints[index].fov_angle = 27;
         index++;
       } else if (nameSensor == "VL53L0X"){
-        rPoints[index].angle = this->motor1.getAngle();
+        rPoints[index].angle = this->motor1.getAngle() + this->motor1.angleOffset;
         rPoints[index].distance = distance[0];
         rPoints[index].fov_angle = 27;
         index++;
       } else if (nameSensor == "HCSR04"){
-        rPoints[index].angle = this->motor1.getAngle();
+        rPoints[index].angle = this->motor1.getAngle() + this->motor1.angleOffset;
         rPoints[index].distance = distance[0];
         rPoints[index].fov_angle = 27;
         index++;
@@ -437,8 +439,10 @@ void Radar::removeDistanceSensor(String name){
   if (sensorId != -1){
     // This sensor is in distanceSensors list
     // distanceSensorTemp = this->distanceSensors.remove(sensorId);
-    this->distanceSensors.remove(sensorId);
+    distanceSensorTemp = distanceSensors.get(sensorId);
+    // this->distanceSensors.remove(sensorId);
     delete distanceSensorTemp;
     distanceSensorTemp = NULL;
+    this->distanceSensors.remove(sensorId);
   }
 };

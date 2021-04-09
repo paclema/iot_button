@@ -8,6 +8,7 @@ DistSensorVL53L1X::DistSensorVL53L1X(void) {
 
 
 DistSensorVL53L1X::~DistSensorVL53L1X(void) {
+  sensor.stopContinuous();
   if (this->debug) Serial.println("\t\tDestroying DistSensorVL53L1X");
 };
 

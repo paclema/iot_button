@@ -87,7 +87,9 @@
     },
     "ROI": {
       "enabled": true,
-      "zones" : 4
+      "zones": 2,
+      "zone_1": [ 12, 15, 15, 0],
+      "zone_2": [ 0, 15, 3, 0]
     },
     "LED_strip" : {
       "enabled": true,
