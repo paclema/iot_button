@@ -30,6 +30,12 @@ void PeopleCounter::parseWebConfig(JsonObjectConst configObject){
   this->ledBrightness = configObject["LED_strip"]["brightness"];
   // this->ledType = configObject["LED_strip"]["type"];
 
+  if (!this->ledEnabled) {
+  // this->pixels.clear();
+  this->pixels.setBrightness(0);
+  this->pixels.show();
+}
+
 
   // VL53L1X with ROI sensor:
   if (configObject["vl53l1x"]["enabled"]){
@@ -102,27 +108,23 @@ void PeopleCounter::setupLEDStrip(void){
 
 void PeopleCounter::setLEDStripColor(uint32_t c){
   // uint32_t c is a color of type pixels.Color(r,g,b) also can be 0xFF0000 for red and 0xFFFFFF for white
-  // this->pixels.clear();
-  for(int i=0; i<this->ledCount; i++) { 
-    this->pixels.setPixelColor(i,c);
-    pixels.setBrightness(this->ledBrightness);
-    this->pixels.show();
+  if (this->ledEnabled){
+    // this->pixels.clear();
+    for(int i=0; i<this->ledCount; i++) { 
+      this->pixels.setPixelColor(i,c);
+      pixels.setBrightness(this->ledBrightness);
+      this->pixels.show();
+    }
   }
 };
 
 void PeopleCounter::setLEDStripColor(uint8_t r, uint8_t g, uint8_t b){
-  PeopleCounter::setLEDStripColor(this->pixels.Color(r,g,b));
+  if (this->ledEnabled) PeopleCounter::setLEDStripColor(this->pixels.Color(r,g,b));
 };
 
 void PeopleCounter::loop(void){
 
   this->LDRValue = analogRead(A0);
-
-  if (!this->ledEnabled) {
-    // this->pixels.clear();
-    this->pixels.setBrightness(0);
-    this->pixels.show();
-  }
 
   VL53L1_Error readStatus = sensor.sensorRead2Roi();
 
