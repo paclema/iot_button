@@ -58,11 +58,17 @@ private:
   PubSubClient *mqttClient;
   Ticker ledOn, ledOff;
 
-  int LDRValue = 0;
 
   String mqttBaseTopic = "/";
 
-  // LED strip WS2812B :
+
+  // LDR sensor:
+  bool LDREnabled = false;
+  uint16_t LDRPin = A0;
+  int LDRValue = 0;
+
+
+  // LED strip WS2812B:
   Adafruit_NeoPixel pixels;    // Pin D6 or GPIO12
   // Adafruit_NeoPixel pixels(LED_COUNT, LED_PIN, NEO_GRB + NEO_KHZ800);    // Pin D6 or GPIO12
   bool ledEnabled = false;
@@ -73,6 +79,14 @@ private:
   uint32_t ledDefaultColor = pixels.Color(255,255,255);
 
 
+  // Reed switch:
+  bool reedSwitchEnabled = false;
+  uint16_t reedSwitchPin = D1;
+  bool reedSwitchState = false;
+  bool reedSwitchStateLast = false;
+
+
+
 public:
 
   DistSensorVL53L1XROI sensor;
@@ -81,17 +95,24 @@ public:
   PeopleCounter(String name);
 
   void parseWebConfig(JsonObjectConst configObject);
-
+  
   void enablePeopleCounterServices(void);
   void disableDistSensors(void);
+
   void setupDistSensors(void);
   void setupLEDStrip(void);
+  void setupReedSwitch(void);
+
   void setLEDStripColor(uint32_t c);
   void setLEDStripColor(uint8_t r, uint8_t g, uint8_t b);
+  void updateReedSwitch(void);
+
   void loop(void);
 
   void notifyGesture(PeopleCounterGesture);
-  void notifyStatusPerson();
+  void notifyStatusPerson(void);
+  void notifyData(void);
+  
   void setMQTTClient(PubSubClient *client){ this->mqttClient = client; }
   void setMQTTBaseTopic(String topic){ this->mqttBaseTopic = topic; }
 
@@ -104,7 +125,6 @@ public:
   String getStatusPersonNow(){ return String(statusPersonNow); };
   String getCurrentGesture(){ return String(currentGesture); };
   String getLDR(void){ return String(LDRValue); };
-
 
   void setDebug(bool d){ this->debug = d; };
   bool isDebug(void){ return this->debug; };

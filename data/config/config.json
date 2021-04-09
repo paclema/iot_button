@@ -88,18 +88,25 @@
     "ROI": {
       "enabled": true,
       "zones": 2,
-      "zone_1": [ 12, 15, 15, 0],
-      "zone_2": [ 0, 15, 3, 0]
+      "zone_1": [ 0, 15, 3, 0],
+      "zone_2": [ 12, 15, 15, 0]
     },
     "LED_strip" : {
       "enabled": true,
-      "pin": 13,
+      "pin": 0,
       "count": 1,
-      "brightness": 255
+      "brightness": 10
+    },
+    "LDR" : {
+      "enabled": true,
+      "pin": 0
+    },
+    "reed_swtich" : {
+      "enabled": true,
+      "pin": 12
     },
     "debug": true,
     "person_threshold_mm": 800
-
   },
   "info": {
     "restart_counter": 0,

@@ -23,7 +23,20 @@ void PeopleCounter::parseWebConfig(JsonObjectConst configObject){
 
   // PeopleCounter IWebConfig object:
   this->debug = configObject["debug"] | false;
-  this->rangeThresholdCounter_mm = configObject["person_threshold_mm"] | 1200;
+  this->rangeThresholdCounter_mm = configObject["person_threshold_mm"] | 800;
+
+
+  // LDR sensor:
+  this->LDREnabled = configObject["LDR"]["enabled"] | false;
+  this->LDRPin = configObject["LDR"]["pin"];
+
+
+  // Reed switch:
+  this->reedSwitchEnabled = configObject["reed_swtich"]["enabled"] | false;
+  this->reedSwitchPin = configObject["reed_swtich"]["pin"];
+
+
+  // LED strip WS2812B:
   this->ledEnabled = configObject["LED_strip"]["enabled"] | false;
   this->ledPin = configObject["LED_strip"]["pin"];
   this->ledCount = configObject["LED_strip"]["count"];
@@ -35,7 +48,6 @@ void PeopleCounter::parseWebConfig(JsonObjectConst configObject){
   this->pixels.setBrightness(0);
   this->pixels.show();
 }
-
 
   // VL53L1X with ROI sensor:
   if (configObject["vl53l1x"]["enabled"]){
@@ -57,7 +69,21 @@ void PeopleCounter::enablePeopleCounterServices(void){
   Serial.printf("   - Debug: %s\n", this->debug ? "true" : "false");
 
 
-  // LED strip WS2812B led:
+  // LDR sensor:
+  PeopleCounter::setupLEDStrip();
+  Serial.printf("   - LDR sensor:\n");
+  Serial.printf("       - Enabled: %s\n", this->LDREnabled ? "true" : "false");
+  Serial.printf("       - Pin: %d\n", this->LDRPin);
+
+
+  // Reed switch:
+  PeopleCounter::setupReedSwitch();
+  Serial.printf("   - Reed Switch:\n");
+  Serial.printf("       - Enabled: %s\n", this->reedSwitchEnabled ? "true" : "false");
+  Serial.printf("       - Pin: %d\n", this->reedSwitchPin);
+
+
+  // LED strip WS2812B:
   PeopleCounter::setupLEDStrip();
   Serial.printf("   - LED strip:\n");
   Serial.printf("       - Enabled: %s\n", this->ledEnabled ? "true" : "false");
@@ -107,6 +133,12 @@ void PeopleCounter::setupLEDStrip(void){
 
 };
 
+void PeopleCounter::setupReedSwitch(void){
+  pinMode(this->reedSwitchPin, INPUT_PULLUP);
+  this->reedSwitchState = digitalRead(this->reedSwitchPin);
+  this->reedSwitchStateLast = this->reedSwitchState;
+};
+
 void PeopleCounter::setLEDStripColor(uint32_t c){
   // uint32_t c is a color of type pixels.Color(r,g,b) also can be 0xFF0000 for red and 0xFFFFFF for white
   if (this->ledEnabled){
@@ -123,9 +155,19 @@ void PeopleCounter::setLEDStripColor(uint8_t r, uint8_t g, uint8_t b){
   if (this->ledEnabled) PeopleCounter::setLEDStripColor(this->pixels.Color(r,g,b));
 };
 
+void PeopleCounter::updateReedSwitch(void){
+  reedSwitchState = digitalRead(reedSwitchPin);
+
+  if (reedSwitchStateLast!=reedSwitchState){
+    reedSwitchStateLast = reedSwitchState;
+    PeopleCounter::notifyData();
+  }
+};
+
 void PeopleCounter::loop(void){
 
-  this->LDRValue = analogRead(A0);
+  if (this->LDREnabled) this->LDRValue = analogRead(this->LDRPin);
+  if (this->reedSwitchEnabled) PeopleCounter::updateReedSwitch();
 
   VL53L1_Error readStatus = sensor.sensorRead2Roi();
 
@@ -346,14 +388,7 @@ void PeopleCounter::notifyGesture(PeopleCounterGesture gesture){
   msg_pub = msgGesture;
   mqttClient->publish(topic_pub.c_str(), msg_pub.c_str(), msg_pub.length());
 
-  if (gesture == PERSON_ENTERS || gesture == PERSON_LEAVES){
-    topic_pub = this->mqttBaseTopic + "/data";
-    msg_pub = "{";
-    msg_pub += "\"peopleCount\": " + String(this->cnt) + ", ";
-    // msg_pub += "\"statusPerson\": " + msgStatusPerson + ", ";
-    msg_pub += "\"LDR\": " + String(this->LDRValue) + " }";
-    mqttClient->publish(topic_pub.c_str(), msg_pub.c_str(), msg_pub.length());
-  }
+  if (gesture == PERSON_ENTERS || gesture == PERSON_LEAVES) PeopleCounter::notifyData();
   
   // PeopleCounter::notifyStatusPerson();
 }
@@ -377,3 +412,18 @@ void PeopleCounter::notifyStatusPerson(){
 
 }
 
+
+void PeopleCounter::notifyData(){
+
+  String topic_pub = this->mqttBaseTopic + "/data";
+  String msg_pub = "{";
+  msg_pub += "\"peopleCount\": " + String(this->cnt);
+  // msg_pub += "\"statusPerson\": " + msgStatusPerson + ", ";
+  if (this->LDREnabled) msg_pub += ", \"LDR\": " + String(this->LDRValue);
+  if (this->reedSwitchEnabled) msg_pub += ", \"reed_switch\": " + String(this->reedSwitchState);
+  msg_pub += " }";
+
+  mqttClient->setBufferSize((uint16_t)(msg_pub.length() + 100));
+  mqttClient->publish(topic_pub.c_str(), msg_pub.c_str(), msg_pub.length());
+
+}

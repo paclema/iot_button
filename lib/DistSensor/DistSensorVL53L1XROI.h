@@ -93,8 +93,8 @@ public:
 
   // Two ROI configurations
   //NARROW:
-  VL53L1_UserRoi_t	roiConfig1 = { 12, 15, 15, 0 };
-  VL53L1_UserRoi_t	roiConfig2 = { 0, 15, 3, 0 };
+  VL53L1_UserRoi_t	roiConfig1 = { 12, 15, 15, 0 };   // Wider zone: { 9, 15, 15, 0 };
+  VL53L1_UserRoi_t	roiConfig2 = { 0, 15, 3, 0 };     // Wider zone: { 0, 15, 6, 0 };
   VL53L1_UserRoi_t	roiZones[4];  // By sensor constrains, 4 zones max.
   
   int distance[2] = { 0, 0 };

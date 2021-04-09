@@ -548,18 +548,11 @@ void loop() {
 
     // Publish mqtt sensor feedback:
     if(mqttClient.connected() && (config.device.publish_time_ms != 0) &&
-        (currentLoopMillis - previousMQTTPublishMillis > (unsigned)config.device.publish_time_ms)) {
+      (currentLoopMillis - previousMQTTPublishMillis > (unsigned)config.device.publish_time_ms)) {
       previousMQTTPublishMillis = currentLoopMillis;
+      
       // Here starts the MQTT publish loop configured:
-
-      String msg_pub = "{ \"peopleCount\": " + peopleCounter.getPeopleCount() + ", ";
-      msg_pub += "\"LDR\": " + peopleCounter.getLDR() + " }";
-      String base_topic_pub = "/" + config.mqtt.id_name + "/";
-      String topic_pub = base_topic_pub + "data";
-      mqttClient.setBufferSize((uint16_t)(msg_pub.length() + 100));
-      mqttClient.publish(topic_pub.c_str(), msg_pub.c_str(), msg_pub.length());
-      // Serial.println("MQTT published: " + msg_pub + " -- loop: " + config.device.publish_time_ms);
-
+      peopleCounter.notifyData();
       previousMQTTPublishMillis = currentLoopMillis;
     }
     
