@@ -74,12 +74,14 @@ public:
   String distance_mode;
   String distance_mode_options[JSON_MAX_SIZE_LIST]; //["Short", "Medium", "Long", "Unknown"]
   int zones = 0;
-  int status = 0;
+  VL53L1_Error status = 0;
   int32_t CalDistanceMilliMeter = 200;
 
   // Two ROI configurations
   VL53L1_UserRoi_t	roiConfig1 = { 12, 15, 15, 0 };
   VL53L1_UserRoi_t	roiConfig2 = { 0, 15, 3, 0 };
+  VL53L1_UserRoi_t	roiZones[4];  // By sensor constrains, 4 zones max.
+  
   int distance[2] = { 0, 0 };
 
   // Four ROI configurations
@@ -106,7 +108,7 @@ public:
   ~DistSensorVL53L1XROI();
 
   void setup(void);
-  int calibrate(int CalDistanceMilliMeter);
+  VL53L1_Error calibrate(int32_t CalDistanceMilliMeter);
   void disableSensor(void);
   bool sensorRead(float *distance);
   VL53L1_Error sensorRead2Roi(void);

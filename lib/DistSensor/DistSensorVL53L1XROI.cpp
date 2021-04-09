@@ -50,6 +50,15 @@ void DistSensorVL53L1XROI::setup(void){
 	checkDev(Dev);
 	delay(1000);
 
+  Serial.printf("Configured roiZones[]: \n");
+  for (int i = 1; i < this->zones; i++){
+  // for (int i = 0; i < 4; i++){
+    Serial.printf("\t-- roiZones[%d]:\n", i);
+    Serial.printf("\t\t -TopLeftX: %d\n", roiZones[i].TopLeftX);
+    Serial.printf("\t\t -TopLeftY: %d\n", roiZones[i].TopLeftY);
+    Serial.printf("\t\t -BotRightX: %d\n", roiZones[i].BotRightX);
+    Serial.printf("\t\t -BotRightY: %d\n", roiZones[i].BotRightY);
+  }
 
 	status += VL53L1_WaitDeviceBooted(Dev);
 	status += VL53L1_DataInit(Dev);
@@ -92,7 +101,7 @@ void DistSensorVL53L1XROI::setup(void){
 }
 
 
-int DistSensorVL53L1XROI::calibrate(int32_t CalDistanceMilliMeter){
+VL53L1_Error DistSensorVL53L1XROI::calibrate(int32_t CalDistanceMilliMeter){
   // Use and object at this distance:
   // int32_t CalDistanceMilliMeter = 200;
   int delayTime = 0;
@@ -391,4 +400,24 @@ void DistSensorVL53L1XROI::parseWebConfig(JsonObjectConst configObject){
   // }
   this->zones = configObject["ROI"]["zones"];
 
+  // Parse each zone into roiZones[] configs depending on the number of zones selected:
+  for (unsigned int i = 0; i < this->zones; i++){
+    char zoneName[20];
+    sprintf(zoneName, "zone_%d",i+1);
+    Serial.printf("Parsing zone object: %s\n", zoneName);
+    this->roiZones[i].TopLeftX = configObject["ROI"][zoneName][0].as<uint8_t>();
+    this->roiZones[i].TopLeftY = configObject["ROI"][zoneName][1].as<uint8_t>();
+    this->roiZones[i].BotRightX = configObject["ROI"][zoneName][2].as<uint8_t>();
+    this->roiZones[i].BotRightY = configObject["ROI"][zoneName][3].as<uint8_t>();
+  }
+
+  Serial.printf("Configured roiZones[]: \n");
+  for (int i = 0; i < this->zones; i++){
+  // for (int i = 0; i < 4; i++){
+    Serial.printf("\t-- roiZones[%d]:\n", i);
+    Serial.printf("\t\t -TopLeftX: %d\n", roiZones[i].TopLeftX);
+    Serial.printf("\t\t -TopLeftY: %d\n", roiZones[i].TopLeftY);
+    Serial.printf("\t\t -BotRightX: %d\n", roiZones[i].BotRightX);
+    Serial.printf("\t\t -BotRightY: %d\n", roiZones[i].BotRightY);
+  }
 }
