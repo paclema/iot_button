@@ -59,8 +59,9 @@ void PeopleCounter::enablePeopleCounterServices(void){
 
   // LED strip WS2812B led:
   PeopleCounter::setupLEDStrip();
-  Serial.printf("   - LED strip: %s\n", this->debug ? "true" : "false");
+  Serial.printf("   - LED strip:\n");
   Serial.printf("       - Enabled: %s\n", this->ledEnabled ? "true" : "false");
+  Serial.printf("       - Pin: %d\n", this->ledPin);
   Serial.printf("       - Brightness: %d\n", this->ledBrightness);
   Serial.printf("       - Default color: %d\n", this->ledDefaultColor);
 
