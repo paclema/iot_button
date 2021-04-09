@@ -91,7 +91,7 @@
     },
     "LED_strip" : {
       "enabled": true,
-      "pin": 0,
+      "pin": 13,
       "count": 1,
       "brightness": 255
     },
