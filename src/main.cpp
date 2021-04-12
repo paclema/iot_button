@@ -126,8 +126,10 @@ void networkRestart(void){
 
     // WiFi setup:
     #ifdef ESP32
+      WiFi.setHostname(config.network.hostname.c_str());
       WiFi.mode(WIFI_MODE_APSTA);
     #elif defined(ESP8266)
+      WiFi.hostname(config.network.hostname);
       // WiFi.mode(WIFI_STA);
       WiFi.mode(WIFI_AP_STA);
     #endif
