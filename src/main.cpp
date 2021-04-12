@@ -113,6 +113,7 @@ String getStatusBack(){ return String(peopleCounter.getStatusBack());}
 String getStatusPersonNow(){ return String(peopleCounter.getStatusPersonNow());}
 String getCurrentGesture(){ return String(peopleCounter.getCurrentGesture());}
 String getLDR(){ return String(peopleCounter.getLDR());}
+String getReedSwitch(){ return String(peopleCounter.getReedSwitch());}
 
 
 
@@ -483,12 +484,13 @@ void setup() {
     ws.addObjectToPublish("current_gesture", getCurrentGesture);
     ws.addObjectToPublish("people_count", getPeopleCount);
     ws.addObjectToPublish("LDR", getLDR);
+    ws.addObjectToPublish("reedSwitch", getReedSwitch);
 
 
   }
 
 
-  Serial.println("###  Looping time\n");
+  Serial.println("\n\n###  Looping time");
 
   setupDeviceTime = millis();
   previousMainLoopMillis = millis();

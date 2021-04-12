@@ -160,6 +160,7 @@ void PeopleCounter::updateReedSwitch(void){
 
   if (reedSwitchStateLast!=reedSwitchState){
     reedSwitchStateLast = reedSwitchState;
+    PeopleCounter::notifyReedSwitch();
     PeopleCounter::notifyData();
   }
 };
@@ -371,8 +372,10 @@ void PeopleCounter::notifyGesture(PeopleCounterGesture gesture){
     PeopleCounter::setLEDStripColor(255,0,0);
     break;
   }
-  Serial.print(msgGesture);
-  Serial.printf(" - cnt: %d\n", cnt);
+  if (this->debug){
+    Serial.print(msgGesture);
+    Serial.printf(" - cnt: %d\n", cnt);
+  }
   
   // Blink LED_BUILTIN once for 100ms:
   ledOn.once_ms(0, PeopleCounter::blink , true);
@@ -403,7 +406,7 @@ void PeopleCounter::notifyStatusPerson(){
   }
   msgStatusPerson += "]";
   
-  Serial.println(" - statusPerson[5]: " + msgStatusPerson);
+  if (this->debug) Serial.println(" - statusPerson[5]: " + msgStatusPerson);
 
   // Notify via MQTT:
   String topic_pub = this->mqttBaseTopic + "/data/statusPerson";
@@ -420,10 +423,18 @@ void PeopleCounter::notifyData(){
   msg_pub += "\"peopleCount\": " + String(this->cnt);
   // msg_pub += "\"statusPerson\": " + msgStatusPerson + ", ";
   if (this->LDREnabled) msg_pub += ", \"LDR\": " + String(this->LDRValue);
-  if (this->reedSwitchEnabled) msg_pub += ", \"reed_switch\": " + String(this->reedSwitchState);
+  if (this->reedSwitchEnabled) msg_pub += ", \"reedSwitch\": " + String(this->reedSwitchState);
   msg_pub += " }";
 
   mqttClient->setBufferSize((uint16_t)(msg_pub.length() + 100));
   mqttClient->publish(topic_pub.c_str(), msg_pub.c_str(), msg_pub.length());
 
+}
+
+
+void PeopleCounter::notifyReedSwitch(){
+  String topic_pub = this->mqttBaseTopic + "/data/reedSwitch";
+  String msg_pub = "{ \"reedSwitch\": " + String(this->reedSwitchState) + " }";
+  if (this->debug) Serial.printf("\t-> reedSwitch: %d\n", this->reedSwitchState);
+  mqttClient->publish(topic_pub.c_str(), msg_pub.c_str(), msg_pub.length());
 }

@@ -112,6 +112,7 @@ public:
   void notifyGesture(PeopleCounterGesture);
   void notifyStatusPerson(void);
   void notifyData(void);
+  void notifyReedSwitch(void);
   
   void setMQTTClient(PubSubClient *client){ this->mqttClient = client; }
   void setMQTTBaseTopic(String topic){ this->mqttBaseTopic = topic; }
@@ -125,6 +126,7 @@ public:
   String getStatusPersonNow(){ return String(statusPersonNow); };
   String getCurrentGesture(){ return String(currentGesture); };
   String getLDR(void){ return String(LDRValue); };
+  String getReedSwitch(void){ return String(reedSwitchState); };
 
   void setDebug(bool d){ this->debug = d; };
   bool isDebug(void){ return this->debug; };
