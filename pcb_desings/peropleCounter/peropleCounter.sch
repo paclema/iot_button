@@ -25,28 +25,6 @@ F 3 "http://www.wemos.cc/Products/d1_mini.html" H 2450 2131 60  0000 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L Device:R R1
-U 1 1 60685B83
-P 3500 2250
-F 0 "R1" H 3570 2296 50  0000 L CNN
-F 1 "10k" H 3570 2205 50  0000 L CNN
-F 2 "" V 3430 2250 50  0001 C CNN
-F 3 "~" H 3500 2250 50  0001 C CNN
-	1    3500 2250
-	1    0    0    -1  
-$EndComp
-$Comp
-L Switch:SW_Reed SW?
-U 1 1 60687B72
-P 3500 1850
-F 0 "SW?" H 3500 2072 50  0000 C CNN
-F 1 "SW_Reed" H 3500 1981 50  0000 C CNN
-F 2 "" H 3500 1850 50  0001 C CNN
-F 3 "~" H 3500 1850 50  0001 C CNN
-	1    3500 1850
-	0    -1   -1   0   
-$EndComp
-$Comp
 L Device:R R2
 U 1 1 60688FB5
 P 3750 2250
@@ -72,36 +50,6 @@ Wire Wire Line
 	3750 1700 3750 1250
 Wire Wire Line
 	3750 2100 3750 2000
-$Comp
-L power:GND #PWR?
-U 1 1 6068DD9C
-P 3750 2650
-F 0 "#PWR?" H 3750 2400 50  0001 C CNN
-F 1 "GND" H 3755 2477 50  0000 C CNN
-F 2 "" H 3750 2650 50  0001 C CNN
-F 3 "" H 3750 2650 50  0001 C CNN
-	1    3750 2650
-	1    0    0    -1  
-$EndComp
-Wire Wire Line
-	3750 2650 3750 2400
-Wire Wire Line
-	2950 1250 3750 1250
-Wire Wire Line
-	3500 2100 3500 2050
-$Comp
-L power:GND #PWR?
-U 1 1 6068FDBC
-P 3500 2650
-F 0 "#PWR?" H 3500 2400 50  0001 C CNN
-F 1 "GND" H 3505 2477 50  0000 C CNN
-F 2 "" H 3500 2650 50  0001 C CNN
-F 3 "" H 3500 2650 50  0001 C CNN
-	1    3500 2650
-	1    0    0    -1  
-$EndComp
-Wire Wire Line
-	3500 2650 3500 2400
 Wire Wire Line
 	1250 2400 1250 1250
 Wire Wire Line
@@ -144,15 +92,7 @@ $EndComp
 Wire Wire Line
 	2250 2750 2250 2350
 Wire Wire Line
-	2250 2350 3100 2350
-Wire Wire Line
-	3100 2350 3100 1650
-Wire Wire Line
-	3100 1650 2950 1650
-Wire Wire Line
-	2950 1550 3500 1550
-Wire Wire Line
-	3500 1550 3500 1650
+	2250 2350 3000 2350
 Wire Wire Line
 	1950 3150 1250 3150
 Connection ~ 1250 3150
@@ -189,4 +129,70 @@ Wire Wire Line
 	3200 1450 2950 1450
 Wire Wire Line
 	950  750  950  2700
+$Comp
+L Switch:SW_Reed SW?
+U 1 1 60687B72
+P 3400 2200
+F 0 "SW?" H 3400 2422 50  0000 C CNN
+F 1 "SW_Reed" H 3400 2331 50  0000 C CNN
+F 2 "" H 3400 2200 50  0001 C CNN
+F 3 "~" H 3400 2200 50  0001 C CNN
+	1    3400 2200
+	0    -1   -1   0   
+$EndComp
+$Comp
+L Device:R R1
+U 1 1 60685B83
+P 3400 1650
+F 0 "R1" H 3470 1696 50  0000 L CNN
+F 1 "10k" H 3470 1605 50  0000 L CNN
+F 2 "" V 3330 1650 50  0001 C CNN
+F 3 "~" H 3400 1650 50  0001 C CNN
+	1    3400 1650
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	2950 1250 3400 1250
+Wire Wire Line
+	3000 1650 3000 2350
+Wire Wire Line
+	3000 1650 2950 1650
+Wire Wire Line
+	3400 1950 3100 1950
+Wire Wire Line
+	3100 1950 3100 1550
+Wire Wire Line
+	3100 1550 2950 1550
+Connection ~ 3400 1950
+Wire Wire Line
+	3400 1950 3400 2000
+Wire Wire Line
+	3400 1500 3400 1250
+Connection ~ 3400 1250
+Wire Wire Line
+	3400 1250 3750 1250
+$Comp
+L power:GND #PWR?
+U 1 1 607608E6
+P 3600 2600
+F 0 "#PWR?" H 3600 2350 50  0001 C CNN
+F 1 "GND" H 3605 2427 50  0000 C CNN
+F 2 "" H 3600 2600 50  0001 C CNN
+F 3 "" H 3600 2600 50  0001 C CNN
+	1    3600 2600
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	3750 2400 3750 2450
+Wire Wire Line
+	3750 2450 3600 2450
+Wire Wire Line
+	3600 2450 3600 2600
+Wire Wire Line
+	3400 2450 3600 2450
+Connection ~ 3600 2450
+Wire Wire Line
+	3400 1800 3400 1950
+Wire Wire Line
+	3400 2450 3400 2400
 $EndSCHEMATC

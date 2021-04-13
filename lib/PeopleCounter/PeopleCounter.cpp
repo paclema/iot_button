@@ -134,7 +134,7 @@ void PeopleCounter::setupLEDStrip(void){
 };
 
 void PeopleCounter::setupReedSwitch(void){
-  pinMode(this->reedSwitchPin, INPUT_PULLUP);
+  pinMode(this->reedSwitchPin, INPUT);
   this->reedSwitchState = digitalRead(this->reedSwitchPin);
   this->reedSwitchStateLast = this->reedSwitchState;
 };
