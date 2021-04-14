@@ -27,7 +27,31 @@ unsigned long setupDeviceTime;
   ESP8266WiFiMulti wifiMulti;
 #endif
 
+// NAT repeater:
+// Check this example: https://github.com/esp8266/Arduino/blob/master/libraries/ESP8266WiFi/examples/RangeExtender-NAPT/RangeExtender-NAPT.ino
+#if LWIP_FEATURES && !LWIP_IPV6
+#include <lwip/napt.h>
+#include <lwip/dns.h>
+#include <LwipDhcpServer.h>
+#define NAPT 1000
+#define NAPT_PORT 10
 
+#define HAVE_NETDUMP 0
+#if HAVE_NETDUMP
+  #include <NetDump.h>
+  void dump(int netif_idx, const char* data, size_t len, int out, int success) {
+    (void)success;
+    Serial.print(out ? F("out ") : F(" in "));
+    Serial.printf("%d ", netif_idx);
+
+    // optional filter example: if (netDump_is_ARP(data))
+    // {
+    //   netDump(Serial, data, len);
+    //   //netDumpHex(Serial, data, len);
+    // }
+  }
+#endif
+#endif
 
 // MQTT
 #include <PubSubClient.h>
@@ -107,6 +131,11 @@ String getHeapFree(){ return String((float)GET_FREE_HEAP/1000);}
 void networkRestart(void){
   if(config.status() == CONFIG_LOADED){
 
+    Serial.printf("******* Heap on start: %d\n", ESP.getFreeHeap());
+    #if HAVE_NETDUMP
+      phy_capture = dump;
+    #endif
+
     // WiFi setup:
     #ifdef ESP32
       WiFi.setHostname(config.network.hostname.c_str());
@@ -116,20 +145,6 @@ void networkRestart(void){
       // WiFi.mode(WIFI_STA);
       WiFi.mode(WIFI_AP_STA);
     #endif
-
-    // Config acces point:
-    if (config.network.ap_name!=NULL &&
-        config.network.ap_password!=NULL){
-          Serial.print("Setting soft-AP ... ");
-          Serial.println(WiFi.softAP(config.network.ap_name.c_str(),
-                      config.network.ap_password.c_str(),
-                      config.network.ap_channel,
-                      config.network.ap_ssid_hidden,
-                      config.network.ap_max_connection) ? "Ready" : "Failed!");
-          IPAddress myIP = WiFi.softAPIP();
-          Serial.print(config.network.ap_name);Serial.print(" AP IP address: ");
-          Serial.println(myIP);
-    }
 
     // Client Wifi config:
     if (config.network.ssid_name!=NULL && config.network.ssid_password!=NULL){
@@ -145,11 +160,68 @@ void networkRestart(void){
         Serial.print('.');
         if (retries >= maxRetries) break;
       }
+      // WiFi.begin(config.network.ssid_name.c_str(), config.network.ssid_password.c_str());
+      // while (WiFi.status() != WL_CONNECTED) {
+      //   Serial.print('.');
+      //   delay(200);
+      // }
       if (retries < maxRetries) {
         Serial.print("\n\nConnected to ");Serial.print(WiFi.SSID());
-        Serial.print("\nIP address:\t");Serial.println(WiFi.localIP());
+        // Serial.print("\nIP address:\t");Serial.println(WiFi.localIP());
+        Serial.printf("\nSTA: %s (dns: %s / %s)\n",
+              WiFi.localIP().toString().c_str(),
+              WiFi.dnsIP(0).toString().c_str(),
+              WiFi.dnsIP(1).toString().c_str());
       } else {Serial.print("\n\nNot Connected to ");Serial.print(config.network.ssid_name);Serial.println(" max retries reached.");}
     }
+
+    // give DNS servers to AP side
+    dhcpSoftAP.dhcps_set_dns(0, WiFi.dnsIP(0));
+    dhcpSoftAP.dhcps_set_dns(1, WiFi.dnsIP(1));
+    Serial.printf("******* Heap: %d\n", ESP.getFreeHeap());
+
+    // Config acces point:
+    if (config.network.ap_name!=NULL &&
+        config.network.ap_password!=NULL){
+          Serial.print("Setting soft-AP ... ");
+          // enable AP, with android-compatible google domain
+          WiFi.softAPConfig(  
+            IPAddress(172, 217, 28, 254),
+            IPAddress(172, 217, 28, 254),
+            IPAddress(255, 255, 255, 0));
+            
+          // Serial.println(WiFi.softAP(config.network.ap_name.c_str(),
+          //             config.network.ap_password.c_str(),
+          //             config.network.ap_channel,
+          //             config.network.ap_ssid_hidden,
+          //             config.network.ap_max_connection) ? "Ready" : "Failed!");
+          // IPAddress myIP = WiFi.softAPIP();
+          // Serial.print(config.network.ap_name);Serial.print(" AP IP address: ");
+          // Serial.println(myIP);
+          String apName = config.network.ssid_name +"extender";
+          WiFi.softAP(apName.c_str(), config.network.ssid_password.c_str());
+          Serial.printf("AP %s: %s\n", apName.c_str(), WiFi.softAPIP().toString().c_str());
+    }
+
+
+    Serial.printf("******* Heap: %d\n", ESP.getFreeHeap());
+    err_t ret = ip_napt_init(NAPT, NAPT_PORT);
+    Serial.printf("ip_napt_init(%d,%d): ret=%d (OK=%d)\n", NAPT, NAPT_PORT, (int)ret, (int)ERR_OK);
+    if (ret==-1) Serial.printf("NAPT initialization failed, ret=-1 --> not enought memory\n");
+    if (ret == ERR_OK) {
+      ret = ip_napt_enable_no(SOFTAP_IF, 1);
+      Serial.printf("ip_napt_enable_no(SOFTAP_IF): ret=%d (OK=%d)\n", (int)ret, (int)ERR_OK);
+      if (ret == ERR_OK) {
+        // Serial.printf("WiFi Network '%s' with same password is now NATed behind '%s'\n", STASSID "extender", STASSID);
+        Serial.printf("WiFi Network '%s' with same password is now NATed behind '%s'\n", config.network.ap_name.c_str(), config.network.ssid_name.c_str());
+      }
+    }
+    Serial.printf("Heap after napt init: %d\n", ESP.getFreeHeap());
+    if (ret != ERR_OK) {
+      Serial.printf("NAPT initialization failed\n");
+    }
+
+
 
     // Configure device hostname:
     if (config.network.hostname){
@@ -275,9 +347,9 @@ void initMQTT(void){
     if (!cert) Serial.println("Failed to open cert file ");
     else Serial.println("Success to open cert file");
 
-    if (wifiClientSecure.loadCertificate(cert, cert.size())) Serial.println("cert loaded");
-    else Serial.println("cert not loaded");
-    cert.close();
+    // if (wifiClientSecure.loadCertificate(cert, cert.size())) Serial.println("cert loaded");
+    // else Serial.println("cert not loaded");
+    // cert.close();
 
     // Load private key:
     // But you must convert it to .der
@@ -286,8 +358,8 @@ void initMQTT(void){
     if (!private_key) Serial.println("Failed to open key file ");
     else Serial.println("Success to open key file");
 
-    if (wifiClientSecure.loadPrivateKey(private_key, private_key.size())) Serial.println("key loaded");
-    else Serial.println("key not loaded");
+    // if (wifiClientSecure.loadPrivateKey(private_key, private_key.size())) Serial.println("key loaded");
+    // else Serial.println("key not loaded");
     private_key.close();
 
     // Load CA file:
@@ -295,8 +367,8 @@ void initMQTT(void){
     if (!ca) Serial.println("Failed to open CA file ");
     else Serial.println("Success to open CA file");
 
-    if (wifiClientSecure.loadCACert(ca, ca.size())) Serial.println("CA loaded");
-    else Serial.println("CA not loaded");
+    // if (wifiClientSecure.loadCACert(ca, ca.size())) Serial.println("CA loaded");
+    // else Serial.println("CA not loaded");
     ca.close();
   }
 
