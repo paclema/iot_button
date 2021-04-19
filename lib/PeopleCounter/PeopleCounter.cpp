@@ -221,6 +221,15 @@ void PeopleCounter::loop(void){
 
   // Serial.printf("Current statusPersonNow: %d - statusPersonIndex: %d - cnt: %d\n", statusPersonNow, statusPersonIndex, cnt);
   
+  // Decode person gesture [0,3,X...]:
+  if ( statusPersonIndex == 1 && statusPersonNow == 3 ) {
+      currentGesture = ERROR_PERSON_TOO_FAST;
+      PeopleCounter::notifyGesture(currentGesture);
+      // TODO: Check last distances and discover which zone went down first
+
+      
+  }
+
   // Decode person gesture if statusPerson counter reaches enough information:
   if ( statusPersonIndex == 4 || (statusPersonIndex == 2 && statusPersonNow == 0)) {
 
