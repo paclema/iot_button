@@ -399,7 +399,7 @@ String Radar::getJsonPoints(void){
     else data += ",{\"angle\":" + String(this->rPoints[i].angle);
     data += ",\"distance\":" + String(this->rPoints[i].distance);
     data += ",\"fov_angle\":" + String(this->rPoints[i].fov_angle);
-    data += ",\"sensor_name\":" + String(this->rPoints[i].sensor_name);
+    data += ",\"sensor_name\": \"" + String(this->rPoints[i].sensor_name) + "\"";
     data += "}";
   }
   return data;
