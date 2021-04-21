@@ -33,7 +33,8 @@ unsigned long setupDeviceTime;
 #include <lwip/napt.h>
 #include <lwip/dns.h>
 #include <LwipDhcpServer.h>
-#define NAPT 1000
+// #define NAPT 1000
+#define NAPT IP_NAPT_MAX
 #define NAPT_PORT 10
 
 #define HAVE_NETDUMP 0
@@ -569,6 +570,8 @@ void loop() {
       (currentLoopMillis - previousLoopMillis > (unsigned)config.device.loop_time_ms)) {
     previousLoopMillis = currentLoopMillis;
     // Here starts the device loop configured:
+
+    Serial.printf("******* Heap: %d\n", ESP.getFreeHeap());
 
 
   }
