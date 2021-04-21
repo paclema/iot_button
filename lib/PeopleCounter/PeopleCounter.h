@@ -69,11 +69,10 @@ private:
 
 
   // LED strip WS2812B:
-  Adafruit_NeoPixel pixels;    // Pin D6 or GPIO12
-  // Adafruit_NeoPixel pixels(LED_COUNT, LED_PIN, NEO_GRB + NEO_KHZ800);    // Pin D6 or GPIO12
+  Adafruit_NeoPixel pixels;
   bool ledEnabled = false;
   uint16_t ledCount = 1;
-  uint16_t ledPin = D3;
+  uint16_t ledPin = 13;  // Pin D7 or GPIO13
   uint8_t ledBrightness = 255;  // 0-255
   neoPixelType ledType = NEO_GRB + NEO_KHZ800;
   uint32_t ledDefaultColor = pixels.Color(255,255,255);
@@ -81,7 +80,7 @@ private:
 
   // Reed switch:
   bool reedSwitchEnabled = false;
-  uint16_t reedSwitchPin = D1;
+  uint16_t reedSwitchPin = 12;  // Pin D6 or GPIO12
   bool reedSwitchState = false;
   bool reedSwitchStateLast = false;
 
