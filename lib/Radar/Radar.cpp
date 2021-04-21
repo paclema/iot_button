@@ -333,8 +333,7 @@ bool Radar::readPoints(void){
   // if (sizeDistances >= 0) return true;
   // else return false;
 
-  int index_1 = 0;
-  int index_2 = 0;
+  int index = 0;
   DistSensor *sensorTemp ;
   for(int i = 0; i < distanceSensors.size(); i++){
     sensorTemp = distanceSensors.get(i);
@@ -343,7 +342,7 @@ bool Radar::readPoints(void){
     float distance[4];
     if (sensorTemp->sensorRead(distance)){
       if (nameSensor == "VL53L1X_ROI") {
-        // rPoints_1[index_1].fov_angle = sensorTemp->getFovAngle();
+        // rPoints_1[index].fov_angle = sensorTemp->getFovAngle();
         int numPoints = 4;  //TODO: get the num depending on ROI zones
         float angle = this->motor1.getAngle() + this->motor1.angleOffset;
         for(int j = 0; j < numPoints; j++){
@@ -352,7 +351,7 @@ bool Radar::readPoints(void){
           rPoints[index+j].fov_angle = (27./4);
           rPoints[index+j].sensor_name = nameSensor;
         }
-        index_1 = index_1 + 4;
+        index = index + 4;
       } else if (nameSensor ==  "vl53l1x_1"){
         rPoints[index].angle = this->motor1.getAngle() + this->motor1.angleOffset;
         rPoints[index].distance = distance[0];
@@ -383,8 +382,7 @@ bool Radar::readPoints(void){
 
   }
 
-  this->rPointsSize_1 = index_1;
-  this->rPointsSize_2 = index_2;
+  this->rPointsSize = index;
 
   if (index_1 == 0 && index_2 == 0) return false;
   else return true;
@@ -395,7 +393,6 @@ bool Radar::readPoints(void){
 String Radar::getJsonPoints(void){
 
   String data = "";
-  data += "\"sensor_1\": [";
 
   for(int i = 0; i < this->rPointsSize; i++){
     if (i == 0) data += "{\"angle\":" + String(this->rPoints[i].angle);
@@ -405,17 +402,6 @@ String Radar::getJsonPoints(void){
     data += ",\"sensor_name\":" + String(this->rPoints[i].sensor_name);
     data += "}";
   }
-  data += "],";
-  data += "\"sensor_2\": [";
-
-  for(int i = 0; i < this->rPointsSize_2; i++){
-    if (i == 0) data += "{\"angle\":" + String(this->rPoints_2[i].angle);
-    else data += ",{\"angle\":" + String(this->rPoints_2[i].angle);
-    data += ",\"distance\":" + String(this->rPoints_2[i].distance);
-    data += ",\"fov_angle\":" + String(this->rPoints_2[i].fov_angle);
-    data += "}";
-  }
-  data += "]";
   return data;
 }
 
