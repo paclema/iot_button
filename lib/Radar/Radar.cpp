@@ -347,31 +347,36 @@ bool Radar::readPoints(void){
         int numPoints = 4;  //TODO: get the num depending on ROI zones
         float angle = this->motor1.getAngle() + this->motor1.angleOffset;
         for(int j = 0; j < numPoints; j++){
-          rPoints_1[index_1+j].angle = angle-(27./2) + (27./8) + (27./4)*(j);
-          rPoints_1[index_1+j].distance = distance[j];
-          rPoints_1[index_1+j].fov_angle = (27./4);
+          rPoints[index+j].angle = angle-(27./2) + (27./8) + (27./4)*(j);
+          rPoints[index+j].distance = distance[j];
+          rPoints[index+j].fov_angle = (27./4);
+          rPoints[index+j].sensor_name = nameSensor;
         }
         index_1 = index_1 + 4;
       } else if (nameSensor ==  "vl53l1x_1"){
-        rPoints_1[index_1].angle = this->motor1.getAngle() + this->motor1.angleOffset;
-        rPoints_1[index_1].distance = distance[0];
-        rPoints_1[index_1].fov_angle = 27;
-        index_1++;
+        rPoints[index].angle = this->motor1.getAngle() + this->motor1.angleOffset;
+        rPoints[index].distance = distance[0];
+        rPoints[index].fov_angle = 27;
+        rPoints[index].sensor_name = nameSensor;
+        index++;
       } else if (nameSensor ==  "vl53l1x_2"){
-        rPoints_2[index_2].angle = this->motor2.getAngle() + this->motor2.angleOffset;
-        rPoints_2[index_2].distance = distance[0];
-        rPoints_2[index_2].fov_angle = 27;
-        index_2++;
+        rPoints[index].angle = this->motor2.getAngle() + this->motor2.angleOffset;
+        rPoints[index].distance = distance[0];
+        rPoints[index].fov_angle = 27;
+        rPoints[index].sensor_name = nameSensor;
+        index++;
       } else if (nameSensor == "VL53L0X"){
-        rPoints_1[index_1].angle = this->motor1.getAngle() + this->motor1.angleOffset;
-        rPoints_1[index_1].distance = distance[0];
-        rPoints_1[index_1].fov_angle = 27;
-        index_1++;
+        rPoints[index].angle = this->motor1.getAngle() + this->motor1.angleOffset;
+        rPoints[index].distance = distance[0];
+        rPoints[index].fov_angle = 27;
+        rPoints[index].sensor_name = nameSensor;
+        index++;
       } else if (nameSensor == "HCSR04"){
-        rPoints_1[index_1].angle = this->motor1.getAngle() + this->motor1.angleOffset;
-        rPoints_1[index_1].distance = distance[0];
-        rPoints_1[index_1].fov_angle = 27;
-        index_1++;
+        rPoints[index].angle = this->motor1.getAngle() + this->motor1.angleOffset;
+        rPoints[index].distance = distance[0];
+        rPoints[index].fov_angle = 27;
+        rPoints[index].sensor_name = nameSensor;
+        index++;
       }
     }
 
@@ -392,11 +397,12 @@ String Radar::getJsonPoints(void){
   String data = "";
   data += "\"sensor_1\": [";
 
-  for(int i = 0; i < this->rPointsSize_1; i++){
-    if (i == 0) data += "{\"angle\":" + String(this->rPoints_1[i].angle);
-    else data += ",{\"angle\":" + String(this->rPoints_1[i].angle);
-    data += ",\"distance\":" + String(this->rPoints_1[i].distance);
-    data += ",\"fov_angle\":" + String(this->rPoints_1[i].fov_angle);
+  for(int i = 0; i < this->rPointsSize; i++){
+    if (i == 0) data += "{\"angle\":" + String(this->rPoints[i].angle);
+    else data += ",{\"angle\":" + String(this->rPoints[i].angle);
+    data += ",\"distance\":" + String(this->rPoints[i].distance);
+    data += ",\"fov_angle\":" + String(this->rPoints[i].fov_angle);
+    data += ",\"sensor_name\":" + String(this->rPoints[i].sensor_name);
     data += "}";
   }
   data += "],";

@@ -36,6 +36,7 @@ private:
     float angle;
     float distance;
     float fov_angle;
+    String sensor_name;
   };
 
 public:
