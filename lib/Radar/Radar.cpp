@@ -384,7 +384,7 @@ bool Radar::readPoints(void){
 
   this->rPointsSize = index;
 
-  if (index_1 == 0 && index_2 == 0) return false;
+  if (index == 0) return false;
   else return true;
 
 }
