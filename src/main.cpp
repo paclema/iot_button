@@ -39,7 +39,7 @@ unsigned long previousMqttReconnectionMillis = millis();
 unsigned int mqttReconnectionTime = 10000;
 int mqttRetries = 0;
 int mqttMaxRetries = 10;
-String mqttQueueString = "{\"data\":[";
+String mqttQueueString = "{\"data\":{";
 
 
 // WebConfigServer Configuration
@@ -567,7 +567,7 @@ void loop() {
         previousMQTTPublishMillis = currentLoopMillis;
         // Here starts the MQTT publish loop configured:
 
-          mqttQueueString += "]}";
+          mqttQueueString += "}}";
 
           String base_topic_pub = "/" + config.mqtt.id_name + "/";
           String topic_pub = base_topic_pub + "data";
@@ -575,7 +575,7 @@ void loop() {
           mqttClient.publish(topic_pub.c_str(), mqttQueueString.c_str(), mqttQueueString.length());
           // Serial.println("MQTT published: " + msg_pub + " -- loop: " + config.device.publish_time_ms);
 
-          mqttQueueString = "{\"data\":[";
+          mqttQueueString = "{\"data\":{";
           previousMQTTPublishMillis = currentLoopMillis;
       } else {
         mqttQueueString += ",";

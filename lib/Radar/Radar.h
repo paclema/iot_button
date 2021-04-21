@@ -54,8 +54,10 @@ public:
   // LinkedList<DistSensor*> distanceSensors = LinkedList<DistSensor*>();
   SimpleList<DistSensor*> distanceSensors = SimpleList<DistSensor*>();
 
-  RPoint rPoints[20];
-  int rPointsSize = 0;
+  RPoint rPoints_1[20];
+  RPoint rPoints_2[20];
+  int rPointsSize_1 = 0;
+  int rPointsSize_2 = 0;
 
   Radar(void);
   Radar(String name);
