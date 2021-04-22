@@ -138,14 +138,13 @@ void networkRestart(void){
 
       Serial.print("Connecting to ");Serial.println(config.network.ssid_name);
       int retries = 0;
-      int maxRetries = 20;
       while ((wifiMulti.run() != WL_CONNECTED)) {
         delay(200);
         retries++;
         Serial.print('.');
-        if (retries >= maxRetries) break;
+        if (config.network.connection_retries != 0 && (retries >= config.network.connection_retries)) break;
       }
-      if (retries < maxRetries) {
+      if (retries < config.network.connection_retries) {
         Serial.print("\n\nConnected to ");Serial.print(WiFi.SSID());
         Serial.print("\nIP address:\t");Serial.println(WiFi.localIP());
       } else {Serial.print("\n\nNot Connected to ");Serial.print(config.network.ssid_name);Serial.println(" max retries reached.");}
