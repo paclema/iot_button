@@ -508,7 +508,9 @@ void loop() {
     String base_topic_pub = "/" + config.mqtt.id_name + "/";
     String topic_pub = base_topic_pub + "data";
     // String msg_pub ="{\"angle\":35, \"distance\": 124}";
-    String msg_pub ="{\"connected\":true}";
+    String msg_pub ="{\"time_to_sleep\": ";
+    msg_pub += String((config.services.deep_sleep.sleep_delay*1000 + setupDeviceTime - (currentLoopMillis))/1000);
+    msg_pub +=" }";
     mqttClient.publish(topic_pub.c_str(), msg_pub.c_str());
     Serial.println("MQTT published: " + msg_pub + " -- loop: " + config.device.publish_time_ms);
   }
