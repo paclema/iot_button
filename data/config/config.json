@@ -47,7 +47,7 @@
       "publish_time_ms": 100
     },
     "deep_sleep": {
-      "enabled": false,
+      "enabled": true,
       "mode": "WAKE_RF_DEFAULT",
       "mode_options": [
         "WAKE_RF_DEFAULT",
@@ -55,8 +55,8 @@
         "WAKE_RFCAL",
         "WAKE_NO_RFCAL"
       ],
-      "sleep_time": 60,
-      "sleep_delay": 60
+      "sleep_time": 0,
+      "sleep_delay": 30
     },
     "light_sleep": {
       "enabled": false,
