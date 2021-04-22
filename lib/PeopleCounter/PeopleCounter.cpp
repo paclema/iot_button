@@ -178,10 +178,19 @@ void PeopleCounter::loop(void){
     else statusFront = 0;
     if (sensor.distance[1] < rangeThresholdCounter_mm) statusBack = 1;
     else statusBack = 0;
+
+    // Process new gesture if no error occurs reading distances:
+    PeopleCounter::processGesture();
+
   } else {
       currentGesture = ERROR_READING_SENSOR;
       PeopleCounter::notifyGesture(currentGesture);
   }
+
+};
+
+
+void PeopleCounter::processGesture(void){
 
   statusPersonNow = statusFront + statusBack;
   if (statusPersonLast != statusPersonNow){
@@ -301,9 +310,6 @@ void PeopleCounter::loop(void){
   //   msgStatusPerson += "]";
   //   Serial.println(" - statusPerson[5]: " + msgStatusPerson + " - currentGesture: " + currentGesture);
   // }
-
-
-
 
 };
 

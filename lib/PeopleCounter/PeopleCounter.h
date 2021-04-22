@@ -108,6 +108,8 @@ public:
 
   void loop(void);
 
+  void processGesture(void);
+
   void notifyGesture(PeopleCounterGesture);
   void notifyStatusPerson(void);
   void notifyData(void);
