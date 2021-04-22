@@ -393,7 +393,8 @@ void deepSleepHandler() {
 
   #elif defined(ESP8266)
     if (currentLoopMillis > setupDeviceTime + (config.services.deep_sleep.sleep_delay*1000)){
-      Serial.println("Deep sleeping...");
+      if(config.services.deep_sleep.sleep_time == 0) Serial.printf("Deep sleep activated forever or until RST keeps HIGH...\n");
+      else Serial.printf("Deep sleep activated for %f seconds...\n", config.services.deep_sleep.sleep_time);
       if (config.services.deep_sleep.mode == "WAKE_RF_DEFAULT")
         // sleep_time is in secs, but the function gets microsecs
         ESP.deepSleep(config.services.deep_sleep.sleep_time * 1000000, WAKE_RF_DEFAULT);
