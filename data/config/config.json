@@ -1,7 +1,7 @@
 {
   "network": {
-    "AP_SSID": "iotdevice",
-    "AP_password": "iotdevice",
+    "AP_SSID": "iotpostbox",
+    "AP_password": "iotpostbox",
     "AP_channel": 6,
     "AP_SSID_hidden": false,
     "AP_max_connection": 4,
@@ -11,7 +11,7 @@
     "ip_address": "192.168.1.2",
     "subnet": "255.255.255.0",
     "dns_Server": "192.168.1.1",
-    "hostname": "iotdevice"
+    "hostname": "iotpostbox"
   },
   "mqtt": {
     "enabled": false,
