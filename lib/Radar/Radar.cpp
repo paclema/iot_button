@@ -379,7 +379,7 @@ bool Radar::readPoints(void){
       }
     } else {
       if (this->debug){
-        Serial.printf("Error reading the sensor: %s", nameSensor);
+        Serial.printf("Error reading the sensor: %s\n", nameSensor);
       }
     }
 
