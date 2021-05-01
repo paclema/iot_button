@@ -15,6 +15,19 @@ unsigned long setupDeviceTime;
   #include <ESPmDNS.h>
   WiFiMulti wifiMulti;
 
+  #if !IP_NAPT
+    // #error "IP_NAPT is not available with this configuration."
+  #else
+    #include "esp_wifi.h"
+    #include "lwip/lwip_napt.h"
+  #endif
+
+  uint8_t AP_clients = 0;
+  uint8_t AP_clients_last = AP_clients;
+
+  #define PROTO_TCP 6
+  #define PROTO_UDP 17
+
 #elif defined(ESP8266)
   // Used for light sleep
   extern "C" {
@@ -87,6 +100,7 @@ unsigned long currentLoopMillis = 0;
 unsigned long previousLoopMillis = 0;
 unsigned long previousMQTTPublishMillis = 0;
 unsigned long previousWSMillis = 0;
+unsigned long previousHandleAPMillis = 0;
 unsigned long previousMainLoopMillis = 0;
 
 // Websocket server:
@@ -104,6 +118,46 @@ String getHeapFree(){ return String((float)GET_FREE_HEAP/1000);}
 // --------------
 //
 
+#if ESP32 && IP_NAPT
+esp_err_t enableNAT(void){
+
+  // Give DNS servers to AP side:
+
+  esp_err_t err;
+  tcpip_adapter_dns_info_t ip_dns_main;
+  tcpip_adapter_dns_info_t ip_dns_backup;
+
+
+  err += tcpip_adapter_dhcps_stop(TCPIP_ADAPTER_IF_AP);
+
+  err += tcpip_adapter_get_dns_info(TCPIP_ADAPTER_IF_STA, ESP_NETIF_DNS_MAIN, &ip_dns_main);
+  err += tcpip_adapter_get_dns_info(TCPIP_ADAPTER_IF_STA, ESP_NETIF_DNS_BACKUP, &ip_dns_backup);
+
+  err += tcpip_adapter_set_dns_info(TCPIP_ADAPTER_IF_AP, ESP_NETIF_DNS_MAIN, &ip_dns_main);
+  // Serial.printf("\ntcpip_adapter_set_dns_info ESP_NETIF_DNS_MAIN: err %s . ip_dns:" IPSTR, esp_err_to_name(err), IP2STR(&ip_dns_main.ip.u_addr.ip4)) ;
+
+  dhcps_offer_t opt_val = OFFER_DNS; // supply a dns server via dhcps
+  tcpip_adapter_dhcps_option(ESP_NETIF_OP_SET, ESP_NETIF_DOMAIN_NAME_SERVER, &opt_val, 1);
+
+  err += tcpip_adapter_dhcps_start(TCPIP_ADAPTER_IF_AP);
+
+  if (err != ESP_OK) return err;
+
+
+  // Enable NAT:
+  
+  // #if IP_NAPT
+  ip_napt_enable(WiFi.softAPIP(), 1);
+
+  // Example port mapping to stations:
+  ip_portmap_add(PROTO_TCP,WiFi.localIP(), 8080,IPAddress(192, 168, 4, 2), 80 );
+  ip_portmap_add(PROTO_UDP,WiFi.localIP(), 8080,IPAddress(192, 168, 4, 2), 80 );
+
+  // #endif
+  return err;
+}
+#endif
+
 void networkRestart(void){
   if(config.status() == CONFIG_LOADED){
 
@@ -117,38 +171,57 @@ void networkRestart(void){
       WiFi.mode(WIFI_AP_STA);
     #endif
 
-    // Config acces point:
-    if (config.network.ap_name!=NULL &&
-        config.network.ap_password!=NULL){
-          Serial.print("Setting soft-AP ... ");
-          Serial.println(WiFi.softAP(config.network.ap_name.c_str(),
-                      config.network.ap_password.c_str(),
-                      config.network.ap_channel,
-                      config.network.ap_ssid_hidden,
-                      config.network.ap_max_connection) ? "Ready" : "Failed!");
-          IPAddress myIP = WiFi.softAPIP();
-          Serial.print(config.network.ap_name);Serial.print(" AP IP address: ");
-          Serial.println(myIP);
-    }
+
 
     // Client Wifi config:
     if (config.network.ssid_name!=NULL && config.network.ssid_password!=NULL){
 
-      wifiMulti.addAP(config.network.ssid_name.c_str(),config.network.ssid_password.c_str());
+      // wifiMulti.addAP(config.network.ssid_name.c_str(),config.network.ssid_password.c_str());    // There are some issues to connect using wifiMulti
+      WiFi.begin(config.network.ssid_name.c_str(),config.network.ssid_password.c_str());            // 
 
       Serial.print("Connecting to ");Serial.println(config.network.ssid_name);
       int retries = 0;
-      while ((wifiMulti.run() != WL_CONNECTED)) {
+      // while ((wifiMulti.run() != WL_CONNECTED)) {
+      while (WiFi.status() != WL_CONNECTED) {
         delay(200);
         retries++;
         Serial.print('.');
         if (config.network.connection_retries != 0 && (retries >= config.network.connection_retries)) break;
       }
-      if (retries < config.network.connection_retries) {
+      if ((config.network.connection_retries != 0 && (retries >= config.network.connection_retries)) || config.network.connection_retries == 0) {
         Serial.print("\n\nConnected to ");Serial.print(WiFi.SSID());
         Serial.print("\nIP address:\t");Serial.println(WiFi.localIP());
       } else {Serial.print("\n\nNot Connected to ");Serial.print(config.network.ssid_name);Serial.println(" max retries reached.");}
+
     }
+
+
+    // Config access point:
+    if (config.network.ap_name!=NULL &&
+        config.network.ap_password!=NULL){
+          Serial.print("Setting soft-AP ... ");
+
+          #if !IP_NAPT
+          Serial.println(WiFi.softAP(config.network.ap_name.c_str(),
+                      config.network.ap_password.c_str(),
+                      config.network.ap_channel,
+                      config.network.ap_ssid_hidden,
+                      config.network.ap_max_connection) ? "Ready" : "Failed!");
+          #else
+          // Channel must be the same than the STA's
+          Serial.println(WiFi.softAP(config.network.ap_name.c_str(),
+            config.network.ap_password.c_str()) ? "Ready" : "Failed!");
+          #endif
+          IPAddress myIP = WiFi.softAPIP();
+          Serial.print(config.network.ap_name);Serial.print(" AP IP address: ");
+          Serial.println(myIP);
+    }
+
+    // Enable NAPT:
+    #if ESP32 && IP_NAPT
+      if (enableNAT() == ESP_OK) Serial.println("NAT configured and enabled");
+      else Serial.println("Error configuring NAT");
+    #endif
 
     // Configure device hostname:
     if (config.network.hostname){
@@ -158,6 +231,38 @@ void networkRestart(void){
 
   }
 }
+
+#if ESP32 && IP_NAPT
+void handleAPStations(void){
+  AP_clients = WiFi.softAPgetStationNum();
+
+  if (AP_clients_last != AP_clients){
+    Serial.printf("Stations connected to AP: %d\n", AP_clients);
+    AP_clients_last = AP_clients;
+
+    wifi_sta_list_t wifi_sta_list;
+    tcpip_adapter_sta_list_t adapter_sta_list;
+  
+    memset(&wifi_sta_list, 0, sizeof(wifi_sta_list));
+    memset(&adapter_sta_list, 0, sizeof(adapter_sta_list));
+
+    // delay(500);   // To give time to AP to provide IP to the new station
+    esp_wifi_ap_get_sta_list(&wifi_sta_list);
+    tcpip_adapter_get_sta_list(&wifi_sta_list, &adapter_sta_list);
+  
+    for (int i = 0; i < adapter_sta_list.num; i++) {
+      tcpip_adapter_sta_info_t station = adapter_sta_list.sta[i];
+      Serial.printf("\t - Station %d MAC: ", i);
+      for(int i = 0; i< 6; i++){
+        Serial.printf("%02X", station.mac[i]);  
+        if(i<5)Serial.print(":");
+      }
+      Serial.printf("  IP: " IPSTR, IP2STR(&station.ip));
+      Serial.println();
+    }
+  }
+}
+#endif
 
 void enableServices(void){
   Serial.println("\n--- Services: ");
@@ -462,6 +567,14 @@ void loop() {
   //   networkRestart();
   //   config.configureServer(&server);
   // }
+
+  // Handle stations connection to the AP:
+  #if ESP32 && IP_NAPT
+    if(currentLoopMillis - previousHandleAPMillis > (unsigned)3000) {
+      handleAPStations();
+      previousHandleAPMillis = currentLoopMillis;
+    }
+  #endif
 
   // Handle mqtt reconnection:
   if (config.mqtt.enabled) {
