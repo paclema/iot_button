@@ -175,6 +175,7 @@ void enableServices(void){
   } else Serial.println("   - FTP -> disabled");
 
   if (config.services.webSockets.enabled){
+    if (config.services.webSockets.port) ws.setPort(config.services.webSockets.port);
     ws.init();
     Serial.println("   - WebSockets -> enabled");
   } else Serial.println("   - WebSockets -> disabled");

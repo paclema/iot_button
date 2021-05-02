@@ -109,6 +109,7 @@ public:
   struct WebSockets {
     bool enabled;
     int publish_time_ms;
+    int port;
   };
 
   struct DeepSleep {

@@ -160,6 +160,7 @@ void WebConfigServer::parseConfig(const JsonDocument& doc){
   // WebSockets
   services.webSockets.enabled = doc["services"]["WebSockets"]["enabled"] | false;
   services.webSockets.publish_time_ms = doc["services"]["WebSockets"]["publish_time_ms"];
+  services.webSockets.port = doc["services"]["WebSockets"]["port"];
   // DeepSleep
   services.deep_sleep.enabled = doc["services"]["deep_sleep"]["enabled"] | false;
   services.deep_sleep.mode = doc["services"]["deep_sleep"]["mode"] | "WAKE_RF_DEFAULT";
