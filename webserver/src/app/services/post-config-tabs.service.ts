@@ -12,8 +12,10 @@ import { environment } from '../../environments/environment';
 export class PostConfigTabsService {
 
   _url = 'http://localhost:3000/enroll';
-  _urlBase = (environment.apiUrl ? environment.apiUrl : "http://"+location.hostname) 
-              + ":" +environment.apiPort;
+  // _urlBase = (environment.apiUrl ? environment.apiUrl : "http://"+location.hostname) 
+  //             + ":" +environment.apiPort;
+  _urlBase = (environment.apiUrl ? environment.apiUrl + ":" +environment.apiPort : "http://"+location.host);
+  
 
   constructor(private _http: HttpClient) { }
 

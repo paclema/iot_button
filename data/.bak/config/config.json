@@ -44,7 +44,8 @@
     },
     "WebSockets": {
       "enabled": true,
-      "publish_time_ms": 100
+      "publish_time_ms": 100,
+      "port": 81
     },
     "deep_sleep": {
       "enabled": false,
