@@ -2,21 +2,26 @@
   "network": {
     "AP_SSID": "iotdevice",
     "AP_password": "iotdevice",
+    "AP_channel": 11,
+    "AP_SSID_hidden": false,
+    "AP_max_connection": 4,
     "WiFi_SSID": "wifissid",
-    "WiFi_password": "wifipwd",
+    "WiFi_password": "wifipass",
+    "connection_retries": 0,
     "ip_address": "192.168.1.2",
     "subnet": "255.255.255.0",
     "dns_Server": "192.168.1.1",
-    "hostname": "iotbutton.lan"
+    "hostname": "iotdevice"
   },
   "mqtt": {
+    "enabled": false,
+    "reconnect_mqtt": false,
     "server": "broker.ddns.net",
+    "port": 1883,
     "id_name": "iotbutton",
+    "enable_user_and_pass": true,
     "user_name": "user_name",
     "user_password": "user_password",
-    "port": 1883,
-    "reconnect_mqtt": false,
-    "enable_user_and_pass": true,
     "enable_certificates": false,
     "ca_file": "/certs/ca.crt",
     "cert_file": "/certs/cert.der",
@@ -31,12 +36,17 @@
     ]
   },
   "services": {
+    "OTA": true,
     "FTP": {
       "enabled": true,
       "user": "user",
       "password": "pwd"
     },
-    "OTA": true,
+    "WebSockets": {
+      "enabled": true,
+      "publish_time_ms": 100,
+      "port": 81
+    },
     "deep_sleep": {
       "enabled": false,
       "mode": "WAKE_RF_DEFAULT",
@@ -46,7 +56,7 @@
         "WAKE_RFCAL",
         "WAKE_NO_RFCAL"
       ],
-      "sleep_time": 60000,
+      "sleep_time": 60,
       "sleep_delay": 60
     },
     "light_sleep": {
