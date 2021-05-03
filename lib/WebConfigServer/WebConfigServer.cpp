@@ -126,6 +126,7 @@ void WebConfigServer::parseConfig(const JsonDocument& doc){
   network.subnet = doc["network"]["subnet"] | "255.255.255.0";
   network.dns_server = doc["network"]["dns_server"] | "192.168.1.1";
   network.hostname = doc["network"]["hostname"] | "iotdevice.local";
+  network.enable_NAT = doc["network"]["enable_NAT"] | false;
 
 
   // MQTT object:

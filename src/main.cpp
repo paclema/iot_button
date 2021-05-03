@@ -218,11 +218,13 @@ void networkRestart(void){
 
     // Enable NAPT:
     #if ESP32 && IP_NAPT
-      if (WiFi.isConnected() && APEnabled) {
-        esp_err_t err = enableNAT();
-        if (err == ESP_OK) Serial.println("NAT configured and enabled");
-        else Serial.printf("Error configuring NAT: %s\n", esp_err_to_name(err));
-      } else Serial.printf("Error configuring NAT: STA or AP not working\n");
+      if (config.network.enable_NAT){
+        if (WiFi.isConnected() && APEnabled) {
+          esp_err_t err = enableNAT();
+          if (err == ESP_OK) Serial.println("NAT configured and enabled");
+          else Serial.printf("Error configuring NAT: %s\n", esp_err_to_name(err));
+        } else Serial.printf("Error configuring NAT: STA or AP not working\n");
+      }
     #endif
 
     // Configure device hostname:

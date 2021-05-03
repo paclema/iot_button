@@ -79,8 +79,7 @@ public:
     String subnet;
     String dns_server;
     String hostname;
-
-
+    bool enable_NAT;
   } network;
 
   struct Mqtt {
