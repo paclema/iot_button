@@ -146,8 +146,12 @@ esp_err_t enableNAT(void){
   ip_napt_enable(WiFi.softAPIP(), 1);
 
   // Example port mapping to stations:
+  // Mapping Webserver: (of an sta connected to this ap)
   ip_portmap_add(PROTO_TCP,WiFi.localIP(), 8080,IPAddress(192, 168, 4, 2), 80 );
   ip_portmap_add(PROTO_UDP,WiFi.localIP(), 8080,IPAddress(192, 168, 4, 2), 80 );
+  // Mapping WebSockets:
+  ip_portmap_add(PROTO_TCP,WiFi.localIP(), 94,IPAddress(192, 168, 4, 2), 94 );
+  ip_portmap_add(PROTO_UDP,WiFi.localIP(), 94,IPAddress(192, 168, 4, 2), 94 );
 
   return err;
 }
