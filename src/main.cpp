@@ -141,17 +141,18 @@ esp_err_t enableNAT(void){
 
   err = tcpip_adapter_dhcps_start(TCPIP_ADAPTER_IF_AP); if (err != ESP_OK) return err;
 
-  
+
   // Enable NAT:
   ip_napt_enable(WiFi.softAPIP(), 1);
 
   // Example port mapping to stations:
   // Mapping Webserver: (of an sta connected to this ap)
-  ip_portmap_add(PROTO_TCP,WiFi.localIP(), 8080,IPAddress(192, 168, 4, 2), 80 );
-  ip_portmap_add(PROTO_UDP,WiFi.localIP(), 8080,IPAddress(192, 168, 4, 2), 80 );
+  IPAddress ap_ip = WiFi.localIP();
+  ip_portmap_add(PROTO_TCP,ap_ip, 8080,IPAddress(192, 168, 4, 2), 80 );
+  ip_portmap_add(PROTO_UDP,ap_ip, 8080,IPAddress(192, 168, 4, 2), 80 );
   // Mapping WebSockets:
-  ip_portmap_add(PROTO_TCP,WiFi.localIP(), 94,IPAddress(192, 168, 4, 2), 94 );
-  ip_portmap_add(PROTO_UDP,WiFi.localIP(), 94,IPAddress(192, 168, 4, 2), 94 );
+  ip_portmap_add(PROTO_TCP,ap_ip, 94,IPAddress(192, 168, 4, 2), 94 );
+  ip_portmap_add(PROTO_UDP,ap_ip, 94,IPAddress(192, 168, 4, 2), 94 );
 
   return err;
 }
@@ -161,7 +162,7 @@ void networkRestart(void){
   if(config.status() == CONFIG_LOADED){
 
     // WiFi setup:
-    WiFi.disconnect(true);        // close old connections
+    // WiFi.disconnect(true);        // close old connections
     #ifdef ESP32
       WiFi.setHostname(config.network.hostname.c_str());
       WiFi.mode(WIFI_MODE_APSTA);
@@ -176,16 +177,16 @@ void networkRestart(void){
     // Client Wifi config:
     if (config.network.ssid_name!=NULL && config.network.ssid_password!=NULL){
 
-      wifiMulti.addAP(config.network.ssid_name.c_str(),config.network.ssid_password.c_str());    // Using wifiMulti
-      // WiFi.begin(config.network.ssid_name.c_str(),config.network.ssid_password.c_str());      // Connecting just to one ap
+      // wifiMulti.addAP(config.network.ssid_name.c_str(),config.network.ssid_password.c_str());    // Using wifiMulti
+      WiFi.begin(config.network.ssid_name.c_str(),config.network.ssid_password.c_str());      // Connecting just to one ap
 
       Serial.printf("Connecting to %s...\n",config.network.ssid_name.c_str());
       int retries = 0;
-      while ((wifiMulti.run() != WL_CONNECTED)) {   // Using wifiMulti
-      // while (WiFi.status() != WL_CONNECTED) {    // Connecting just to one ap
-        delay(1000);
-        retries++;
+      // while ((wifiMulti.run() != WL_CONNECTED)) {   // Using wifiMulti
+      while (WiFi.status() != WL_CONNECTED) {    // Connecting just to one ap
         Serial.print('.');
+        delay(500);
+        retries++;
         if (config.network.connection_retries != 0 && (retries >= config.network.connection_retries)) break;
       }
       if ((config.network.connection_retries != 0 && (retries >= config.network.connection_retries)) || config.network.connection_retries == 0) {
@@ -208,22 +209,24 @@ void networkRestart(void){
     #endif
 
 
-    if (config.network.ap_name!=NULL &&
-        config.network.ap_password!=NULL){
-          Serial.print("Setting soft-AP... ");
-          
+    if (config.network.ap_name!=NULL && config.network.ap_password!=NULL){
+        Serial.print("Setting soft-AP... ");
+        
+        if (config.network.enable_NAT){
           APEnabled = WiFi.softAP(config.network.ap_name.c_str(),
-                        config.network.ap_password.c_str(),
-                        // If STA connected, use the same channel instead configured one:
-                        (WiFi.isConnected() && channelSTA) ? channelSTA : config.network.ap_channel,  
-                        config.network.ap_ssid_hidden,
-                        config.network.ap_max_connection);
-
-          Serial.println(APEnabled ? "Ready" : "Failed!");
-          IPAddress myIP = WiFi.softAPIP();
-          Serial.print(config.network.ap_name);Serial.print(" AP IP address: ");
-          Serial.println(myIP);
-          delay(10);
+            config.network.ap_password.c_str());
+        } else {
+          APEnabled = WiFi.softAP(config.network.ap_name.c_str(),
+            config.network.ap_password.c_str(),
+            // If STA connected, use the same channel instead configured one:
+            (WiFi.isConnected() && channelSTA) ? channelSTA : config.network.ap_channel,  
+            config.network.ap_ssid_hidden,
+            config.network.ap_max_connection);
+        }
+        Serial.println(APEnabled ? "Ready" : "Failed!");
+        IPAddress myIP = WiFi.softAPIP();
+        Serial.print(config.network.ap_name);Serial.print(" AP IP address: ");
+        Serial.println(myIP);
 
     }
 
