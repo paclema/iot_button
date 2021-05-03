@@ -342,35 +342,44 @@ bool Radar::readPoints(void){
     float distance[4];
     if (sensorTemp->sensorRead(distance)){
       if (nameSensor == "VL53L1X_ROI") {
-        // rPoints[index].fov_angle = sensorTemp->getFovAngle();
+        // rPoints_1[index].fov_angle = sensorTemp->getFovAngle();
         int numPoints = 4;  //TODO: get the num depending on ROI zones
         float angle = this->motor1.getAngle() + this->motor1.angleOffset;
         for(int j = 0; j < numPoints; j++){
           rPoints[index+j].angle = angle-(27./2) + (27./8) + (27./4)*(j);
           rPoints[index+j].distance = distance[j];
           rPoints[index+j].fov_angle = (27./4);
+          rPoints[index+j].sensor_name = nameSensor;
         }
         index = index + 4;
       } else if (nameSensor ==  "vl53l1x_1"){
         rPoints[index].angle = this->motor1.getAngle() + this->motor1.angleOffset;
         rPoints[index].distance = distance[0];
         rPoints[index].fov_angle = 27;
+        rPoints[index].sensor_name = nameSensor;
         index++;
       } else if (nameSensor ==  "vl53l1x_2"){
         rPoints[index].angle = this->motor2.getAngle() + this->motor2.angleOffset;
         rPoints[index].distance = distance[0];
         rPoints[index].fov_angle = 27;
+        rPoints[index].sensor_name = nameSensor;
         index++;
       } else if (nameSensor == "VL53L0X"){
         rPoints[index].angle = this->motor1.getAngle() + this->motor1.angleOffset;
         rPoints[index].distance = distance[0];
         rPoints[index].fov_angle = 27;
+        rPoints[index].sensor_name = nameSensor;
         index++;
       } else if (nameSensor == "HCSR04"){
         rPoints[index].angle = this->motor1.getAngle() + this->motor1.angleOffset;
         rPoints[index].distance = distance[0];
         rPoints[index].fov_angle = 27;
+        rPoints[index].sensor_name = nameSensor;
         index++;
+      }
+    } else {
+      if (this->debug){
+        Serial.printf("Error reading the sensor: %s\n", nameSensor);
       }
     }
 
@@ -394,6 +403,7 @@ String Radar::getJsonPoints(void){
     else data += ",{\"angle\":" + String(this->rPoints[i].angle);
     data += ",\"distance\":" + String(this->rPoints[i].distance);
     data += ",\"fov_angle\":" + String(this->rPoints[i].fov_angle);
+    data += ",\"sensor_name\": \"" + String(this->rPoints[i].sensor_name) + "\"";
     data += "}";
   }
   return data;
