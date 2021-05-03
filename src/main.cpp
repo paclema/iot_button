@@ -179,7 +179,7 @@ void networkRestart(void){
       wifiMulti.addAP(config.network.ssid_name.c_str(),config.network.ssid_password.c_str());    // Using wifiMulti
       // WiFi.begin(config.network.ssid_name.c_str(),config.network.ssid_password.c_str());      // Connecting just to one ap
 
-      Serial.printf("Connecting to %s...\n",config.network.ssid_name);
+      Serial.printf("Connecting to %s...\n",config.network.ssid_name.c_str());
       int retries = 0;
       while ((wifiMulti.run() != WL_CONNECTED)) {   // Using wifiMulti
       // while (WiFi.status() != WL_CONNECTED) {    // Connecting just to one ap
@@ -197,9 +197,16 @@ void networkRestart(void){
 
 
     // Config access point:
-    wifi_ap_record_t staConfig;
-    esp_wifi_sta_get_ap_info(&staConfig);
     bool APEnabled = false;
+    uint8_t channelSTA;
+    #ifdef ESP32
+      wifi_ap_record_t staConfig;
+      esp_wifi_sta_get_ap_info(&staConfig);
+      channelSTA = staConfig.primary;
+    #elif defined(ESP8266)
+      channelSTA = wifi_get_channel();
+    #endif
+
 
     if (config.network.ap_name!=NULL &&
         config.network.ap_password!=NULL){
@@ -208,7 +215,7 @@ void networkRestart(void){
           APEnabled = WiFi.softAP(config.network.ap_name.c_str(),
                         config.network.ap_password.c_str(),
                         // If STA connected, use the same channel instead configured one:
-                        (WiFi.isConnected() && staConfig.primary) ? staConfig.primary : config.network.ap_channel,  
+                        (WiFi.isConnected() && channelSTA) ? channelSTA : config.network.ap_channel,  
                         config.network.ap_ssid_hidden,
                         config.network.ap_max_connection);
 
