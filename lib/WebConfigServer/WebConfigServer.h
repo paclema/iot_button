@@ -74,10 +74,12 @@ public:
     int ap_max_connection;
     String ssid_name;
     String ssid_password;
+    int connection_retries;
     String ip_address;
     String subnet;
     String dns_server;
     String hostname;
+    bool enable_NAT;
   } network;
 
   struct Mqtt {
@@ -106,6 +108,7 @@ public:
   struct WebSockets {
     bool enabled;
     int publish_time_ms;
+    int port;
   };
 
   struct DeepSleep {

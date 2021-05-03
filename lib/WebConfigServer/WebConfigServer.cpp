@@ -121,10 +121,12 @@ void WebConfigServer::parseConfig(const JsonDocument& doc){
   network.ap_max_connection = doc["network"]["AP_max_connection"] | 4;
   network.ssid_name = doc["network"]["WiFi_SSID"] | "SSID_name";
   network.ssid_password = doc["network"]["WiFi_password"] | "SSID_password";
+  network.ap_max_connection = doc["network"]["connection_retries"] | 0;
   network.ip_address = doc["network"]["ip_address"] | "192.168.1.2";
   network.subnet = doc["network"]["subnet"] | "255.255.255.0";
   network.dns_server = doc["network"]["dns_server"] | "192.168.1.1";
   network.hostname = doc["network"]["hostname"] | "iotdevice.local";
+  network.enable_NAT = doc["network"]["enable_NAT"] | false;
 
 
   // MQTT object:
@@ -159,6 +161,7 @@ void WebConfigServer::parseConfig(const JsonDocument& doc){
   // WebSockets
   services.webSockets.enabled = doc["services"]["WebSockets"]["enabled"] | false;
   services.webSockets.publish_time_ms = doc["services"]["WebSockets"]["publish_time_ms"];
+  services.webSockets.port = doc["services"]["WebSockets"]["port"];
   // DeepSleep
   services.deep_sleep.enabled = doc["services"]["deep_sleep"]["enabled"] | false;
   services.deep_sleep.mode = doc["services"]["deep_sleep"]["mode"] | "WAKE_RF_DEFAULT";

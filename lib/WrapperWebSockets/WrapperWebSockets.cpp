@@ -7,9 +7,11 @@
 void WrapperWebSockets::init(void) {
   // Serial.println("Starting Websocket server...");
 
+  webSocket = new WebSocketsServer(this->port);
+
   // start webSocket server
-  webSocket.begin();
-  webSocket.onEvent(webSocketEvent);
+  webSocket->begin();
+  webSocket->onEvent(webSocketEvent);
 
   // Exaple to add a websocket function:
   // listObjets[0] = "heap_free";
@@ -20,7 +22,6 @@ void WrapperWebSockets::init(void) {
 };
 
 
-
 void WrapperWebSockets::webSocketEvent(uint8_t num, WStype_t type, uint8_t * payload, size_t length) {
 
     switch(type) {
@@ -28,11 +29,11 @@ void WrapperWebSockets::webSocketEvent(uint8_t num, WStype_t type, uint8_t * pay
             Serial.printf("[%u] Disconnected!\n", num);
             break;
         case WStype_CONNECTED: {
-            IPAddress ip =  webSocket.remoteIP(num);
+            IPAddress ip =  webSocket->remoteIP(num);
             Serial.printf("[%u] Connected from %d.%d.%d.%d url: %s\n", num, ip[0], ip[1], ip[2], ip[3], payload);
 
             // send message to client
-            webSocket.sendTXT(num, "{\"Connected\": true}");
+            webSocket->sendTXT(num, "{\"Connected\": true}");
         }
             break;
         case WStype_TEXT:
@@ -60,13 +61,13 @@ void WrapperWebSockets::publishClients(void) {
 
   numClients++;
   // bool ping = (numClients % 2);
-  // int i = webSocket.connectedClients(ping);
+  // int i = webSocket->connectedClients(ping);
   // Serial.printf("%d Connected websocket clients ping: %d\n", i, ping);
 
   // To send msg to all connected clients:
-  // webSocket.broadcastTXT("message here");
+  // webSocket->broadcastTXT("message here");
   // To send msg to specific client id:
-  // webSocket.sendTXT(i-1, msg_ws.c_str());
+  // webSocket->sendTXT(i-1, msg_ws.c_str());
 
   String msg_ws = "{";
 
@@ -78,15 +79,15 @@ void WrapperWebSockets::publishClients(void) {
   };
 
   // Serial.println(msg_ws.c_str());
-  // webSocket.sendTXT(i-1, msg_ws.c_str());
-  // webSocket.sendTXT(0, msg_ws.c_str());
-  webSocket.broadcastTXT(msg_ws.c_str());
+  // webSocket->sendTXT(i-1, msg_ws.c_str());
+  // webSocket->sendTXT(0, msg_ws.c_str());
+  webSocket->broadcastTXT(msg_ws.c_str());
 
 };
 
 
 void WrapperWebSockets::handle(void) {
-  webSocket.loop();
+  webSocket->loop();
 };
 
 
