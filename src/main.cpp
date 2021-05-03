@@ -128,32 +128,27 @@ esp_err_t enableNAT(void){
   tcpip_adapter_dns_info_t ip_dns_backup;
 
 
-  err += tcpip_adapter_dhcps_stop(TCPIP_ADAPTER_IF_AP);
+  err = tcpip_adapter_dhcps_stop(TCPIP_ADAPTER_IF_AP); if (err != ESP_OK) return err;
 
-  err += tcpip_adapter_get_dns_info(TCPIP_ADAPTER_IF_STA, ESP_NETIF_DNS_MAIN, &ip_dns_main);
-  err += tcpip_adapter_get_dns_info(TCPIP_ADAPTER_IF_STA, ESP_NETIF_DNS_BACKUP, &ip_dns_backup);
+  err = tcpip_adapter_get_dns_info(TCPIP_ADAPTER_IF_STA, ESP_NETIF_DNS_MAIN, &ip_dns_main); if (err != ESP_OK) return err;
+  err = tcpip_adapter_get_dns_info(TCPIP_ADAPTER_IF_STA, ESP_NETIF_DNS_BACKUP, &ip_dns_backup); if (err != ESP_OK) return err;
 
-  err += tcpip_adapter_set_dns_info(TCPIP_ADAPTER_IF_AP, ESP_NETIF_DNS_MAIN, &ip_dns_main);
+  err = tcpip_adapter_set_dns_info(TCPIP_ADAPTER_IF_AP, ESP_NETIF_DNS_MAIN, &ip_dns_main); if (err != ESP_OK) return err;
   // Serial.printf("\ntcpip_adapter_set_dns_info ESP_NETIF_DNS_MAIN: err %s . ip_dns:" IPSTR, esp_err_to_name(err), IP2STR(&ip_dns_main.ip.u_addr.ip4)) ;
 
   dhcps_offer_t opt_val = OFFER_DNS; // supply a dns server via dhcps
   tcpip_adapter_dhcps_option(ESP_NETIF_OP_SET, ESP_NETIF_DOMAIN_NAME_SERVER, &opt_val, 1);
 
-  err += tcpip_adapter_dhcps_start(TCPIP_ADAPTER_IF_AP);
+  err = tcpip_adapter_dhcps_start(TCPIP_ADAPTER_IF_AP); if (err != ESP_OK) return err;
 
-  if (err != ESP_OK) return err;
-
-
-  // Enable NAT:
   
-  // #if IP_NAPT
+  // Enable NAT:
   ip_napt_enable(WiFi.softAPIP(), 1);
 
   // Example port mapping to stations:
   ip_portmap_add(PROTO_TCP,WiFi.localIP(), 8080,IPAddress(192, 168, 4, 2), 80 );
   ip_portmap_add(PROTO_UDP,WiFi.localIP(), 8080,IPAddress(192, 168, 4, 2), 80 );
 
-  // #endif
   return err;
 }
 #endif
@@ -162,6 +157,7 @@ void networkRestart(void){
   if(config.status() == CONFIG_LOADED){
 
     // WiFi setup:
+    WiFi.disconnect(true);        // close old connections
     #ifdef ESP32
       WiFi.setHostname(config.network.hostname.c_str());
       WiFi.mode(WIFI_MODE_APSTA);
@@ -176,14 +172,14 @@ void networkRestart(void){
     // Client Wifi config:
     if (config.network.ssid_name!=NULL && config.network.ssid_password!=NULL){
 
-      // wifiMulti.addAP(config.network.ssid_name.c_str(),config.network.ssid_password.c_str());    // There are some issues to connect using wifiMulti
-      WiFi.begin(config.network.ssid_name.c_str(),config.network.ssid_password.c_str());            // 
+      wifiMulti.addAP(config.network.ssid_name.c_str(),config.network.ssid_password.c_str());    // Using wifiMulti
+      // WiFi.begin(config.network.ssid_name.c_str(),config.network.ssid_password.c_str());      // Connecting just to one ap
 
-      Serial.print("Connecting to ");Serial.println(config.network.ssid_name);
+      Serial.printf("Connecting to %s...\n",config.network.ssid_name);
       int retries = 0;
-      // while ((wifiMulti.run() != WL_CONNECTED)) {
-      while (WiFi.status() != WL_CONNECTED) {
-        delay(200);
+      while ((wifiMulti.run() != WL_CONNECTED)) {   // Using wifiMulti
+      // while (WiFi.status() != WL_CONNECTED) {    // Connecting just to one ap
+        delay(1000);
         retries++;
         Serial.print('.');
         if (config.network.connection_retries != 0 && (retries >= config.network.connection_retries)) break;
@@ -197,30 +193,36 @@ void networkRestart(void){
 
 
     // Config access point:
+    wifi_ap_record_t staConfig;
+    esp_wifi_sta_get_ap_info(&staConfig);
+    bool APEnabled = false;
+
     if (config.network.ap_name!=NULL &&
         config.network.ap_password!=NULL){
-          Serial.print("Setting soft-AP ... ");
+          Serial.print("Setting soft-AP... ");
+          
+          APEnabled = WiFi.softAP(config.network.ap_name.c_str(),
+                        config.network.ap_password.c_str(),
+                        // If STA connected, use the same channel instead configured one:
+                        (WiFi.isConnected() && staConfig.primary) ? staConfig.primary : config.network.ap_channel,  
+                        config.network.ap_ssid_hidden,
+                        config.network.ap_max_connection);
 
-          #if !IP_NAPT
-          Serial.println(WiFi.softAP(config.network.ap_name.c_str(),
-                      config.network.ap_password.c_str(),
-                      config.network.ap_channel,
-                      config.network.ap_ssid_hidden,
-                      config.network.ap_max_connection) ? "Ready" : "Failed!");
-          #else
-          // Channel must be the same than the STA's
-          Serial.println(WiFi.softAP(config.network.ap_name.c_str(),
-            config.network.ap_password.c_str()) ? "Ready" : "Failed!");
-          #endif
+          Serial.println(APEnabled ? "Ready" : "Failed!");
           IPAddress myIP = WiFi.softAPIP();
           Serial.print(config.network.ap_name);Serial.print(" AP IP address: ");
           Serial.println(myIP);
+          delay(10);
+
     }
 
     // Enable NAPT:
     #if ESP32 && IP_NAPT
-      if (enableNAT() == ESP_OK) Serial.println("NAT configured and enabled");
-      else Serial.println("Error configuring NAT");
+      if (WiFi.isConnected() && APEnabled) {
+        esp_err_t err = enableNAT();
+        if (err == ESP_OK) Serial.println("NAT configured and enabled");
+        else Serial.printf("Error configuring NAT: %s\n", esp_err_to_name(err));
+      } else Serial.printf("Error configuring NAT: STA or AP not working\n");
     #endif
 
     // Configure device hostname:
