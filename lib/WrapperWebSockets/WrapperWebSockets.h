@@ -8,7 +8,7 @@
 
 #define  MAX_LIST_OBJECT_FUNCTIONS 10
 
-static WebSocketsServer webSocket = WebSocketsServer(81);
+static WebSocketsServer* webSocket ;
 
 class WrapperWebSockets{
 
@@ -23,8 +23,11 @@ String listObjets[MAX_LIST_OBJECT_FUNCTIONS];
 String (*listObjetFunctions[MAX_LIST_OBJECT_FUNCTIONS])();
 int listObjetsIndex = 0;
 
+int port = 81;
+
 public:
 
+  void setPort(int port) {this->port = port; };
   void init(void);
   static void webSocketEvent(uint8_t num, WStype_t type, uint8_t * payload, size_t length);
   void publishClients(void);
