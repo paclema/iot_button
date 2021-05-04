@@ -70,7 +70,6 @@ void PeopleCounter::enablePeopleCounterServices(void){
 
 
   // LDR sensor:
-  PeopleCounter::setupLEDStrip();
   Serial.printf("   - LDR sensor:\n");
   Serial.printf("       - Enabled: %s\n", this->LDREnabled ? "true" : "false");
   Serial.printf("       - Pin: %d\n", this->LDRPin);
@@ -174,19 +173,29 @@ void PeopleCounter::loop(void){
 
   // CHECK GESTURE USING ALGORITHM:
   if (readStatus == VL53L1_ERROR_NONE){
-    if (sensor.distance[0] < rangeThresholdCounter_mm) statusFront = 2;
-    else statusFront = 0;
-    if (sensor.distance[1] < rangeThresholdCounter_mm) statusBack = 1;
-    else statusBack = 0;
+      if (sensor.distance[0] < rangeThresholdCounter_mm) statusFront = 2;
+      else statusFront = 0;
+      if (sensor.distance[1] < rangeThresholdCounter_mm) statusBack = 1;
+      else statusBack = 0;
 
     // Process new gesture if no error occurs reading distances:
     PeopleCounter::processGesture();
 
+    // Store distances:
+    if (currentGesture == NO_PERSON_DETECTED) { 
+      addZoneDistances(sensor.distance[0], sensor.distance[1]);
+      }
+    else if (currentGesture == PERSON_IN_RANGE_START &&
+            lastGesture == NO_PERSON_DETECTED) {
+      addZoneDistances(sensor.distance[0], sensor.distance[1]);
+      PeopleCounter::notifyZoneDistances();
+    }
+    
   } else {
       currentGesture = ERROR_READING_SENSOR;
       PeopleCounter::notifyGesture(currentGesture);
   }
-
+  lastGesture = currentGesture;
 };
 
 
@@ -226,6 +235,7 @@ void PeopleCounter::processGesture(void){
 
   } else if (statusPersonNow == 0 && statusPersonLast == 0){
     statusPersonIndex = 0;
+    currentGesture = NO_PERSON_DETECTED;
   }
 
   // Serial.printf("Current statusPersonNow: %d - statusPersonIndex: %d - cnt: %d\n", statusPersonNow, statusPersonIndex, cnt);
@@ -242,7 +252,7 @@ void PeopleCounter::processGesture(void){
   // Decode person gesture if statusPerson counter reaches enough information:
   if ( statusPersonIndex == 4 || (statusPersonIndex == 2 && statusPersonNow == 0)) {
 
-    PeopleCounterGesture newGesture;
+    // PeopleCounterGesture newGesture;
     int statusPersonTotal = 0;
     for (int i=0; i<=STATUS_PERSON_ARRAY_SIZE; i++){
       statusPersonTotal += statusPerson[i];
@@ -252,41 +262,38 @@ void PeopleCounter::processGesture(void){
     case 6:
       if (statusPerson[1] == 2){
         cnt++;
-        newGesture = PERSON_ENTERS;
+        currentGesture = PERSON_ENTERS;
       } else if (statusPerson[1] == 1) {
         cnt--;
-        newGesture = PERSON_LEAVES;
+        currentGesture = PERSON_LEAVES;
       } else {
-        newGesture = ERROR_DETECTING_PERSON;
+        currentGesture = ERROR_DETECTING_PERSON;
       }
       break;
     case 2:
     case 7:
-      newGesture = PERSON_TRY_TO_ENTER;
+      currentGesture = PERSON_TRY_TO_ENTER;
       break;
     case 1:
     case 5:
-      newGesture = PERSON_TRY_TO_LEAVE;
+      currentGesture = PERSON_TRY_TO_LEAVE;
       break;
     case 3:
-      newGesture = ERROR_PERSON_TOO_FAST;
+      currentGesture = ERROR_PERSON_TOO_FAST;
       break;
     default:
-      newGesture = ERROR_PERSON_NOT_FULL_DETECTED;
+      currentGesture = ERROR_PERSON_NOT_FULL_DETECTED;
       break;
     }
     Serial.println();
 
-    currentGesture = newGesture;
-    PeopleCounter::notifyGesture(newGesture);
+    PeopleCounter::notifyGesture(currentGesture);
     statusPersonIndex = 0;
     statusPersonNow = 0;
     statusPersonLast = 0;
     for (int i=0; i<=STATUS_PERSON_ARRAY_SIZE; i++){
       statusPerson[i] = 0;
     }
-  } else {
-    currentGesture = NO_PERSON_DETECTED;
   }
 
 
@@ -336,7 +343,7 @@ void PeopleCounter::notifyGesture(PeopleCounterGesture gesture){
   switch (gesture){
   case PERSON_ENTERS:
     msgGesture = "Person enters";
-    PeopleCounter::setLEDStripColor(this->ledDefaultColor);;
+    PeopleCounter::setLEDStripColor(this->ledDefaultColor);
     break;
   case PERSON_LEAVES:
     msgGesture = "Person leaves";
@@ -412,6 +419,18 @@ void PeopleCounter::notifyGesture(PeopleCounterGesture gesture){
 }
 
 
+void PeopleCounter::notifyZoneDistances(){
+
+  // Notify via MQTT:
+  String topic_pub = this->mqttBaseTopic + "/data/zoneDistances";
+  String msg_pub = "{ \"zoneDistances_pre_gesture\": " + getLastZoneDistances() + " }";
+  mqttClient->setBufferSize((uint16_t)(msg_pub.length() + 100));
+  mqttClient->publish(topic_pub.c_str(), msg_pub.c_str(), msg_pub.length());
+
+  clearZoneDistances();
+}
+
+
 void PeopleCounter::notifyStatusPerson(){
 
   String msgStatusPerson = "[";
@@ -453,3 +472,75 @@ void PeopleCounter::notifyReedSwitch(){
   if (this->debug) Serial.printf("\t-> reedSwitch: %d\n", this->reedSwitchState);
   mqttClient->publish(topic_pub.c_str(), msg_pub.c_str(), msg_pub.length());
 }
+
+
+void PeopleCounter::clearZoneDistances(void){
+  for (size_t i = 0; i < DIST_PRE_GESTURE_ARRAY_SIZE; i++) {
+    zoneDistPreGesture[i].dist1 = 0;
+    zoneDistPreGesture[i].dist2 = 0;
+  }
+};
+
+
+void PeopleCounter::addZoneDistances(int dist1, int dist2){
+  zoneDistPreGesture[wIndexPreGesture].dist1 = dist1;
+  zoneDistPreGesture[wIndexPreGesture].dist2 = dist2;
+  if ( wIndexPreGesture == DIST_PRE_GESTURE_ARRAY_SIZE-1) wIndexPreGesture = 0;
+  else wIndexPreGesture++;
+};
+
+
+void PeopleCounter::printZoneDistances(void){
+  Serial.printf("zoneDistPreGesture[%d]: [", DIST_PRE_GESTURE_ARRAY_SIZE);
+  for (size_t i = 0; i < DIST_PRE_GESTURE_ARRAY_SIZE; i++) {
+    if (i == DIST_PRE_GESTURE_ARRAY_SIZE-1) Serial.printf( " [%d,%d] ", zoneDistPreGesture[i].dist1, zoneDistPreGesture[i].dist2);
+    else Serial.printf( " [%d,%d],", zoneDistPreGesture[i].dist1, zoneDistPreGesture[i].dist2);
+  }
+  Serial.printf("]  - wIndexPreGesture: %d\n", wIndexPreGesture);
+}
+
+
+String PeopleCounter::getLastZoneDistances(void){
+  ZoneDistances objectTemp[DIST_PRE_GESTURE_ARRAY_SIZE] = {};
+  int wIndexTemp = 0;
+  String outString = "[";
+
+  // From current write index to final point:
+  for (int i = wIndexPreGesture; i < DIST_PRE_GESTURE_ARRAY_SIZE; i++) {
+    outString += " [";
+    outString += zoneDistPreGesture[i].dist1;
+    outString += ",";
+    outString += zoneDistPreGesture[i].dist2;
+    outString += "],";
+    objectTemp[wIndexTemp] = zoneDistPreGesture[i];
+    wIndexTemp++;
+  }
+
+  // From 0 index to current write index point:
+  for (int i = 0; i < wIndexPreGesture; i++) {
+    if (i == (wIndexPreGesture-1)) {
+      outString += " [";
+      outString += zoneDistPreGesture[i].dist1;
+      outString += ",";
+      outString += zoneDistPreGesture[i].dist2;
+      outString += "] ";
+    } else {
+      outString += " [";
+      outString += zoneDistPreGesture[i].dist1;
+      outString += ",";
+      outString += zoneDistPreGesture[i].dist2;
+      outString += "],";
+    }
+    objectTemp[wIndexTemp] = zoneDistPreGesture[i];
+    wIndexTemp++;
+  }
+  outString += "]";
+
+  // Re-order buffer to keep last value in the last index:
+  memcpy(zoneDistPreGesture, objectTemp, sizeof(zoneDistPreGesture));
+  wIndexPreGesture = 0;
+  // printBuffer();
+  if (this->debug) Serial.printf("zoneDistPreGesture[%d]: %s", DIST_PRE_GESTURE_ARRAY_SIZE, outString.c_str());
+
+  return outString;
+};

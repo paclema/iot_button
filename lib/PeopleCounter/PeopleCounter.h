@@ -36,6 +36,11 @@ typedef int8_t PeopleCounterGesture;
 #define ERROR_READING_SENSOR              ((PeopleCounterGesture)  -4)
 
 
+#define DIST_PRE_GESTURE_ARRAY_SIZE 20
+struct ZoneDistances {
+  int dist1;
+  int dist2;
+};
 
 class PeopleCounter: public IWebConfig {
 
@@ -43,7 +48,10 @@ private:
 
   bool debug = false;
   bool peopleCounterInitialized  = false;
-  
+
+  ZoneDistances zoneDistPreGesture[DIST_PRE_GESTURE_ARRAY_SIZE] = {};
+  int wIndexPreGesture = 0;
+
   int statusPerson[STATUS_PERSON_ARRAY_SIZE];
   int statusPersonNow = 0, statusPersonLast = 0, statusPersonIndex = 0;
   int statusFront = 0;
@@ -55,6 +63,7 @@ private:
   int rangeThresholdCounter_mm = 1200;
 
   PeopleCounterGesture currentGesture = NO_PERSON_DETECTED;
+  PeopleCounterGesture lastGesture = currentGesture;
   PubSubClient *mqttClient;
   Ticker ledOn, ledOff;
 
@@ -111,6 +120,7 @@ public:
   void processGesture(void);
 
   void notifyGesture(PeopleCounterGesture);
+  void notifyZoneDistances(void);
   void notifyStatusPerson(void);
   void notifyData(void);
   void notifyReedSwitch(void);
@@ -138,6 +148,12 @@ public:
     // Serial.printf("Blinking to %d", status);
     digitalWrite(LED_BUILTIN, !status); 
   };
+
+
+  void clearZoneDistances(void);
+  void addZoneDistances(int distance1, int distance2);
+  void printZoneDistances(void);
+  String getLastZoneDistances(void);
 
 };
 #endif
