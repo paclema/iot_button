@@ -40,6 +40,7 @@ typedef int8_t PeopleCounterGesture;
 struct ZoneDistances {
   int dist1;
   int dist2;
+  int loopDelay;
 };
 
 class PeopleCounter: public IWebConfig {
@@ -66,6 +67,9 @@ private:
   PeopleCounterGesture lastGesture = currentGesture;
   PubSubClient *mqttClient;
   Ticker ledOn, ledOff;
+
+  unsigned long currentMillis = millis();
+  unsigned long lastMillis = currentMillis;
 
 
   String mqttBaseTopic = "/";

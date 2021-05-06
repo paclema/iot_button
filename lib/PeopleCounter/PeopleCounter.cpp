@@ -166,6 +166,8 @@ void PeopleCounter::updateReedSwitch(void){
 
 void PeopleCounter::loop(void){
 
+  currentMillis = millis();
+
   if (this->LDREnabled) this->LDRValue = analogRead(this->LDRPin);
   if (this->reedSwitchEnabled) PeopleCounter::updateReedSwitch();
 
@@ -195,7 +197,9 @@ void PeopleCounter::loop(void){
       currentGesture = ERROR_READING_SENSOR;
       PeopleCounter::notifyGesture(currentGesture);
   }
+
   lastGesture = currentGesture;
+  lastMillis = currentMillis;
 };
 
 
@@ -407,10 +411,12 @@ void PeopleCounter::notifyGesture(PeopleCounterGesture gesture){
   // Notify via MQTT:
   String topic_pub = this->mqttBaseTopic + "/data/PeopleCounterGesture";
   String msg_pub = String(gesture);
+  mqttClient->setBufferSize((uint16_t)(msg_pub.length() + 100));
   mqttClient->publish(topic_pub.c_str(), msg_pub.c_str(), msg_pub.length());
 
   topic_pub = this->mqttBaseTopic + "/data/PeopleCounterGesture/decoded";
   msg_pub = msgGesture;
+  mqttClient->setBufferSize((uint16_t)(msg_pub.length() + 100));
   mqttClient->publish(topic_pub.c_str(), msg_pub.c_str(), msg_pub.length());
 
   if (gesture == PERSON_ENTERS || gesture == PERSON_LEAVES) PeopleCounter::notifyData();
@@ -423,7 +429,7 @@ void PeopleCounter::notifyZoneDistances(){
 
   // Notify via MQTT:
   String topic_pub = this->mqttBaseTopic + "/data/zoneDistances";
-  String msg_pub = "{ \"zoneDistances_pre_gesture\": " + getLastZoneDistances() + " }";
+  String msg_pub = "{ \"zoneDistPreGesture\": " + getLastZoneDistances() + " }";
   mqttClient->setBufferSize((uint16_t)(msg_pub.length() + 100));
   mqttClient->publish(topic_pub.c_str(), msg_pub.c_str(), msg_pub.length());
 
@@ -445,6 +451,7 @@ void PeopleCounter::notifyStatusPerson(){
   // Notify via MQTT:
   String topic_pub = this->mqttBaseTopic + "/data/statusPerson";
   String msg_pub = "{ \"statusPerson\": " + msgStatusPerson + " }";
+  mqttClient->setBufferSize((uint16_t)(msg_pub.length() + 100));
   mqttClient->publish(topic_pub.c_str(), msg_pub.c_str(), msg_pub.length());
 
 }
@@ -475,16 +482,20 @@ void PeopleCounter::notifyReedSwitch(){
 
 
 void PeopleCounter::clearZoneDistances(void){
-  for (size_t i = 0; i < DIST_PRE_GESTURE_ARRAY_SIZE; i++) {
-    zoneDistPreGesture[i].dist1 = 0;
-    zoneDistPreGesture[i].dist2 = 0;
-  }
+  // for (size_t i = 0; i < DIST_PRE_GESTURE_ARRAY_SIZE; i++) {
+  //   zoneDistPreGesture[i].dist1 = 0;
+  //   zoneDistPreGesture[i].dist2 = 0;
+  //   zoneDistPreGesture[i].loopDelay = 0;
+  // }
+  ZoneDistances objectEmpty[DIST_PRE_GESTURE_ARRAY_SIZE] = {};
+  memcpy(zoneDistPreGesture, objectEmpty, sizeof(zoneDistPreGesture));
 };
 
 
 void PeopleCounter::addZoneDistances(int dist1, int dist2){
   zoneDistPreGesture[wIndexPreGesture].dist1 = dist1;
   zoneDistPreGesture[wIndexPreGesture].dist2 = dist2;
+  zoneDistPreGesture[wIndexPreGesture].loopDelay = currentMillis - lastMillis;
   if ( wIndexPreGesture == DIST_PRE_GESTURE_ARRAY_SIZE-1) wIndexPreGesture = 0;
   else wIndexPreGesture++;
 };
@@ -503,16 +514,28 @@ void PeopleCounter::printZoneDistances(void){
 String PeopleCounter::getLastZoneDistances(void){
   ZoneDistances objectTemp[DIST_PRE_GESTURE_ARRAY_SIZE] = {};
   int wIndexTemp = 0;
+  int numMeasure = 0;
   String outString = "[";
 
   // From current write index to final point:
+  bool reachedFirstMeasure = false;
   for (int i = wIndexPreGesture; i < DIST_PRE_GESTURE_ARRAY_SIZE; i++) {
-    outString += " [";
-    outString += zoneDistPreGesture[i].dist1;
-    outString += ",";
-    outString += zoneDistPreGesture[i].dist2;
-    outString += "],";
-    objectTemp[wIndexTemp] = zoneDistPreGesture[i];
+    if (zoneDistPreGesture[i].dist1 != 0 &&
+        zoneDistPreGesture[i].dist1 != 0 &&
+        zoneDistPreGesture[i].dist1 != 0) {
+        reachedFirstMeasure = true;
+      }
+    if (reachedFirstMeasure){
+      outString += " [";
+      outString += zoneDistPreGesture[i].dist1;
+      outString += ",";
+      outString += zoneDistPreGesture[i].dist2;
+      outString += ",";
+      outString += zoneDistPreGesture[i].loopDelay;
+      outString += "],";
+      objectTemp[wIndexTemp] = zoneDistPreGesture[i];
+      numMeasure++;
+    }
     wIndexTemp++;
   }
 
@@ -523,16 +546,21 @@ String PeopleCounter::getLastZoneDistances(void){
       outString += zoneDistPreGesture[i].dist1;
       outString += ",";
       outString += zoneDistPreGesture[i].dist2;
+      outString += ",";
+      outString += zoneDistPreGesture[i].loopDelay;
       outString += "] ";
     } else {
       outString += " [";
       outString += zoneDistPreGesture[i].dist1;
       outString += ",";
       outString += zoneDistPreGesture[i].dist2;
+      outString += ",";
+      outString += zoneDistPreGesture[i].loopDelay;
       outString += "],";
     }
     objectTemp[wIndexTemp] = zoneDistPreGesture[i];
     wIndexTemp++;
+    numMeasure++;
   }
   outString += "]";
 
@@ -540,7 +568,7 @@ String PeopleCounter::getLastZoneDistances(void){
   memcpy(zoneDistPreGesture, objectTemp, sizeof(zoneDistPreGesture));
   wIndexPreGesture = 0;
   // printBuffer();
-  if (this->debug) Serial.printf("zoneDistPreGesture[%d]: %s", DIST_PRE_GESTURE_ARRAY_SIZE, outString.c_str());
+  if (this->debug) Serial.printf("zoneDistPreGesture[%d]: %s", numMeasure, outString.c_str());
 
   return outString;
 };
