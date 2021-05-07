@@ -176,6 +176,12 @@ void WebConfigServer::parseConfig(const JsonDocument& doc){
   for (unsigned int i = 0; i < doc["services"]["light_sleep"]["mode_options"].size(); i++) { //Iterate through results
     services.light_sleep.mode_options[i] = doc["services"]["light_sleep"]["mode_options"][i].as<String>(); //Explicit cast
   }
+  // NTP
+  services.ntp.enabled = doc["services"]["ntp"]["enabled"] | false;
+  services.ntp.ntpServer = doc["services"]["ntp"]["ntpServer"] | "2pool.ntp.org";
+  services.ntp.gmtOffset_sec = doc["services"]["ntp"]["gmt_offset_sec"];
+  services.ntp.daylightOffset_sec = doc["services"]["ntp"]["daylight_offset_sec"];
+
 
   // Device object:
   device.track_restart_counter = doc["device"]["track_restart_counter"] | true;
