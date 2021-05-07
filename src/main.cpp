@@ -84,6 +84,11 @@ WebConfigServer config;   // <- global configuration object
 #endif
 
 
+// PeopleCounter:
+#include "PeopleCounter.h"
+// PeopleCounter *PeopleCounter =  new PeopleCounter("PeopleCounter");
+PeopleCounter peopleCounter;
+
 
 // FTP server
 #include <ESP8266FtpServer.h>
@@ -111,6 +116,8 @@ WrapperOTA ota;
     gettimeofday(&cbtime, NULL);
     cbtime_set = true;
     Serial.println("------------------ settimeofday() was called ------------------");
+
+    peopleCounter.setSendTimestamp(true);
   }
 #endif
 
@@ -128,12 +135,6 @@ unsigned long previousMainLoopMillis = 0;
 // Websocket server:
 #include <WrapperWebSockets.h>
 WrapperWebSockets ws;
-
-// PeopleCounter:
-#include "PeopleCounter.h"
-// PeopleCounter *PeopleCounter =  new PeopleCounter("PeopleCounter");
-PeopleCounter peopleCounter;
-
 
 // Websocket functions to publish:
 String getLoopTime(){ return String(currentLoopMillis - previousMainLoopMillis);}
@@ -386,6 +387,7 @@ void enableServices(void){
         delay(20);
         Serial.print(".");
       }
+      peopleCounter.setSendTimestamp(true);
       Serial.println("");
     #endif
     

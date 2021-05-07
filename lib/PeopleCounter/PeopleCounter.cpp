@@ -437,10 +437,19 @@ void PeopleCounter::notifyGesture(PeopleCounterGesture gesture){
 
 
 void PeopleCounter::notifyZoneDistancesPreGesture(){
+  timeval tv;
+  gettimeofday(&tv, nullptr);
 
   // Notify via MQTT:
   String topic_pub = this->mqttBaseTopic + "/data/zoneDistances";
-  String msg_pub = "{ \"zoneDistPreGesture\": " + getLastZoneDistancesPreGesture() + " }";
+  String msg_pub = "{ \"zoneDistPreGesture\": " + getLastZoneDistancesPreGesture();
+  if (sendTimestamp) {
+    msg_pub += ", \"timestamp_s\": ";
+    msg_pub += tv.tv_sec;
+    msg_pub += ", \"timestamp_us\": ";
+    msg_pub += tv.tv_usec;
+  }
+  msg_pub += " }";
   mqttClient->setBufferSize((uint16_t)(msg_pub.length() + 100));
   mqttClient->publish(topic_pub.c_str(), msg_pub.c_str(), msg_pub.length());
 
@@ -449,10 +458,19 @@ void PeopleCounter::notifyZoneDistancesPreGesture(){
 
 
 void PeopleCounter::notifyZoneDistancesGesture(){
+  timeval tv;
+  gettimeofday(&tv, nullptr);
 
   // Notify via MQTT:
   String topic_pub = this->mqttBaseTopic + "/data/zoneDistances";
-  String msg_pub = "{ \"zoneDistGesture\": " + getLastZoneDistancesGesture() + " }";
+  String msg_pub = "{ \"zoneDistGesture\": " + getLastZoneDistancesGesture();
+  if (sendTimestamp) {
+    msg_pub += ", \"timestamp_s\": ";
+    msg_pub += tv.tv_sec;
+    msg_pub += ", \"timestamp_us\": ";
+    msg_pub += tv.tv_usec;
+  }
+  msg_pub += " }";
   mqttClient->setBufferSize((uint16_t)(msg_pub.length() + 100));
   mqttClient->publish(topic_pub.c_str(), msg_pub.c_str(), msg_pub.length());
 
@@ -461,10 +479,19 @@ void PeopleCounter::notifyZoneDistancesGesture(){
 
 
 void PeopleCounter::notifyZoneDistancesPostGesture(){
+  timeval tv;
+  gettimeofday(&tv, nullptr);
 
   // Notify via MQTT:
   String topic_pub = this->mqttBaseTopic + "/data/zoneDistances";
-  String msg_pub = "{ \"zoneDistPostGesture\": " + getLastZoneDistancesPostGesture() + " }";
+  String msg_pub = "{ \"zoneDistPostGesture\": " + getLastZoneDistancesPostGesture();
+  if (sendTimestamp) {
+    msg_pub += ", \"timestamp_s\": ";
+    msg_pub += tv.tv_sec;
+    msg_pub += ", \"timestamp_us\": ";
+    msg_pub += tv.tv_usec;
+  }
+  msg_pub += " }";
   mqttClient->setBufferSize((uint16_t)(msg_pub.length() + 100));
   mqttClient->publish(topic_pub.c_str(), msg_pub.c_str(), msg_pub.length());
 

@@ -106,7 +106,7 @@ private:
   bool reedSwitchState = false;
   bool reedSwitchStateLast = false;
 
-
+  bool sendTimestamp = false;
 
 public:
 
@@ -174,5 +174,6 @@ public:
   String getLastZoneDistancesGesture(void);
   String getLastZoneDistancesPostGesture(void);
 
+  void setSendTimestamp(bool flag) { this->sendTimestamp = flag;}
 };
 #endif
