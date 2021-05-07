@@ -95,6 +95,28 @@ FtpServer ftpSrv;
 // #include <display2.h>
 WrapperOTA ota;
 
+// NTP
+#include <time.h>                         // time() ctime()
+#include <sys/time.h>                     // struct timeval
+
+#ifdef ESP32
+  #define NTP_MIN_VALID_EPOCH 1620413406  // For example: May 7th, 2021
+#elif defined(ESP8266)
+  #include <coredecls.h>                  // settimeofday_cb()
+  timeval cbtime;			// time set in callback
+  bool cbtime_set = false;
+
+  // Callback function to know when the time is synch with ntp server:
+  void time_is_set(void) {
+    gettimeofday(&cbtime, NULL);
+    cbtime_set = true;
+    Serial.println("------------------ settimeofday() was called ------------------");
+  }
+#endif
+
+extern "C" int clock_gettime(clockid_t unused, struct timespec *tp);
+
+
 // Device configurations
 unsigned long currentLoopMillis = 0;
 unsigned long previousLoopMillis = 0;
@@ -332,6 +354,29 @@ void enableServices(void){
     } else Serial.println("   - Light sleep -> disabled");
   #endif
 
+  if (config.services.ntp.enabled){
+    configTime(config.services.ntp.gmtOffset_sec, config.services.ntp.daylightOffset_sec, config.services.ntp.ntpServer.c_str());
+
+    #ifdef ESP8266
+      settimeofday_cb(time_is_set);
+    #elif defined(ESP32)
+      Serial.print ("\t\tSynching Time over NTP ");
+      while((time(nullptr)) < NTP_MIN_VALID_EPOCH) {
+        // warning : no time out. May loop here forever
+        delay(20);
+        Serial.print(".");
+      }
+      Serial.println("");
+    #endif
+    
+    Serial.print("   - NTP -> enabled\n");
+    Serial.printf("          - Server: %s\n", config.services.ntp.ntpServer.c_str());
+    Serial.printf("          - GMT offset: %d\n", config.services.ntp.gmtOffset_sec);
+    Serial.printf("          - Day light offset: %d\n", config.services.ntp.daylightOffset_sec);
+  } else Serial.println("   - NTP -> disabled");
+
+
+
   Serial.println("");
 
 }
@@ -489,6 +534,15 @@ void reconnect(void) {
   Serial.print("--- Free heap: "); Serial.println(ESP.getFreeHeap());
 
   config.begin();
+
+  // Configure NTP if enabled before wifi restart:
+  if (config.services.ntp.enabled){
+    #ifdef ESP8266
+      settimeofday_cb(time_is_set);
+    #endif
+    configTime(config.services.ntp.gmtOffset_sec, config.services.ntp.daylightOffset_sec, config.services.ntp.ntpServer.c_str());
+  }
+
   networkRestart();
   config.configureServer(&server);
 
@@ -629,6 +683,31 @@ void loop() {
       (currentLoopMillis - previousLoopMillis > (unsigned)config.device.loop_time_ms)) {
     previousLoopMillis = currentLoopMillis;
     // Here starts the device loop configured:
+
+    // NTP time example:
+    // time_t now = time(nullptr);
+    // timeval tv;
+    // gettimeofday(&tv, nullptr);
+    // timespec tp;
+    // clock_gettime(0, &tp);
+
+    // // time from boot
+    // Serial.print("Time from boot: ");
+    // Serial.print((uint32_t)tp.tv_sec);
+    // Serial.print("s / ");
+    // Serial.print((uint32_t)tp.tv_nsec);
+    // Serial.println("ns");
+    // // EPOCH+tz+dst
+    // Serial.print("gtod: ");
+    // Serial.print((uint32_t)tv.tv_sec);
+    // Serial.print("s / ");
+    // Serial.print((uint32_t)tv.tv_usec);
+    // Serial.println("us");
+
+    // Serial.print("timestamp:");
+    // Serial.print((uint32_t)now);
+    // Serial.print(" - ");
+    // Serial.println(ctime(&now));
 
 
   }

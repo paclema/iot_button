@@ -125,12 +125,20 @@ public:
     String mode_options[JSON_MAX_SIZE_LIST];
   };
 
+  struct NTP {
+    bool enabled;
+    // const char* ntpServer = new char(30);   // Max 30 char
+    String ntpServer;   // Max 30 char
+    long gmtOffset_sec;
+    int daylightOffset_sec;
+  };
   struct Services {
     bool ota;
     FTP ftp;
     WebSockets webSockets;
     DeepSleep deep_sleep;
     LightSleep light_sleep;
+    NTP ntp;
   } services;
 
   struct Device {
