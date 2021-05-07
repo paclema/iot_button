@@ -185,12 +185,17 @@ void PeopleCounter::loop(void){
 
     // Store distances:
     if (currentGesture == NO_PERSON_DETECTED) { 
-      addZoneDistances(sensor.distance[0], sensor.distance[1]);
+      addZoneDistancesPreGesture(sensor.distance[0], sensor.distance[1]);
+      if (lastGesture != NO_PERSON_DETECTED){
+        PeopleCounter::notifyZoneDistancesGesture();
+      }
       }
     else if (currentGesture == PERSON_IN_RANGE_START &&
             lastGesture == NO_PERSON_DETECTED) {
-      addZoneDistances(sensor.distance[0], sensor.distance[1]);
-      PeopleCounter::notifyZoneDistances();
+      addZoneDistancesPreGesture(sensor.distance[0], sensor.distance[1]);
+      PeopleCounter::notifyZoneDistancesPreGesture();
+    } else {
+      addZoneDistancesGesture(sensor.distance[0], sensor.distance[1]);
     }
     
   } else {
@@ -425,15 +430,27 @@ void PeopleCounter::notifyGesture(PeopleCounterGesture gesture){
 }
 
 
-void PeopleCounter::notifyZoneDistances(){
+void PeopleCounter::notifyZoneDistancesGesture(){
 
   // Notify via MQTT:
   String topic_pub = this->mqttBaseTopic + "/data/zoneDistances";
-  String msg_pub = "{ \"zoneDistPreGesture\": " + getLastZoneDistances() + " }";
+  String msg_pub = "{ \"zoneDistGesture\": " + getLastZoneDistancesGesture() + " }";
   mqttClient->setBufferSize((uint16_t)(msg_pub.length() + 100));
   mqttClient->publish(topic_pub.c_str(), msg_pub.c_str(), msg_pub.length());
 
-  clearZoneDistances();
+  clearZoneDistances(zoneDistGesture, DIST_GESTURE_ARRAY_SIZE);
+}
+
+
+void PeopleCounter::notifyZoneDistancesPreGesture(){
+
+  // Notify via MQTT:
+  String topic_pub = this->mqttBaseTopic + "/data/zoneDistances";
+  String msg_pub = "{ \"zoneDistPreGesture\": " + getLastZoneDistancesPreGesture() + " }";
+  mqttClient->setBufferSize((uint16_t)(msg_pub.length() + 100));
+  mqttClient->publish(topic_pub.c_str(), msg_pub.c_str(), msg_pub.length());
+
+  clearZoneDistances(zoneDistPreGesture, DIST_PRE_GESTURE_ARRAY_SIZE);
 }
 
 
@@ -481,18 +498,12 @@ void PeopleCounter::notifyReedSwitch(){
 }
 
 
-void PeopleCounter::clearZoneDistances(void){
-  // for (size_t i = 0; i < DIST_PRE_GESTURE_ARRAY_SIZE; i++) {
-  //   zoneDistPreGesture[i].dist1 = 0;
-  //   zoneDistPreGesture[i].dist2 = 0;
-  //   zoneDistPreGesture[i].loopDelay = 0;
-  // }
-  ZoneDistances objectEmpty[DIST_PRE_GESTURE_ARRAY_SIZE] = {};
-  memcpy(zoneDistPreGesture, objectEmpty, sizeof(zoneDistPreGesture));
+void PeopleCounter::clearZoneDistances(ZoneDistances *buffer, int size){
+  memset(buffer,0,size * sizeof(*buffer));
 };
 
 
-void PeopleCounter::addZoneDistances(int dist1, int dist2){
+void PeopleCounter::addZoneDistancesPreGesture(int dist1, int dist2){
   zoneDistPreGesture[wIndexPreGesture].dist1 = dist1;
   zoneDistPreGesture[wIndexPreGesture].dist2 = dist2;
   zoneDistPreGesture[wIndexPreGesture].loopDelay = currentMillis - lastMillis;
@@ -501,7 +512,19 @@ void PeopleCounter::addZoneDistances(int dist1, int dist2){
 };
 
 
-void PeopleCounter::printZoneDistances(void){
+void PeopleCounter::addZoneDistancesGesture(int dist1, int dist2){
+  zoneDistGesture[wIndexGesture].dist1 = dist1;
+  zoneDistGesture[wIndexGesture].dist2 = dist2;
+  zoneDistGesture[wIndexGesture].loopDelay = currentMillis - lastMillis;
+  if ( wIndexGesture == DIST_GESTURE_ARRAY_SIZE-1){
+      // If the buffer is full, we send it and it will be clear again:
+      PeopleCounter::notifyZoneDistancesGesture();
+  }
+  else wIndexGesture++;
+};
+
+
+void PeopleCounter::printZoneDistancesPreGesture(void){
   Serial.printf("zoneDistPreGesture[%d]: [", DIST_PRE_GESTURE_ARRAY_SIZE);
   for (size_t i = 0; i < DIST_PRE_GESTURE_ARRAY_SIZE; i++) {
     if (i == DIST_PRE_GESTURE_ARRAY_SIZE-1) Serial.printf( " [%d,%d] ", zoneDistPreGesture[i].dist1, zoneDistPreGesture[i].dist2);
@@ -511,10 +534,10 @@ void PeopleCounter::printZoneDistances(void){
 }
 
 
-String PeopleCounter::getLastZoneDistances(void){
+String PeopleCounter::getLastZoneDistancesPreGesture(void){
   ZoneDistances objectTemp[DIST_PRE_GESTURE_ARRAY_SIZE] = {};
   int wIndexTemp = 0;
-  int numMeasure = 0;
+  int numMeasures = 0;
   String outString = "[";
 
   // From current write index to final point:
@@ -534,7 +557,7 @@ String PeopleCounter::getLastZoneDistances(void){
       outString += zoneDistPreGesture[i].loopDelay;
       outString += "],";
       objectTemp[wIndexTemp] = zoneDistPreGesture[i];
-      numMeasure++;
+      numMeasures++;
     }
     wIndexTemp++;
   }
@@ -560,7 +583,7 @@ String PeopleCounter::getLastZoneDistances(void){
     }
     objectTemp[wIndexTemp] = zoneDistPreGesture[i];
     wIndexTemp++;
-    numMeasure++;
+    numMeasures++;
   }
   outString += "]";
 
@@ -568,7 +591,39 @@ String PeopleCounter::getLastZoneDistances(void){
   memcpy(zoneDistPreGesture, objectTemp, sizeof(zoneDistPreGesture));
   wIndexPreGesture = 0;
   // printBuffer();
-  if (this->debug) Serial.printf("zoneDistPreGesture[%d]: %s", numMeasure, outString.c_str());
+  if (this->debug) Serial.printf("\nzoneDistPreGesture[%d]: %s", numMeasures, outString.c_str());
+
+  return outString;
+};
+
+
+String PeopleCounter::getLastZoneDistancesGesture(void){
+  String outString = "[";
+
+  // From 0 index to current write index point:
+  for (int i = 0; i < DIST_GESTURE_ARRAY_SIZE; i++) {
+    if (i == (DIST_GESTURE_ARRAY_SIZE-1)) {
+      outString += " [";
+      outString += zoneDistGesture[i].dist1;
+      outString += ",";
+      outString += zoneDistGesture[i].dist2;
+      outString += ",";
+      outString += zoneDistGesture[i].loopDelay;
+      outString += "] ";
+    } else {
+      outString += " [";
+      outString += zoneDistGesture[i].dist1;
+      outString += ",";
+      outString += zoneDistGesture[i].dist2;
+      outString += ",";
+      outString += zoneDistGesture[i].loopDelay;
+      outString += "],";
+    }
+  }
+  outString += "]";
+
+  if (this->debug) Serial.printf("\nzoneDistGesture[%d]: %s", DIST_GESTURE_ARRAY_SIZE, outString.c_str());
+  wIndexGesture = 0;
 
   return outString;
 };
