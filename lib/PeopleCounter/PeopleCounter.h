@@ -38,8 +38,9 @@ typedef int8_t PeopleCounterGesture;
 
 // Buffer sizes to store ZoneDistances:
 // (~20 ZoneDistances per second)
-#define DIST_PRE_GESTURE_ARRAY_SIZE   15    // Buffer to store distances before new gesture is triggered
-#define DIST_GESTURE_ARRAY_SIZE       20   // Buffer to store distances during a new gesture
+#define DIST_PRE_GESTURE_ARRAY_SIZE     15    // Buffer to store distances before new gesture is triggered
+#define DIST_GESTURE_ARRAY_SIZE         20   // Buffer to store distances during a new gesture
+#define DIST_POST_GESTURE_ARRAY_SIZE    15   // Buffer to store distances during a new gesture
 struct ZoneDistances {
   int dist1;
   int dist2;
@@ -57,6 +58,9 @@ private:
   int wIndexPreGesture = 0;
   ZoneDistances zoneDistGesture[DIST_GESTURE_ARRAY_SIZE] = {};
   int wIndexGesture = 0;
+  ZoneDistances zoneDistPostGesture[DIST_POST_GESTURE_ARRAY_SIZE] = {};
+  int wIndexPostGesture = 0;
+  bool zoneDistPostGestureNotified = true;
 
   int statusPerson[STATUS_PERSON_ARRAY_SIZE];
   int statusPersonNow = 0, statusPersonLast = 0, statusPersonIndex = 0;
@@ -131,6 +135,7 @@ public:
   void notifyGesture(PeopleCounterGesture);
   void notifyZoneDistancesGesture(void);
   void notifyZoneDistancesPreGesture(void);
+  void notifyZoneDistancesPostGesture(void);
   void notifyStatusPerson(void);
   void notifyData(void);
   void notifyReedSwitch(void);
@@ -163,9 +168,11 @@ public:
   void clearZoneDistances(ZoneDistances *buffer, int size);
   void addZoneDistancesPreGesture(int distance1, int distance2);
   void addZoneDistancesGesture(int distance1, int distance2);
+  void addZoneDistancesPostGesture(int distance1, int distance2);
   void printZoneDistancesPreGesture(void);
-  String getLastZoneDistancesGesture(void);
   String getLastZoneDistancesPreGesture(void);
+  String getLastZoneDistancesGesture(void);
+  String getLastZoneDistancesPostGesture(void);
 
 };
 #endif

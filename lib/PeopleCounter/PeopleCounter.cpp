@@ -186,10 +186,16 @@ void PeopleCounter::loop(void){
     // Store distances:
     if (currentGesture == NO_PERSON_DETECTED) { 
       addZoneDistancesPreGesture(sensor.distance[0], sensor.distance[1]);
+
       if (lastGesture != NO_PERSON_DETECTED){
         PeopleCounter::notifyZoneDistancesGesture();
+        zoneDistPostGestureNotified = false;
+        addZoneDistancesPostGesture(sensor.distance[0], sensor.distance[1]);
+      } else if (lastGesture == NO_PERSON_DETECTED) {
+        if (!zoneDistPostGestureNotified) addZoneDistancesPostGesture(sensor.distance[0], sensor.distance[1]);
       }
-      }
+
+    }
     else if (currentGesture == PERSON_IN_RANGE_START &&
             lastGesture == NO_PERSON_DETECTED) {
       addZoneDistancesPreGesture(sensor.distance[0], sensor.distance[1]);
@@ -197,7 +203,7 @@ void PeopleCounter::loop(void){
     } else {
       addZoneDistancesGesture(sensor.distance[0], sensor.distance[1]);
     }
-    
+
   } else {
       currentGesture = ERROR_READING_SENSOR;
       PeopleCounter::notifyGesture(currentGesture);
@@ -430,6 +436,18 @@ void PeopleCounter::notifyGesture(PeopleCounterGesture gesture){
 }
 
 
+void PeopleCounter::notifyZoneDistancesPreGesture(){
+
+  // Notify via MQTT:
+  String topic_pub = this->mqttBaseTopic + "/data/zoneDistances";
+  String msg_pub = "{ \"zoneDistPreGesture\": " + getLastZoneDistancesPreGesture() + " }";
+  mqttClient->setBufferSize((uint16_t)(msg_pub.length() + 100));
+  mqttClient->publish(topic_pub.c_str(), msg_pub.c_str(), msg_pub.length());
+
+  clearZoneDistances(zoneDistPreGesture, DIST_PRE_GESTURE_ARRAY_SIZE);
+}
+
+
 void PeopleCounter::notifyZoneDistancesGesture(){
 
   // Notify via MQTT:
@@ -442,15 +460,16 @@ void PeopleCounter::notifyZoneDistancesGesture(){
 }
 
 
-void PeopleCounter::notifyZoneDistancesPreGesture(){
+void PeopleCounter::notifyZoneDistancesPostGesture(){
 
   // Notify via MQTT:
   String topic_pub = this->mqttBaseTopic + "/data/zoneDistances";
-  String msg_pub = "{ \"zoneDistPreGesture\": " + getLastZoneDistancesPreGesture() + " }";
+  String msg_pub = "{ \"zoneDistPostGesture\": " + getLastZoneDistancesPostGesture() + " }";
   mqttClient->setBufferSize((uint16_t)(msg_pub.length() + 100));
   mqttClient->publish(topic_pub.c_str(), msg_pub.c_str(), msg_pub.length());
 
-  clearZoneDistances(zoneDistPreGesture, DIST_PRE_GESTURE_ARRAY_SIZE);
+  clearZoneDistances(zoneDistPostGesture, DIST_POST_GESTURE_ARRAY_SIZE);
+  zoneDistPostGestureNotified = true;
 }
 
 
@@ -522,6 +541,18 @@ void PeopleCounter::addZoneDistancesGesture(int dist1, int dist2){
   }
   else wIndexGesture++;
 };
+
+void PeopleCounter::addZoneDistancesPostGesture(int dist1, int dist2){
+  zoneDistPostGesture[wIndexPostGesture].dist1 = dist1;
+  zoneDistPostGesture[wIndexPostGesture].dist2 = dist2;
+  zoneDistPostGesture[wIndexPostGesture].loopDelay = currentMillis - lastMillis;
+  if ( wIndexPostGesture == DIST_POST_GESTURE_ARRAY_SIZE-1){
+      // If the buffer is full, we send it and it will be clear again:
+      PeopleCounter::notifyZoneDistancesPostGesture();
+  }
+  else wIndexPostGesture++;
+};
+
 
 
 void PeopleCounter::printZoneDistancesPreGesture(void){
@@ -601,8 +632,8 @@ String PeopleCounter::getLastZoneDistancesGesture(void){
   String outString = "[";
 
   // From 0 index to current write index point:
-  for (int i = 0; i < DIST_GESTURE_ARRAY_SIZE; i++) {
-    if (i == (DIST_GESTURE_ARRAY_SIZE-1)) {
+  for (int i = 0; i < wIndexGesture; i++) {
+    if (i == (wIndexGesture-1)) {
       outString += " [";
       outString += zoneDistGesture[i].dist1;
       outString += ",";
@@ -622,8 +653,40 @@ String PeopleCounter::getLastZoneDistancesGesture(void){
   }
   outString += "]";
 
-  if (this->debug) Serial.printf("\nzoneDistGesture[%d]: %s", DIST_GESTURE_ARRAY_SIZE, outString.c_str());
+  if (this->debug) Serial.printf("\nzoneDistGesture[%d]: %s", wIndexGesture, outString.c_str());
   wIndexGesture = 0;
+
+  return outString;
+};
+
+
+String PeopleCounter::getLastZoneDistancesPostGesture(void){
+  String outString = "[";
+
+  // From 0 index to current write index point:
+  for (int i = 0; i < DIST_POST_GESTURE_ARRAY_SIZE; i++) {
+    if (i == (DIST_POST_GESTURE_ARRAY_SIZE-1)) {
+      outString += " [";
+      outString += zoneDistPostGesture[i].dist1;
+      outString += ",";
+      outString += zoneDistPostGesture[i].dist2;
+      outString += ",";
+      outString += zoneDistPostGesture[i].loopDelay;
+      outString += "] ";
+    } else {
+      outString += " [";
+      outString += zoneDistPostGesture[i].dist1;
+      outString += ",";
+      outString += zoneDistPostGesture[i].dist2;
+      outString += ",";
+      outString += zoneDistPostGesture[i].loopDelay;
+      outString += "],";
+    }
+  }
+  outString += "]";
+
+  if (this->debug) Serial.printf("\nzoneDistPostGesture[%d]: %s", DIST_POST_GESTURE_ARRAY_SIZE, outString.c_str());
+  wIndexPostGesture = 0;
 
   return outString;
 };
