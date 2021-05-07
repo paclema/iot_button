@@ -67,6 +67,12 @@
         "NONE_SLEEP_T",
         "LIGHT_SLEEP_T"
       ]
+    },
+    "ntp": {
+      "enabled": true,
+      "ntpServer": "pool.ntp.org",
+      "gmt_offset_sec": 0,
+      "daylight_offset_sec": 3600
     }
   },
   "device": {
