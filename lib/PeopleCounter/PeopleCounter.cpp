@@ -66,7 +66,8 @@ void PeopleCounter::parseWebConfig(JsonObjectConst configObject){
 
 void PeopleCounter::enablePeopleCounterServices(void){
   Serial.println("--- PeopleCounter: ");
-  Serial.printf("   - Debug: %s\n", this->debug ? "true" : "false");
+  Serial.printf("       - Debug: %s\n", this->debug ? "true" : "false");
+  Serial.printf("       - Range threshold: %d\n", this->rangeThresholdCounter_mm );
 
 
   // LDR sensor:
@@ -96,6 +97,22 @@ void PeopleCounter::enablePeopleCounterServices(void){
   sensor.setType("VL53L1X_ROI");
   sensor.setup();
   
+  // Scan I2C sensors:
+  if (debug){
+    Serial.println ("\nI2C sensors scanner. Scanning ...");
+    byte count = 0;
+    for (byte i = 1; i < 120; i++) {
+      Wire.beginTransmission (i);
+      if (Wire.endTransmission () == 0) {
+        Serial.print ("Found address: "); Serial.print (i, DEC); Serial.print (" (0x");
+        Serial.print (i, HEX); Serial.println (")");
+        count++;
+        delay (1);
+      }
+    }
+    Serial.println ("Done.");
+    Serial.print ("Found "); Serial.print (count, DEC); Serial.println (" device(s).\n");
+  }
 
   this->peopleCounterInitialized = true;
 };

@@ -23,10 +23,13 @@ void DistSensorVL53L1XROI::disableSensor(void) {
 
 void DistSensorVL53L1XROI::setup(void){
 
-  Wire.begin(SDA, SCL);
+  if (Wire.setPins(SDA, SCL)) Serial.println("Pins configured for I2C");
+  else Serial.println("Pins NOT configured for I2C");
+
+  Wire.begin();
 	Wire.setClock(400000); // use 400 kHz I2C
 
-
+  // Serial.printf("\nI2C CLOCK: %zu", Wire.getClock());  
   Serial.println("\tInitialising VL53L1X ROI sensor");
 
   // Creating 4 ROI definition
@@ -61,8 +64,12 @@ void DistSensorVL53L1XROI::setup(void){
   }
 
 	status += VL53L1_WaitDeviceBooted(Dev);
+  // Serial.printf("VL53L1_WaitDeviceBooted status:%d\n", status);
 	status += VL53L1_DataInit(Dev);
+  // Serial.printf("VL53L1_DataInit status:%d\n", status);
 	status += VL53L1_StaticInit(Dev);
+  // Serial.printf("VL53L1_StaticInit status:%d\n", status);
+
 
 
   VL53L1_PresetModes currentPresetMode;
@@ -275,9 +282,11 @@ VL53L1_Error DistSensorVL53L1XROI::sensorRead2Roi(void){
     // while (digitalRead(INT));	// slightly faster
     status = VL53L1_WaitMeasurementDataReady(Dev);
     if (!status) status = VL53L1_GetRangingMeasurementData(Dev, &RangingData);	//4mS
-    VL53L1_clear_interrupt_and_enable_next_range(Dev, VL53L1_DEVICEMEASUREMENTMODE_SINGLESHOT);	//2mS
+    status += VL53L1_clear_interrupt_and_enable_next_range(Dev, VL53L1_DEVICEMEASUREMENTMODE_SINGLESHOT);	//2mS
+    // status += VL53L1_ClearInterruptAndStartMeasurement(Dev);
     if (status == VL53L1_ERROR_NONE){
       newDistance[i] = RangingData.RangeMilliMeter;
+      newDistanceStatus[i] = RangingData.RangeStatus;
       // newDistance[i] = (RangingData.RangeMilliMeter/10)*10;
     } 
   }
@@ -302,9 +311,16 @@ VL53L1_Error DistSensorVL53L1XROI::sensorRead2Roi(void){
   //   // newDistance[1] = (RangingData.RangeMilliMeter/10)*10;
   // }
 
-  if (status == VL53L1_ERROR_NONE){
+  // if (status == VL53L1_ERROR_NONE &&
+  //     newDistanceStatus[0] != 7 &&
+  //     newDistanceStatus[1] != 7
+  // ){
+  if (status == VL53L1_ERROR_NONE  ){
     this->distance[0] = newDistance[0];
     this->distance[1] = newDistance[1];
+    // Serial.printf (" Distances: %d - %d -- Status: %d - %d\n", this->distance[0], this->distance[1], newDistanceStatus[0], newDistanceStatus[1]);
+  } else {
+    // Serial.println(" ++ ERROR reading ROI");
   }
   
   

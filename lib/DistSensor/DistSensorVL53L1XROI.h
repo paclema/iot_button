@@ -35,20 +35,29 @@ are defined in SPAD sensor array:
 
 */
 
-// Pinout with D1 mini:
-//--------------------
+// Pinout with D1 mini:     Pinout with D1 mini ESP32:
+//--------------------      --------------------------
 //
-// SDA -- D1
-// SCL -- D2
-// VIN -- 3.3V
+// SDA -- D1        -----------       SDA -- IO21
+// SCL -- D2        -----------       SCL -- IO22
+// VIN -- 3.3V  
 // GND -- GND
-#define  MAX_INIT_RETRIES    20
-// #define SDA			2	// D4
-#define SDA			4
-#define SCL			5   // D1
-#define XSHUT		14	// D5
-// #define INT			16  // D0
-#define INT			12  // D6
+
+
+#ifdef ESP32
+  #define SDA			21
+  #define SCL			22
+  #define XSHUT		18
+  #define INT			17
+
+#elif defined(ESP8266)
+  // #define SDA			2	// D4
+  #define SDA			4
+  #define SCL			5   // D1
+  #define XSHUT		14	// D5
+  // #define INT			16  // D0
+  #define INT			12  // D6
+#endif
 
 #define light_on	0	//D3
 // #define light_off	4	//D2
@@ -97,7 +106,8 @@ public:
   VL53L1_UserRoi_t	roiConfig2 = { 0, 15, 3, 0 };     // Wider zone: { 0, 15, 6, 0 };
   VL53L1_UserRoi_t	roiZones[4];  // By sensor constrains, 4 zones max.
   
-  int distance[2] = { 0, 0 };
+  int16_t distance[2] = { 0, 0 };
+  uint8_t newDistanceStatus[2] = { 0, 0 };
 
   // Four ROI configurations
   // VL53L1_UserRoi_t	roiZone1 = { 0, 15, 3, 0 };
@@ -118,6 +128,7 @@ public:
   // String distance_mode;
   // String distance_mode_options[JSON_MAX_SIZE_LIST]; //["Short", "Medium", "Long", "Unknown"]
 
+  // unsigned long startMs = 0;
 
   DistSensorVL53L1XROI(void);
   ~DistSensorVL53L1XROI();
@@ -137,8 +148,8 @@ public:
   void checkDev(VL53L1_DEV Dev) {
     uint8_t byteData;
   	uint16_t wordData;
-  	// VL53L1_RdWord(Dev, 0x010F, &wordData);
-  	// Serial.printf("DevAddr: 0x%X VL53L1X: 0x%X\n\r", Dev->I2cDevAddr, wordData);
+  	VL53L1_RdWord(Dev, 0x010F, &wordData);
+  	Serial.printf("DevAddr: 0x%X VL53L1X: 0x%X\n\r", Dev->I2cDevAddr, wordData);
 
     VL53L1_RdByte(Dev, 0x010F, &byteData);
     Serial.print(F("VL53L1X Model_ID: "));
