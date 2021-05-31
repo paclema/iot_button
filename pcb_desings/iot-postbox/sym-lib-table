@@ -1,3 +1,4 @@
 (sym_lib_table
   (lib (name wemos_mini)(type Legacy)(uri ${KICAD_TEMPLATE_DIR}/d1_mini_kicad/library/wemos_mini.lib)(options "")(descr ""))
+  (lib (name iot-postbox)(type Legacy)(uri ${KIPRJMOD}/iot-postbox.lib)(options "")(descr ""))
 )

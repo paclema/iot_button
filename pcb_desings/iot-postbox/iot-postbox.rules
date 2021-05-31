@@ -63,9 +63,8 @@
     )
   )
   (class "kicad_default"
-    GND +3V3 "/CH_PD" /GPIO12 /GPIO13 /GPIO14 "Net-(R1-Pad2)" "Net-(R2-Pad1)"
-    "Net-(R3-Pad1)" "Net-(R4-Pad1)" "Net-(U1-Pad2)" "Net-(U1-Pad4)" "Net-(U1-Pad9)" "Net-(U1-Pad10)" "Net-(U1-Pad11)" "Net-(U1-Pad12)"
-    "Net-(U1-Pad13)" "Net-(U1-Pad14)" "Net-(U1-Pad19)" "Net-(U1-Pad20)" "Net-(U1-Pad21)" "Net-(U1-Pad22)"
+    GND +3V3 "/CH_PD" /GPIO12 /GPIO13 /GPIO14 "Net-(R3-Pad1)" "Net-(R4-Pad1)"
+    /RST /GPIO0 /RX /TX
     (clearance_class "kicad_default")
     (via_rule kicad_default)
     (rule
