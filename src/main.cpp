@@ -136,6 +136,100 @@ String getHeapFree(){ return String((float)GET_FREE_HEAP/1000);}
 
 
 
+// PostBox:
+int buttons[2] = {12, 13};    // Pins on which buttons are attached
+int button = -1;              // Variable to store the button which triggered the bootup
+int wake = 14;                // Pin which is used to Keep ESP awake until job is finished
+int buttonState = 0;
+int counter[2] = {0, 0};
+volatile unsigned long lastTime =0;
+bool wakeUpPublished = false;
+
+int debounceMs = 200;         // To ignore button signals changes faster than this debounce ms
+ADC_MODE(ADC_VCC);            // Allows to monitor the internal VCC level; it varies with WiFi load
+
+uint16_t readVoltage() {
+  float volts = ESP.getVcc();
+  Serial.printf("The internal VCC reads %1.2f volts\n", volts / 1000);
+  return volts;
+}
+
+void publishWakeUp(void){
+  String base_topic_pub = "/" + config.mqtt.id_name + "/";
+  String topic_pub = base_topic_pub + "wakeup";
+  String msg_pub ="{\"wake_up_pin\": ";
+  msg_pub += String(button);
+  msg_pub = msg_pub + " ,\"vcc\": " + String(readVoltage());
+  msg_pub = msg_pub + " ,\"rssi\": " + getRSSI();
+
+  
+
+  int sizeArray = sizeof buttons / sizeof *buttons;
+  for(int i=0; i< sizeArray; i++) {
+    msg_pub = msg_pub + " ,\"GPIO_" + buttons[i] + "_counter\": " + String(counter[i]);
+    msg_pub = msg_pub + " ,\"GPIO_" + buttons[i] + "_state\": " + (digitalRead(buttons[i]) == HIGH ? "true" : "false");
+  }
+  msg_pub +=" }";
+  wakeUpPublished = mqttClient.publish(topic_pub.c_str(), msg_pub.c_str());
+}
+
+
+ICACHE_RAM_ATTR void detectsChange(int pin) {
+  if (millis() - lastTime < debounceMs) return; // ignore events faster than debounceMs
+  lastTime = millis();
+
+  int sizeArray = sizeof buttons / sizeof *buttons;
+  for(int i=0; i< sizeArray; i++) {
+    if (buttons[i] == pin){
+      if (digitalRead(pin) == HIGH){
+        counter[i]++;
+      }
+      Serial.printf(" -- GPIO %d count: %d\n", buttons[i], counter[i]);
+      publishWakeUp();
+    return;
+    }
+  }
+
+}
+
+ICACHE_RAM_ATTR void pin12ISR() {detectsChange(12);}
+ICACHE_RAM_ATTR void pin13ISR() {detectsChange(13);}
+
+
+void setupPostBox(void){
+  // WiFi.disconnect();
+  // ESP Awake Pin, the pin which keeps CH_PD HIGH, a requirement for normal functioning of ESP8266
+  pinMode(wake, OUTPUT);
+  digitalWrite(wake, HIGH);
+
+  //Check which button was pressed
+  int sizeArray = sizeof buttons / sizeof *buttons;
+  for(int i=0; i< sizeArray; i++) {
+    pinMode(buttons[i], INPUT);
+    if(digitalRead(buttons[i]) == HIGH) {
+      button = buttons[i];
+      counter[i]++;
+      break;
+    }
+  }
+
+  Serial.printf("\n -- Pin booter button: %d\n", button);
+
+  attachInterrupt(digitalPinToInterrupt(12), pin12ISR , CHANGE);
+  attachInterrupt(digitalPinToInterrupt(13), pin13ISR , CHANGE);
+
+  long bootDelay = millis() - connectionTime;
+  Serial.printf("\tbootDelay: %ld - pin booter: %d\n", bootDelay, button);
+}
+
+void turnESPOff (void){
+    digitalWrite(wake, LOW); //Turns the ESP OFF
+}
+
+
+
+
+
 // MAIN FUNCTIONS:
 // --------------
 //
@@ -512,6 +606,8 @@ void reconnectMQTT() {
         Serial.print((float)time_now/1000);
         Serial.println("s");
 
+        publishWakeUp();
+
       } else {
         Serial.print("failed, rc=");
         Serial.print(mqttClient.state());
@@ -569,7 +665,12 @@ void deepSleepHandler() {
 
 
   #elif defined(ESP8266)
-    if (currentLoopMillis > setupDeviceTime + (config.services.deep_sleep.sleep_delay*1000)){
+    if ((currentLoopMillis > setupDeviceTime + (config.services.deep_sleep.sleep_delay*1000)) &&
+        (wakeUpPublished || mqttRetries >= mqttMaxRetries)){
+      
+      turnESPOff();
+      delay(100);
+
       if(config.services.deep_sleep.sleep_time == 0) Serial.printf("Deep sleep activated forever or until RST keeps HIGH...\n");
       else Serial.printf("Deep sleep activated for %f seconds...\n", config.services.deep_sleep.sleep_time);
       if (config.services.deep_sleep.mode == "WAKE_RF_DEFAULT")
@@ -597,6 +698,8 @@ void setup() {
   #ifdef ENABLE_SERIAL_DEBUG
     Serial.setDebugOutput(true);
   #endif
+
+  setupPostBox();
 
   reconnect();
 
@@ -627,7 +730,7 @@ void setup() {
 
   Serial.println("###  Looping time\n");
 
-  setupDeviceTime = millis();
+  setupDeviceTime = millis();  
 }
 
 void loop() {
