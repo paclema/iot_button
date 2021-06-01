@@ -657,9 +657,11 @@ void reconnect(void) {
 
 
 void deepSleepHandler() {
-  Serial.print("sleep_delay: "); Serial.print((config.services.deep_sleep.sleep_delay));
-  Serial.print(" setupDeviceTime: "); Serial.print( (float)setupDeviceTime/1000);
-  Serial.print(" currentLoopMillis: "); Serial.println((float)currentLoopMillis/1000);
+  if (currentLoopMillis - previousLoopMillis > (unsigned)config.device.loop_time_ms){
+    Serial.print("sleep_delay: "); Serial.print((config.services.deep_sleep.sleep_delay));
+    Serial.print(" setupDeviceTime: "); Serial.print( (float)setupDeviceTime/1000);
+    Serial.print(" currentLoopMillis: "); Serial.println((float)currentLoopMillis/1000);
+  }
 
   #ifdef ESP32
 
@@ -684,6 +686,7 @@ void deepSleepHandler() {
         ESP.deepSleep(config.services.deep_sleep.sleep_time * 1000000, WAKE_NO_RFCAL);
       else {
         Serial.println("   - Deep sleep -> mode not available");
+        delay(100);
         return;
       }
     }
