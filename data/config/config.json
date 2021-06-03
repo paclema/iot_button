@@ -87,6 +87,7 @@
       "time_budget_ms": 20,
       "XSHUT_pin": 14,
       "I2c_address": 42,
+      "distance_mode": "Short",
       "distance_mode_options": [
         "Short",
         "Medium",

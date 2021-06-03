@@ -1,5 +1,5 @@
 #include "DistSensorVL53L1X.h"
-
+#include <VL53L1X.h>
 
 DistSensorVL53L1X::DistSensorVL53L1X(void) {
   if (this->debug) Serial.println("\t\tCreating DistSensorVL53L1X");
@@ -74,13 +74,30 @@ bool DistSensorVL53L1X::sensorRead(float *distance){
 
   if (this->sensor.dataReady()){
     bool blocking = false;
-    distance[0] = this->sensor.read(blocking);
-    // Serial.print(distance);
-    if (this->sensor.timeoutOccurred()){
-      // Serial.print(" TIMEOUT");
+    float dist = 0;
+    dist = this->sensor.read(blocking);
+    
+    if (this->sensor.timeoutOccurred()) 
       return false;
-    };
-    // Serial.println();
+
+    if (sensor.ranging_data.range_status == VL53L1X::RangeStatus::RangeValid) {
+      distance[0] = dist;
+    } else if(sensor.ranging_data.range_status == VL53L1X::RangeStatus::OutOfBoundsFail){
+      // We report the max readable distance in this case:
+      // Those distances are takeng as an average from pthe page 11the datasheet:
+      // https://www.st.com/resource/en/datasheet/vl53l1x.pdf
+      if (this->distance_mode == "Short") distance[0] = 1360;
+      else if (this->distance_mode == "Medium") distance[0] = 2900;
+      else if (this->distance_mode == "Long") distance[0] = 3600;
+      else if (this->distance_mode == "Unknown") distance[0] = 2900;
+    } else {
+      if (this->debug){ 
+        String error = "ERROR Distance from " + this->name + ": " + VL53L1X::rangeStatusToString(this->sensor.ranging_data.range_status);
+        Serial.println(error);
+      }
+      return false;
+    }
+
     return true;
   }
   return false;
