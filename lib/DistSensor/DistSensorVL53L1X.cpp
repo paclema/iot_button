@@ -1,5 +1,5 @@
 #include "DistSensorVL53L1X.h"
-
+#include <VL53L1X.h>
 
 DistSensorVL53L1X::DistSensorVL53L1X(void) {
   if (this->debug) Serial.println("\t\tCreating DistSensorVL53L1X");
@@ -74,13 +74,21 @@ bool DistSensorVL53L1X::sensorRead(float *distance){
 
   if (this->sensor.dataReady()){
     bool blocking = false;
-    distance[0] = this->sensor.read(blocking);
-    // Serial.print(distance);
-    if (this->sensor.timeoutOccurred()){
-      // Serial.print(" TIMEOUT");
+    float dist = 0;
+    dist = this->sensor.read(blocking);
+    
+    if (sensor.ranging_data.range_status == VL53L1X::RangeStatus::RangeValid )
+      distance[0] = dist;
+    else {
+      if (this->debug){ 
+        String error = "ERROR Distance from" + this->name + ": " + VL53L1X::rangeStatusToString(this->sensor.ranging_data.range_status);
+        Serial.println(error);
+      }
+    }
+    
+    if (this->sensor.timeoutOccurred()) 
       return false;
-    };
-    // Serial.println();
+
     return true;
   }
   return false;
