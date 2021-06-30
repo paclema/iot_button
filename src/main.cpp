@@ -201,7 +201,7 @@ void networkRestart(void){
   if(config.status() == CONFIG_LOADED){
 
     // WiFi setup:
-    // WiFi.disconnect(true);        // close old connections
+    WiFi.disconnect(true);        // close old connections
     #ifdef ESP32
       WiFi.setHostname(config.network.hostname.c_str());
       WiFi.mode(WIFI_MODE_APSTA);

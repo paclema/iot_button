@@ -53,6 +53,30 @@ void ParallaxServo::setServoFeedback(byte pin) {
   this->feedbackPin = pin;
   // Servo feedback pin attach
   pinMode(this->feedbackPin, INPUT);
+
+  // noInterrupts();  // Removing interrupts will cause other features such us webserver or mqtt client to fail
+  unsigned long tHigh = pulseIn(pin, HIGH, this->pulseInTimeout);
+  unsigned long tLow = pulseIn(pin, LOW, this->pulseInTimeout);
+  // interrupts();
+  unsigned long  tCycle = tHigh + tLow;
+
+  // Calculate the duty cycle of the pulse
+  float dutyCycle = (DUTY_SCALE) * ((float) tHigh / tCycle);
+  float maxUnitsForCircle = UNITS_IN_FULL_CIRCLE - 1.0;
+
+  // Calculate exact angle of servo
+  this->currentAngle = maxUnitsForCircle - ((dutyCycle - DUTY_CYCLE_MIN) * UNITS_IN_FULL_CIRCLE) / ((DUTY_CYCLE_MAX - DUTY_CYCLE_MIN) + 1);
+
+  // Clip current angle if we're somehow above or below range
+  if (currentAngle < 0) {
+    this->currentAngle = 0;
+  } else if (currentAngle > maxUnitsForCircle) {
+    this->currentAngle = maxUnitsForCircle;
+  }
+
+  // Save previous position
+  this->prevAngle = currentAngle;
+
 }
 
 
@@ -67,13 +91,15 @@ void ParallaxServo::rotate(float degree, int threshold) {
 bool ParallaxServo::handle() {
   // Run pulseWidth measuring to figure out the current angle of the servo
   byte pin = this->feedbackPin;
+  // noInterrupts();  // Removing interrupts will cause other features such us webserver or mqtt client to fail
   unsigned long tHigh = pulseIn(pin, HIGH, this->pulseInTimeout);
   unsigned long tLow = pulseIn(pin, LOW, this->pulseInTimeout);
+  // interrupts();
   unsigned long  tCycle = tHigh + tLow;
   // Check if our cycle time was appropriate
   if (!(tCycle > 1000 && tCycle < 1200) || tHigh == 0 || tLow == 0) {
     // Invalid cycle time, so try pulse measuring again
-    // Serial.println("Invalid cycle time");
+    // Serial.printf("Invalid cycle time in feedback pin %d: %lu ", pin, tCycle);
     return false;
   }
   // Calculate the duty cycle of the pulse
@@ -97,12 +123,26 @@ bool ParallaxServo::handle() {
     this->turns -= 1;
   }
 
+  // Handle longs delays while reading:
+  int targetOver = 0;
+  float freeOffset = 5;
+
+    if ((this->targetAngle - freeOffset > this->currentAngle ) && (this->prevAngle > this->targetAngle) ){
+        // Serial.printf("-- targetOver for servo pin %d 1\n", this->controlPin);
+        targetOver = 1;
+  } else if( (this->targetAngle + freeOffset < this->currentAngle ) && (this->prevAngle < this->targetAngle) ) {
+        // Serial.printf("-- targetOver for servo pin %d 2\n", this->controlPin);
+        targetOver = 2;
+  } else {
+      targetOver = 0;
+  }
+
   // Save previous position
   this->prevAngle = currentAngle;
   this->errorAngle = targetAngle - currentAngle;
 
 
-  // Simple P Controller
+  // Simple P Controller to keep speed constant among the cicle
   int outputSpeed = errorAngle * CONSTANT_KP;
 
   if (outputSpeed > MAX_PULSE_SPEED_OFFSET_US) {
@@ -117,7 +157,44 @@ bool ParallaxServo::handle() {
   } else if (errorAngle < 0) {
     offset = -1 * ERROR_ANGLE_OFFSET_US;
   }
-  outputSpeed = HOLD_STILL_PULSE_SPEED_US + outputSpeed + offset;
+  outputSpeed += offset;
+
+
+  // Prevent more than 1 loop in each direction:
+  // Hardcode turn to come back to turn = 0 to avoid sensor wires to rotate around the servo horn
+  if (this->turns >= 1 ){
+    Serial.printf("Motor pin %d turn +1\n", this->controlPin);
+    outputSpeed = -1 * abs(outputSpeed);
+  } else if (this->turns < 0 ){
+    Serial.printf("Motor pin %d turn -1\n", this->controlPin);
+    outputSpeed = 1 * abs(outputSpeed);
+  }
+
+
+  // Prevent more than 1 loop in each direction if turns are not detected due lack of readings:
+  /*
+  if (targetOver != 0){
+    // if(outputSpeed > 0) outputSpeed *= -1 ;
+    // else outputSpeed *= -1 ;
+    // outputSpeed = - outputSpeed ;
+
+    if ( this->lastTargetOver != targetOver){
+      if (targetOver == 1 ){
+        Serial.printf("-- Reversed direction for servo pin %d with +1 loop\n", this->controlPin);
+        outputSpeed = 1 * abs(outputSpeed);
+      } else if (targetOver == 2 ){
+        Serial.printf("-- Reversed direction for servo pin %d with -1 loop\n", this->controlPin);
+        outputSpeed = -1 * abs(outputSpeed);
+      }
+
+    }
+    this->lastTargetOver = targetOver;
+  }
+  */
+
+
+
+  outputSpeed = HOLD_STILL_PULSE_SPEED_US + outputSpeed;
   servo.writeMicroseconds(outputSpeed);
 
   return true;

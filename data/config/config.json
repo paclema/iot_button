@@ -140,8 +140,8 @@
       "zone_1": [ 12, 15, 15, 0],
       "zone_2": [ 0, 15, 3, 0]
     },
-    "angle_min": 20,
-    "angle_max": 150,
+    "angle_min": 80,
+    "angle_max": 280,
     "debug": true
   },
   "info": {
