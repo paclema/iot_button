@@ -1,3 +1,6 @@
 [submodule "pcb_desings/iot-postbox/pcb_desings/iot-postbox/libs/misc_footprints"]
 	path = pcb_desings/iot-postbox/pcb_desings/iot-postbox/libs/misc_footprints
 	url = https://github.com/kubabuda/misc_footprints
+[submodule "pcb_desings/iot-postbox/libs/tp4056"]
+	path = pcb_desings/iot-postbox/libs/tp4056
+	url = https://github.com/alltheworld/tp4056
