@@ -197,7 +197,7 @@ ICACHE_RAM_ATTR void pin13ISR() {detectsChange(13);}
 
 
 void setupPostBox(void){
-  // WiFi.disconnect();
+
   // ESP Awake Pin, the pin which keeps CH_PD HIGH, a requirement for normal functioning of ESP8266
   pinMode(wake, OUTPUT);
   digitalWrite(wake, HIGH);
@@ -220,6 +220,10 @@ void setupPostBox(void){
 
   long bootDelay = millis() - connectionTime;
   Serial.printf("\tbootDelay: %ld - pin booter: %d\n", bootDelay, button);
+
+  // Disconnect wifi if the reboot was not originated by GPIOs
+  // but probably caused by updating firmware by UART
+  if (button == -1) WiFi.disconnect();  
 }
 
 void turnESPOff (void){
