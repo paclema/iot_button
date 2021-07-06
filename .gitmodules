@@ -1,0 +1,3 @@
+[submodule "pcb_desings/iot-postbox/pcb_desings/iot-postbox/libs/misc_footprints"]
+	path = pcb_desings/iot-postbox/pcb_desings/iot-postbox/libs/misc_footprints
+	url = https://github.com/kubabuda/misc_footprints
