@@ -1,0 +1,11 @@
+Reference, Value, Footprint, Datasheet
+"U2","TTL_to_USB_adapter_iot_postbox","ttl_to_usb_adapter:TTL_to_USB_PinHeader",""
+"U1","USB_to_TTL","Connector_PinHeader_2.54mm:PinHeader_1x06_P2.54mm_Vertical",""
+"Q1","UMH3N","Package_TO_SOT_SMD:SOT-363_SC-70-6","http://rohmfs.rohm.com/en/products/databook/datasheet/discrete/transistor/digital/emh3t2r-e.pdf"
+"J1","CH_PD_selector","Connector_PinHeader_2.54mm:PinHeader_1x03_P2.54mm_Horizontal","~"
+"D1","LED","LED_SMD:LED_0805_2012Metric","~"
+"R1","68","Resistor_SMD:R_0805_2012Metric","~"
+"D2","LED","LED_SMD:LED_0805_2012Metric","~"
+"R2","68","Resistor_SMD:R_0805_2012Metric","~"
+"D3","LED","LED_SMD:LED_0805_2012Metric","~"
+"R3","68","Resistor_SMD:R_0805_2012Metric","~"

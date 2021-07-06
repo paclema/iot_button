@@ -1,0 +1,3 @@
+(sym_lib_table
+  (lib (name ttl_to_usb_adapter)(type Legacy)(uri ${KIPRJMOD}/libs/ttl_to_usb_adapter/ttl_to_usb_adapter.lib)(options "")(descr ""))
+)
