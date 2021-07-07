@@ -1,4 +1,4 @@
-19087733627191963
+19089359723227559
 Battery
 BatteryHolder_Bulgin_BX0036_1xC
 Bulgin Battery Holder, BX0036, Battery Type C (https://www.bulgin.com/products/pub/media/bulgin/data/Battery_holders.pdf)
@@ -56209,6 +56209,13 @@ Yellow 5381 Series LED
 0
 2
 2
+MSK12C02
+1P2T_SPDT_MSK-C02_7pin
+
+
+0
+7
+3
 Module
 A20_OLINUXINO_LIME2
 A20 Olinuxino LIME2, 1.2GHz, 512-1024MB RAM, Micro-SD, NAND or eMMC, 1000Mbit Ethernet
@@ -83033,13 +83040,6 @@ varistor SIOV
 0
 2
 2
-iot-postbox
-TTL_to_USB_PinHeader
-
-
-0
-6
-6
 lib
 TP4056_SOP-8-PP
 8-Lead Plastic SOP-8-PP
@@ -83047,3 +83047,10 @@ SSOP 0.50 exposed pad
 0
 9
 9
+ttl_to_usb_adapter
+TTL_to_USB_PinHeader
+
+
+0
+7
+7

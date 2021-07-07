@@ -4,12 +4,12 @@ EELAYER END
 $Descr A4 11693 8268
 encoding utf-8
 Sheet 1 1
-Title ""
-Date ""
-Rev ""
+Title "IoT-PostBox"
+Date "2021-07-08"
+Rev "v0.0"
 Comp ""
-Comment1 ""
-Comment2 ""
+Comment1 "https://github.com/paclema/iot-postbox"
+Comment2 "IoT-PostBox board based on ESP8266 (ESP-12 or ESP-07)"
 Comment3 ""
 Comment4 ""
 $EndDescr
@@ -274,30 +274,8 @@ Wire Wire Line
 Connection ~ 3050 1550
 Wire Wire Line
 	3050 1550 3200 1550
-$Comp
-L Connector_Generic:Conn_01x02 J2
-U 1 1 60B5CB01
-P 6000 6250
-F 0 "J2" H 6080 6242 50  0000 L CNN
-F 1 "Switch_2" H 6080 6151 50  0000 L CNN
-F 2 "Connector_PinHeader_2.54mm:PinHeader_1x02_P2.54mm_Vertical" H 6000 6250 50  0001 C CNN
-F 3 "~" H 6000 6250 50  0001 C CNN
-	1    6000 6250
-	1    0    0    -1  
-$EndComp
 Wire Wire Line
 	5800 6100 5800 6250
-$Comp
-L Connector_Generic:Conn_01x02 J1
-U 1 1 60B69ADF
-P 4900 6250
-F 0 "J1" H 4980 6242 50  0000 L CNN
-F 1 "Switch_1" H 4980 6151 50  0000 L CNN
-F 2 "Connector_PinHeader_2.54mm:PinHeader_1x02_P2.54mm_Vertical" H 4900 6250 50  0001 C CNN
-F 3 "~" H 4900 6250 50  0001 C CNN
-	1    4900 6250
-	1    0    0    -1  
-$EndComp
 $Comp
 L Device:C C2
 U 1 1 60B72B1E
@@ -789,56 +767,56 @@ Wire Wire Line
 	1200 2350 900  2350
 Text Label 950  2350 0    50   ~ 0
 ADC
-Text GLabel 7500 2800 0    50   Input ~ 0
+Text GLabel 7600 2850 0    50   Input ~ 0
 BAT+
 $Comp
 L charger_stepup-cache:R R12
 U 1 1 61025CCF
-P 7650 3050
-F 0 "R12" H 7720 3096 50  0000 L CNN
-F 1 "27K" H 7720 3005 50  0000 L CNN
-F 2 "Resistor_SMD:R_0805_2012Metric" V 7580 3050 50  0001 C CNN
-F 3 "" H 7650 3050 50  0001 C CNN
-	1    7650 3050
+P 7750 3100
+F 0 "R12" H 7820 3146 50  0000 L CNN
+F 1 "27K" H 7820 3055 50  0000 L CNN
+F 2 "Resistor_SMD:R_0805_2012Metric" V 7680 3100 50  0001 C CNN
+F 3 "" H 7750 3100 50  0001 C CNN
+	1    7750 3100
 	1    0    0    -1  
 $EndComp
 $Comp
 L charger_stepup-cache:R R13
 U 1 1 61026824
-P 7650 3450
-F 0 "R13" H 7720 3496 50  0000 L CNN
-F 1 "100K" H 7720 3405 50  0000 L CNN
-F 2 "Resistor_SMD:R_0805_2012Metric" V 7580 3450 50  0001 C CNN
-F 3 "" H 7650 3450 50  0001 C CNN
-	1    7650 3450
+P 7750 3500
+F 0 "R13" H 7820 3546 50  0000 L CNN
+F 1 "100K" H 7820 3455 50  0000 L CNN
+F 2 "Resistor_SMD:R_0805_2012Metric" V 7680 3500 50  0001 C CNN
+F 3 "" H 7750 3500 50  0001 C CNN
+	1    7750 3500
 	1    0    0    -1  
 $EndComp
 Wire Wire Line
-	7500 2800 7650 2800
+	7600 2850 7750 2850
 Wire Wire Line
-	7650 2800 7650 2900
+	7750 2850 7750 2950
 Wire Wire Line
-	7650 3200 7650 3250
+	7750 3250 7750 3300
 Wire Wire Line
-	7650 3600 7650 3700
+	7750 3650 7750 3750
 $Comp
 L power:GND #PWR015
 U 1 1 61042377
-P 7650 3700
-F 0 "#PWR015" H 7650 3450 50  0001 C CNN
-F 1 "GND" H 7655 3527 50  0000 C CNN
-F 2 "" H 7650 3700 50  0001 C CNN
-F 3 "" H 7650 3700 50  0001 C CNN
-	1    7650 3700
+P 7750 3750
+F 0 "#PWR015" H 7750 3500 50  0001 C CNN
+F 1 "GND" H 7755 3577 50  0000 C CNN
+F 2 "" H 7750 3750 50  0001 C CNN
+F 3 "" H 7750 3750 50  0001 C CNN
+	1    7750 3750
 	1    0    0    -1  
 $EndComp
-Text Label 8000 3250 0    50   ~ 0
+Text Label 8100 3300 0    50   ~ 0
 ADC
 Wire Wire Line
-	7650 3250 8150 3250
-Connection ~ 7650 3250
+	7750 3300 8250 3300
+Connection ~ 7750 3300
 Wire Wire Line
-	7650 3250 7650 3300
+	7750 3300 7750 3350
 Wire Wire Line
 	2400 2350 2750 2350
 Wire Wire Line
@@ -858,63 +836,63 @@ Wire Wire Line
 $Comp
 L Regulator_Linear:MCP1700-3302E_SOT23 U6
 U 1 1 60E3984C
-P 4750 3250
-F 0 "U6" H 4750 3492 50  0000 C CNN
-F 1 "MCP1700-3302E_SOT23" H 4750 3401 50  0000 C CNN
-F 2 "Package_TO_SOT_SMD:SOT-23" H 4750 3475 50  0001 C CNN
-F 3 "http://ww1.microchip.com/downloads/en/DeviceDoc/20001826D.pdf" H 4750 3250 50  0001 C CNN
-	1    4750 3250
+P 5150 3200
+F 0 "U6" H 5150 3442 50  0000 C CNN
+F 1 "MCP1700-3302E_SOT23" H 5150 3351 50  0000 C CNN
+F 2 "Package_TO_SOT_SMD:SOT-23" H 5150 3425 50  0001 C CNN
+F 3 "http://ww1.microchip.com/downloads/en/DeviceDoc/20001826D.pdf" H 5150 3200 50  0001 C CNN
+	1    5150 3200
 	1    0    0    -1  
 $EndComp
 $Comp
 L charger_stepup-cache:C C6
 U 1 1 60E3AAE3
-P 4200 3450
-F 0 "C6" H 4315 3496 50  0000 L CNN
-F 1 "1uf" H 4315 3405 50  0000 L CNN
-F 2 "Capacitor_SMD:C_0805_2012Metric" H 4238 3300 50  0001 C CNN
-F 3 "" H 4200 3450 50  0001 C CNN
-	1    4200 3450
+P 4600 3400
+F 0 "C6" H 4715 3446 50  0000 L CNN
+F 1 "1uf" H 4715 3355 50  0000 L CNN
+F 2 "Capacitor_SMD:C_0805_2012Metric" H 4638 3250 50  0001 C CNN
+F 3 "" H 4600 3400 50  0001 C CNN
+	1    4600 3400
 	1    0    0    -1  
 $EndComp
 $Comp
 L charger_stepup-cache:C C7
 U 1 1 60E3B513
-P 5300 3450
-F 0 "C7" H 5415 3496 50  0000 L CNN
-F 1 "1uf" H 5415 3405 50  0000 L CNN
-F 2 "Capacitor_SMD:C_0805_2012Metric" H 5338 3300 50  0001 C CNN
-F 3 "" H 5300 3450 50  0001 C CNN
-	1    5300 3450
+P 5700 3400
+F 0 "C7" H 5815 3446 50  0000 L CNN
+F 1 "1uf" H 5815 3355 50  0000 L CNN
+F 2 "Capacitor_SMD:C_0805_2012Metric" H 5738 3250 50  0001 C CNN
+F 3 "" H 5700 3400 50  0001 C CNN
+	1    5700 3400
 	1    0    0    -1  
 $EndComp
 $Comp
 L power:GND #PWR01
 U 1 1 60E3C4F7
-P 4750 3700
-F 0 "#PWR01" H 4750 3450 50  0001 C CNN
-F 1 "GND" H 4755 3527 50  0000 C CNN
-F 2 "" H 4750 3700 50  0001 C CNN
-F 3 "" H 4750 3700 50  0001 C CNN
-	1    4750 3700
+P 5150 3650
+F 0 "#PWR01" H 5150 3400 50  0001 C CNN
+F 1 "GND" H 5155 3477 50  0000 C CNN
+F 2 "" H 5150 3650 50  0001 C CNN
+F 3 "" H 5150 3650 50  0001 C CNN
+	1    5150 3650
 	1    0    0    -1  
 $EndComp
 Wire Wire Line
-	4200 3650 4750 3650
+	4600 3600 5150 3600
 Wire Wire Line
-	4750 3650 4750 3700
+	5150 3600 5150 3650
 Wire Wire Line
-	4750 3650 4750 3550
-Connection ~ 4750 3650
+	5150 3600 5150 3500
+Connection ~ 5150 3600
 Wire Wire Line
-	4750 3650 5300 3650
+	5150 3600 5700 3600
 Wire Wire Line
-	5300 3650 5300 3600
+	5700 3600 5700 3550
 Wire Wire Line
-	5050 3250 5300 3250
+	5450 3200 5700 3200
 Wire Wire Line
-	5300 3250 5300 3300
-Text GLabel 4000 3250 0    50   Input ~ 0
+	5700 3200 5700 3250
+Text GLabel 3900 3100 0    50   Input ~ 0
 OUT+
 $Comp
 L power:GND #PWR02
@@ -930,25 +908,25 @@ $EndComp
 Wire Wire Line
 	9050 3700 9050 3650
 Wire Wire Line
-	4000 3250 4200 3250
+	4400 3200 4600 3200
 Wire Wire Line
-	4200 3650 4200 3600
+	4600 3600 4600 3550
 Wire Wire Line
-	4200 3300 4200 3250
-Connection ~ 4200 3250
+	4600 3250 4600 3200
+Connection ~ 4600 3200
 Wire Wire Line
-	4200 3250 4450 3250
+	4600 3200 4850 3200
 Wire Notes Line
 	2400 6000 2400 7650
 Wire Notes Line
 	2400 7650 600  7650
 Wire Notes Line
 	600  7650 600  6000
-Text GLabel 5500 3250 2    50   Input ~ 0
+Text GLabel 5900 3200 2    50   Input ~ 0
 VCC
 Wire Wire Line
-	5500 3250 5300 3250
-Connection ~ 5300 3250
+	5900 3200 5700 3200
+Connection ~ 5700 3200
 Text GLabel 4600 6000 0    50   Input ~ 0
 VCC
 Text GLabel 1800 1250 1    50   Input ~ 0
@@ -994,96 +972,94 @@ Wire Notes Line
 	11100 4250 11100 650 
 Wire Notes Line
 	11100 650  3500 650 
-Text GLabel 6350 2850 0    50   Input ~ 0
+Text GLabel 6500 2800 0    50   Input ~ 0
 IN+
-Text GLabel 6350 3050 0    50   Input ~ 0
+Text GLabel 6500 3000 0    50   Input ~ 0
 IN-
 $Comp
 L Connector_Generic:Conn_01x02 J3
 U 1 1 60BC9D92
-P 6700 3000
-F 0 "J3" H 6780 2992 50  0000 L CNN
-F 1 "PowerIn" H 6780 2901 50  0000 L CNN
-F 2 "Connector_PinHeader_2.54mm:PinHeader_1x02_P2.54mm_Horizontal" H 6700 3000 50  0001 C CNN
-F 3 "~" H 6700 3000 50  0001 C CNN
-	1    6700 3000
+P 6850 2950
+F 0 "J3" H 6930 2942 50  0000 L CNN
+F 1 "PowerIn" H 6930 2851 50  0000 L CNN
+F 2 "Connector_PinHeader_2.54mm:PinHeader_1x02_P2.54mm_Vertical" H 6850 2950 50  0001 C CNN
+F 3 "~" H 6850 2950 50  0001 C CNN
+	1    6850 2950
 	1    0    0    1   
 $EndComp
 Wire Wire Line
-	6350 2850 6450 2850
+	6500 2800 6600 2800
 Wire Wire Line
-	6450 2850 6450 2900
+	6600 2800 6600 2850
 Wire Wire Line
-	6450 2900 6500 2900
+	6600 2850 6650 2850
 Wire Wire Line
-	6500 3000 6450 3000
+	6650 2950 6600 2950
 Wire Wire Line
-	6450 3000 6450 3050
+	6600 2950 6600 3000
 Wire Wire Line
-	6450 3050 6350 3050
-Text GLabel 6350 3400 0    50   Input ~ 0
+	6600 3000 6500 3000
+Text GLabel 6500 3350 0    50   Input ~ 0
 BAT+
-Text GLabel 6350 3600 0    50   Input ~ 0
+Text GLabel 6500 3550 0    50   Input ~ 0
 BAT-
 $Comp
 L Connector_Generic:Conn_01x02 J5
 U 1 1 6108EBDD
-P 6700 3550
-F 0 "J5" H 6780 3542 50  0000 L CNN
-F 1 "Battery" H 6780 3451 50  0000 L CNN
-F 2 "Connector_JST:JST_PH_S2B-PH-SM4-TB_1x02-1MP_P2.00mm_Horizontal" H 6700 3550 50  0001 C CNN
-F 3 "~" H 6700 3550 50  0001 C CNN
-	1    6700 3550
+P 6850 3500
+F 0 "J5" H 6930 3492 50  0000 L CNN
+F 1 "Battery" H 6930 3401 50  0000 L CNN
+F 2 "Connector_JST:JST_PH_S2B-PH-SM4-TB_1x02-1MP_P2.00mm_Horizontal" H 6850 3500 50  0001 C CNN
+F 3 "~" H 6850 3500 50  0001 C CNN
+	1    6850 3500
 	1    0    0    1   
 $EndComp
 Wire Wire Line
-	6350 3400 6450 3400
+	6500 3350 6600 3350
 Wire Wire Line
-	6450 3400 6450 3450
+	6600 3350 6600 3400
 Wire Wire Line
-	6450 3450 6500 3450
+	6600 3400 6650 3400
 Wire Wire Line
-	6500 3550 6450 3550
+	6650 3500 6600 3500
 Wire Wire Line
-	6450 3550 6450 3600
+	6600 3500 6600 3550
 Wire Wire Line
-	6450 3600 6350 3600
+	6600 3550 6500 3550
 NoConn ~ 4350 1750
 NoConn ~ 4350 1850
 NoConn ~ 4350 1950
 NoConn ~ 3950 2150
-Text GLabel 4000 3650 0    50   Input ~ 0
+Text GLabel 3900 3600 0    50   Input ~ 0
 OUT-
-Wire Wire Line
-	4000 3650 4200 3650
-Connection ~ 4200 3650
-Text GLabel 6350 3800 0    50   Input ~ 0
+Connection ~ 4600 3600
+Text GLabel 6500 3750 0    50   Input ~ 0
 BAT+
-Text GLabel 6350 4000 0    50   Input ~ 0
+Text GLabel 6500 3950 0    50   Input ~ 0
 BAT-
 $Comp
 L Connector_Generic:Conn_01x02 J6
 U 1 1 610E7E52
-P 6700 3950
-F 0 "J6" H 6780 3942 50  0000 L CNN
-F 1 "Battery" H 6780 3851 50  0000 L CNN
-F 2 "Connector_PinHeader_2.54mm:PinHeader_1x02_P2.54mm_Horizontal" H 6700 3950 50  0001 C CNN
-F 3 "~" H 6700 3950 50  0001 C CNN
-	1    6700 3950
+P 6850 3900
+F 0 "J6" H 6930 3892 50  0000 L CNN
+F 1 "Battery" H 6930 3801 50  0000 L CNN
+F 2 "Connector_PinHeader_2.54mm:PinHeader_1x02_P2.54mm_Vertical" H 6850 3900 50  0001 C CNN
+F 3 "~" H 6850 3900 50  0001 C CNN
+	1    6850 3900
 	1    0    0    1   
 $EndComp
 Wire Wire Line
-	6350 3800 6450 3800
+	6500 3750 6600 3750
 Wire Wire Line
-	6450 3800 6450 3850
+	6600 3750 6600 3800
 Wire Wire Line
-	6450 3850 6500 3850
+	6600 3800 6650 3800
 Wire Wire Line
-	6500 3950 6450 3950
+	6650 3900 6600 3900
 Wire Wire Line
-	6450 3950 6450 4000
+	6600 3900 6600 3950
 Wire Wire Line
-	6450 4000 6350 4000
+	6600 3950 6500 3950
 Text GLabel 1150 6500 0    50   Input ~ 0
 IN+
 Wire Wire Line
@@ -1092,19 +1068,61 @@ Wire Wire Line
 	1250 6650 1000 6650
 Text Label 1000 6650 0    50   ~ 0
 CH_PD
-$Comp
-L ttl_to_usb_adapter:TTL_to_USB_adapter_iot_postbox U2
-U 1 1 60E58D51
-P 1500 7350
-F 0 "U2" H 1450 7150 50  0000 L CNN
-F 1 "TTL_to_USB_adapter_iot_postbox" H 900 7250 50  0000 L CNN
-F 2 "ttl_to_usb_adapter:TTL_to_USB_PinHeader" H 1300 7400 50  0001 C CNN
-F 3 "" H 1300 7400 50  0001 C CNN
-	1    1500 7350
-	1    0    0    -1  
-$EndComp
 Text GLabel 1150 7250 0    50   Input ~ 0
 IN-
 Wire Wire Line
 	1150 7250 1250 7250
+Wire Wire Line
+	3900 3100 4000 3100
+Wire Wire Line
+	3900 3600 4600 3600
+NoConn ~ 4000 3300
+$Comp
+L Switch:SW_SPDT SW1
+U 1 1 60EBDB9E
+P 4200 3200
+F 0 "SW1" H 4200 3485 50  0000 C CNN
+F 1 "POWER" H 4200 3394 50  0000 C CNN
+F 2 "MSK12C02:1P2T_SPDT_MSK-C02_7pin" H 4200 3200 50  0001 C CNN
+F 3 "~" H 4200 3200 50  0001 C CNN
+	1    4200 3200
+	-1   0    0    -1  
+$EndComp
+Text Label 5400 1450 0    50   ~ 0
+IN+
+Text Label 4400 3200 0    50   ~ 0
+OUT
+$Comp
+L Connector_Generic:Conn_01x02 J2
+U 1 1 60B5CB01
+P 6000 6250
+F 0 "J2" H 6080 6242 50  0000 L CNN
+F 1 "Switch_2" H 6080 6151 50  0000 L CNN
+F 2 "Connector_PinHeader_2.54mm:PinHeader_1x02_P2.54mm_Vertical" H 6000 6250 50  0001 C CNN
+F 3 "~" H 6000 6250 50  0001 C CNN
+	1    6000 6250
+	1    0    0    -1  
+$EndComp
+$Comp
+L Connector_Generic:Conn_01x02 J1
+U 1 1 60B69ADF
+P 4900 6250
+F 0 "J1" H 4980 6242 50  0000 L CNN
+F 1 "Switch_1" H 4980 6151 50  0000 L CNN
+F 2 "Connector_PinHeader_2.54mm:PinHeader_1x02_P2.54mm_Vertical" H 4900 6250 50  0001 C CNN
+F 3 "~" H 4900 6250 50  0001 C CNN
+	1    4900 6250
+	1    0    0    -1  
+$EndComp
+$Comp
+L ttl_to_usb_adapter:TTL_UART_adapter_iot_postbox U2
+U 1 1 60E75D33
+P 1500 7350
+F 0 "U2" H 1450 7150 50  0000 L CNN
+F 1 "TTL_UART_adapter_iot_postbox" H 900 7250 50  0000 L CNN
+F 2 "Connector_PinHeader_2.54mm:PinHeader_1x07_P2.54mm_Vertical" H 1300 7400 50  0001 C CNN
+F 3 "" H 1300 7400 50  0001 C CNN
+	1    1500 7350
+	1    0    0    -1  
+$EndComp
 $EndSCHEMATC

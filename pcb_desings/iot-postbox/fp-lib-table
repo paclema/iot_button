@@ -2,4 +2,5 @@
   (lib (name lib)(type KiCad)(uri ${KIPRJMOD}/libs/tp4056/lib)(options "")(descr ""))
   (lib (name Package_TO_SOT_SMD)(type KiCad)(uri ${KIPRJMOD}/libs/Package_TO_SOT_SMD.pretty)(options "")(descr ""))
   (lib (name ttl_to_usb_adapter)(type KiCad)(uri ${KIPRJMOD}/libs/ttl_to_usb_adapter/ttl_to_usb_adapter.pretty)(options "")(descr ""))
+  (lib (name MSK12C02)(type KiCad)(uri ${KIPRJMOD}/libs/MSK12C02)(options "")(descr ""))
 )

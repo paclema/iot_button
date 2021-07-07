@@ -11,18 +11,18 @@
     (via_costs 50)
     (plane_via_costs 5)
     (start_ripup_costs 100)
-    (start_pass_no 130)
+    (start_pass_no 2352)
     (layer_rule F.Cu
       (active on)
       (preferred_direction vertical)
       (preferred_direction_trace_costs 1.0)
-      (against_preferred_direction_trace_costs 2.9)
+      (against_preferred_direction_trace_costs 2.4)
     )
     (layer_rule B.Cu
       (active on)
       (preferred_direction horizontal)
       (preferred_direction_trace_costs 1.0)
-      (against_preferred_direction_trace_costs 1.5)
+      (against_preferred_direction_trace_costs 1.7)
     )
   )
   (rule
@@ -46,11 +46,17 @@
   (via 
     "Via[0-1]_800:400_um-kicad_default" "Via[0-1]_800:400_um" "kicad_default"
   )
+  (via 
+    "Via[0-1]_800:400_um-POWER" "Via[0-1]_800:400_um" POWER
+  )
   (via_rule
     default "Via[0-1]_800:400_um"
   )
   (via_rule
     "kicad_default" "Via[0-1]_800:400_um-kicad_default"
+  )
+  (via_rule
+    POWER "Via[0-1]_800:400_um-POWER"
   )
   (class default
     (clearance_class default)
@@ -63,12 +69,24 @@
     )
   )
   (class "kicad_default"
-    GND +3V3 "/CH_PD" /GPIO12 /GPIO13 /GPIO14 "Net-(R3-Pad1)" "Net-(R4-Pad1)"
-    /RST /GPIO0 /RX /TX
+    "/CH_PD" /GPIO12 /GPIO13 /GPIO14 "Net-(R3-Pad1)" "Net-(R4-Pad1)" /RST /GPIO0
+    /RX /TX "Net-(D4-Pad1)" "Net-(D5-Pad1)" "Net-(J4-Pad6)" /CHRG /STDBY "Net-(R10-Pad1)"
+    /ADC "Net-(R_PROG1-Pad2)" "Net-(U4-Pad3)" "Net-(U4-Pad1)"
     (clearance_class "kicad_default")
     (via_rule kicad_default)
     (rule
       (width 250.0)
+    )
+    (circuit 
+      (use_layer F.Cu B.Cu)
+    )
+  )
+  (class POWER
+    "IN-" VCC IN+ BAT+ "BAT-" "Net-(C5-Pad1)" /OUT
+    (clearance_class POWER)
+    (via_rule POWER)
+    (rule
+      (width 650.0)
     )
     (circuit 
       (use_layer F.Cu B.Cu)

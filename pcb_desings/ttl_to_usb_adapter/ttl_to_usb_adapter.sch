@@ -14,17 +14,6 @@ Comment3 ""
 Comment4 ""
 $EndDescr
 $Comp
-L ttl_to_usb_adapter:TTL_to_USB_adapter_iot_postbox U2
-U 1 1 60E48906
-P 3700 2050
-F 0 "U2" H 3650 1850 50  0000 L CNN
-F 1 "TTL_to_USB_adapter_iot_postbox" H 3150 1950 50  0000 L CNN
-F 2 "ttl_to_usb_adapter:TTL_to_USB_PinHeader" H 3500 2100 50  0001 C CNN
-F 3 "" H 3500 2100 50  0001 C CNN
-	1    3700 2050
-	1    0    0    -1  
-$EndComp
-$Comp
 L ttl_to_usb_adapter:USB_to_TTL U1
 U 1 1 60E490DC
 P 1400 2050
@@ -268,4 +257,15 @@ Text Label 1800 1400 2    50   ~ 0
 RTS
 Text Label 1800 1500 2    50   ~ 0
 DTR
+$Comp
+L ttl_to_usb_adapter:TTL_UART_adapter_iot_postbox U2
+U 1 1 60E63523
+P 3700 2050
+F 0 "U2" H 3650 1800 50  0000 L CNN
+F 1 "TTL_UART_adapter_iot_postbox" H 3100 1950 50  0000 L CNN
+F 2 "Connector_PinHeader_2.54mm:PinHeader_1x07_P2.54mm_Vertical" H 3500 2100 50  0001 C CNN
+F 3 "" H 3500 2100 50  0001 C CNN
+	1    3700 2050
+	1    0    0    -1  
+$EndComp
 $EndSCHEMATC
