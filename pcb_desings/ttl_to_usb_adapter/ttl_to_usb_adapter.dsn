@@ -21,8 +21,16 @@
       )
     )
     (boundary
-      (path pcb 0  170000 -105000  154000 -105000  154000 -86000  170000 -86000
-            170000 -105000)
+      (path pcb 0  169195 -86019.2  169383 -86076.1  169556 -86168.5  169707 -86292.9
+            169831 -86444.4  169924 -86617.3  169981 -86804.9  170000 -87000
+            170000 -104000  169981 -104195  169924 -104383  169831 -104556
+            169707 -104707  169556 -104831  169383 -104924  169195 -104981
+            169000 -105000  155000 -105000  154805 -104981  154617 -104924
+            154444 -104831  154293 -104707  154169 -104556  154076 -104383
+            154019 -104195  154000 -104000  154000 -87000  154019 -86804.9
+            154076 -86617.3  154169 -86444.4  154293 -86292.9  154444 -86168.5
+            154617 -86076.1  154805 -86019.2  155000 -86000  169000 -86000
+            169195 -86019.2)
     )
     (via "Via[0-1]_800:400_um")
     (rule
@@ -33,6 +41,9 @@
     )
   )
   (placement
+    (component Connector_PinHeader_2.54mm:PinHeader_1x07_P2.54mm_Vertical
+      (place U2 168200 -103200 front 180 (PN TTL_UART_adapter_iot_postbox))
+    )
     (component Resistor_SMD:R_0805_2012Metric
       (place R3 160300 -102600 front 0 (PN 68))
       (place R2 160300 -99300 front 0 (PN 68))
@@ -42,12 +53,9 @@
       (place J1 164700 -92400 back 270 (PN CH_PD_selector))
     )
     (component LED_SMD:LED_0805_2012Metric
-      (place D3 164200 -102600 front 0 (PN GPIO0))
-      (place D2 164200 -99300 front 0 (PN RST))
-      (place D1 164200 -96000 front 0 (PN EN))
-    )
-    (component ttl_to_usb_adapter:TTL_to_USB_PinHeader
-      (place U2 168400 -105600 front 0 (PN TTL_to_USB_adapter_iot_postbox))
+      (place GPIO0 164200 -102600 front 0 (PN GPIO0))
+      (place RST 164200 -99300 front 0 (PN RST))
+      (place CH_PD 164200 -96000 front 0 (PN EN))
     )
     (component Connector_PinHeader_2.54mm:PinHeader_1x06_P2.54mm_Vertical
       (place U1 156400 -101800 front 180 (PN USB_to_TTL))
@@ -57,6 +65,30 @@
     )
   )
   (library
+    (image Connector_PinHeader_2.54mm:PinHeader_1x07_P2.54mm_Vertical
+      (outline (path signal 50  1800 1800  -1800 1800))
+      (outline (path signal 50  1800 -17050  1800 1800))
+      (outline (path signal 50  -1800 -17050  1800 -17050))
+      (outline (path signal 50  -1800 1800  -1800 -17050))
+      (outline (path signal 120  -1330 1330  0 1330))
+      (outline (path signal 120  -1330 0  -1330 1330))
+      (outline (path signal 120  -1330 -1270  1330 -1270))
+      (outline (path signal 120  1330 -1270  1330 -16570))
+      (outline (path signal 120  -1330 -1270  -1330 -16570))
+      (outline (path signal 120  -1330 -16570  1330 -16570))
+      (outline (path signal 100  -1270 635  -635 1270))
+      (outline (path signal 100  -1270 -16510  -1270 635))
+      (outline (path signal 100  1270 -16510  -1270 -16510))
+      (outline (path signal 100  1270 1270  1270 -16510))
+      (outline (path signal 100  -635 1270  1270 1270))
+      (pin Oval[A]Pad_1700x1700_um 7 0 -15240)
+      (pin Oval[A]Pad_1700x1700_um 6 0 -12700)
+      (pin Oval[A]Pad_1700x1700_um 5 0 -10160)
+      (pin Oval[A]Pad_1700x1700_um 4 0 -7620)
+      (pin Oval[A]Pad_1700x1700_um 3 0 -5080)
+      (pin Oval[A]Pad_1700x1700_um 2 0 -2540)
+      (pin Rect[A]Pad_1700x1700_um 1 0 0)
+    )
     (image Resistor_SMD:R_0805_2012Metric
       (outline (path signal 50  1680 -950  -1680 -950))
       (outline (path signal 50  1680 950  1680 -950))
@@ -148,21 +180,6 @@
       (pin RoundRect[T]Pad_975x1400_244.678_um 1 -937.5 0)
       (pin RoundRect[T]Pad_975x1400_244.678_um 2 937.5 0)
     )
-    (image ttl_to_usb_adapter:TTL_to_USB_PinHeader
-      (outline (path signal 120  1000 1600  1000 19000))
-      (outline (path signal 120  1000 19000  -1000 19000))
-      (outline (path signal 120  -1000 19000  -1000 1600))
-      (outline (path signal 120  -1000 1250  1000 1250))
-      (outline (path signal 120  1000 1250  1000 1600))
-      (outline (path signal 120  -1000 1250  -1000 1600))
-      (pin Round[A]Pad_1524_um 1 0 2540)
-      (pin Round[A]Pad_1524_um 2 0 5080)
-      (pin Round[A]Pad_1524_um 3 0 7620)
-      (pin Round[A]Pad_1524_um 4 0 10160)
-      (pin Round[A]Pad_1524_um 5 0 12700)
-      (pin Round[A]Pad_1524_um 6 0 15240)
-      (pin Round[A]Pad_1524_um 7 0 17780)
-    )
     (image Connector_PinHeader_2.54mm:PinHeader_1x06_P2.54mm_Vertical
       (outline (path signal 50  1800 1800  -1800 1800))
       (outline (path signal 50  1800 -14500  1800 1800))
@@ -204,11 +221,6 @@
       (pin Rect[T]Pad_650x400_um 2 -950 0)
       (pin Rect[T]Pad_650x400_um 4 950 -650)
       (pin Rect[T]Pad_650x400_um 6 950 650)
-    )
-    (padstack Round[A]Pad_1524_um
-      (shape (circle F.Cu 1524))
-      (shape (circle B.Cu 1524))
-      (attach off)
     )
     (padstack Oval[A]Pad_1700x1700_um
       (shape (path F.Cu 1700  0 0  0 0))
@@ -259,14 +271,8 @@
     )
   )
   (network
-    (net "Net-(Q1-Pad2)"
-      (pins U1-4 Q1-2 Q1-4)
-    )
-    (net "Net-(Q1-Pad1)"
-      (pins U1-5 Q1-1 Q1-5)
-    )
     (net /3V3
-      (pins J1-3 U2-7 U1-6)
+      (pins U2-7 J1-3 U1-6)
     )
     (net /TXD
       (pins U2-2 U1-3)
@@ -275,34 +281,48 @@
       (pins U2-3 U1-2)
     )
     (net /GND
-      (pins R3-1 R2-1 R1-1 J1-1 U2-1 U1-1)
+      (pins U2-1 R3-1 R2-1 R1-1 J1-1 U1-1)
     )
     (net /CH_PD
-      (pins J1-2 D1-2 U2-6)
+      (pins U2-6 J1-2 CH_PD-2)
     )
     (net "Net-(D1-Pad1)"
-      (pins R1-2 D1-1)
+      (pins R1-2 CH_PD-1)
     )
     (net /RST
-      (pins D2-2 U2-5 Q1-6)
+      (pins U2-5 RST-2 Q1-6)
     )
     (net "Net-(D2-Pad1)"
-      (pins R2-2 D2-1)
+      (pins R2-2 RST-1)
     )
     (net /GPIO0
-      (pins D3-2 U2-4 Q1-3)
+      (pins U2-4 GPIO0-2 Q1-3)
     )
     (net "Net-(D3-Pad1)"
-      (pins R3-2 D3-1)
+      (pins R3-2 GPIO0-1)
     )
-    (class kicad_default "" /3V3 /CH_PD /GND /GPIO0 /RST /RXD /TXD "Net-(D1-Pad1)"
-      "Net-(D2-Pad1)" "Net-(D3-Pad1)" "Net-(Q1-Pad1)" "Net-(Q1-Pad2)" "Net-(Q1-Pad3)"
-      "Net-(Q1-Pad6)"
+    (net /RTS
+      (pins U1-5 Q1-1 Q1-5)
+    )
+    (net /DTR
+      (pins U1-4 Q1-2 Q1-4)
+    )
+    (class kicad_default "" /CH_PD /DTR /GPIO0 /RST /RTS /RXD /TXD "Net-(D1-Pad1)"
+      "Net-(D2-Pad1)" "Net-(D3-Pad1)"
       (circuit
         (use_via Via[0-1]_800:400_um)
       )
       (rule
         (width 250)
+        (clearance 200.1)
+      )
+    )
+    (class POWER /3V3 /GND
+      (circuit
+        (use_via Via[0-1]_800:400_um)
+      )
+      (rule
+        (width 650)
         (clearance 200.1)
       )
     )

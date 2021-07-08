@@ -1,17 +1,17 @@
 (export (version D)
   (design
     (source K:\REPOS\iot_button\pcb_desings\ttl_to_usb_adapter\ttl_to_usb_adapter.sch)
-    (date "07/07/2021 23:34:22")
+    (date "08/07/2021 09:51:21")
     (tool "Eeschema (5.1.9)-1")
     (sheet (number 1) (name /) (tstamps /)
       (title_block
-        (title)
+        (title "TTL to USB adapter")
         (company)
-        (rev)
-        (date)
+        (rev v0.0)
+        (date 2021-07-08)
         (source ttl_to_usb_adapter.sch)
-        (comment (number 1) (value ""))
-        (comment (number 2) (value ""))
+        (comment (number 1) (value https://github.com/paclema/iot-postbox))
+        (comment (number 2) (value "TTL to USB adapter for IoT-Postbox"))
         (comment (number 3) (value ""))
         (comment (number 4) (value "")))))
   (components

@@ -1,7 +1,7 @@
 (export (version D)
   (design
     (source K:\REPOS\iot_button\pcb_desings\iot-postbox\iot-postbox.sch)
-    (date "08/07/2021 00:37:57")
+    (date "08/07/2021 10:47:39")
     (tool "Eeschema (5.1.9)-1")
     (sheet (number 1) (name /) (tstamps /)
       (title_block
@@ -11,7 +11,7 @@
         (date 2021-07-08)
         (source iot-postbox.sch)
         (comment (number 1) (value https://github.com/paclema/iot-postbox))
-        (comment (number 2) (value "IoT-PostBox board using ESP12F"))
+        (comment (number 2) (value "IoT-PostBox board based on ESP8266 (ESP-12 or ESP-07)"))
         (comment (number 3) (value ""))
         (comment (number 4) (value "")))))
   (components

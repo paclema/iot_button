@@ -4,12 +4,12 @@ EELAYER END
 $Descr A4 11693 8268
 encoding utf-8
 Sheet 1 1
-Title ""
-Date ""
-Rev ""
+Title "TTL to USB adapter"
+Date "2021-07-08"
+Rev "v0.0"
 Comp ""
-Comment1 ""
-Comment2 ""
+Comment1 "https://github.com/paclema/iot-postbox"
+Comment2 "TTL to USB adapter for IoT-Postbox"
 Comment3 ""
 Comment4 ""
 $EndDescr
