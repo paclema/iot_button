@@ -135,6 +135,21 @@ String getRSSI(){ return String(WiFi.RSSI());}
 String getHeapFree(){ return String((float)GET_FREE_HEAP/1000);}
 
 
+// Co2 sensor
+#include <Wire.h>
+#include "SparkFun_SCD30_Arduino_Library.h" //Click here to get the library: http://librarymanager/All#SparkFun_SCD30
+SCD30 airSensor;
+
+// GPS
+#include <TinyGPS++.h>
+#include <SoftwareSerial.h>
+static const int RXPin = 14, TXPin = 12; // RX to D6 and TX to D5
+static const uint32_t GPSBaud = 9600;
+TinyGPSPlus gps;
+SoftwareSerial ss(RXPin, TXPin);
+
+
+
 
 // MAIN FUNCTIONS:
 // --------------
@@ -443,9 +458,9 @@ void initMQTT(void){
     if (!cert) Serial.println("Failed to open cert file ");
     else Serial.println("Success to open cert file");
 
-    if (wifiClientSecure.loadCertificate(cert, cert.size())) Serial.println("cert loaded");
-    else Serial.println("cert not loaded");
-    cert.close();
+    // if (wifiClientSecure.loadCertificate(cert, cert.size())) Serial.println("cert loaded");
+    // else Serial.println("cert not loaded");
+    // cert.close();
 
     // Load private key:
     // But you must convert it to .der
@@ -454,18 +469,18 @@ void initMQTT(void){
     if (!private_key) Serial.println("Failed to open key file ");
     else Serial.println("Success to open key file");
 
-    if (wifiClientSecure.loadPrivateKey(private_key, private_key.size())) Serial.println("key loaded");
-    else Serial.println("key not loaded");
-    private_key.close();
+    // if (wifiClientSecure.loadPrivateKey(private_key, private_key.size())) Serial.println("key loaded");
+    // else Serial.println("key not loaded");
+    // private_key.close();
 
     // Load CA file:
     File ca = SPIFFS.open(config.mqtt.ca_file, "r");
     if (!ca) Serial.println("Failed to open CA file ");
     else Serial.println("Success to open CA file");
 
-    if (wifiClientSecure.loadCACert(ca, ca.size())) Serial.println("CA loaded");
-    else Serial.println("CA not loaded");
-    ca.close();
+    // if (wifiClientSecure.loadCACert(ca, ca.size())) Serial.println("CA loaded");
+    // else Serial.println("CA not loaded");
+    // ca.close();
   }
 
 }
@@ -593,6 +608,56 @@ void deepSleepHandler() {
 
 }
 
+void initSCD30(void){
+  Wire.begin();
+
+  //Start sensor using the Wire port and enable the auto-calibration (ASC)
+  if (airSensor.begin(Wire, true) == false)
+  {
+      Serial.println("Air sensor not detected. Please check wiring. Freezing...");
+      while (1)
+          ;
+  }
+
+  airSensor.setMeasurementInterval(2); //Change number of seconds between measurements: 2 to 1800 (30 minutes)
+
+
+  Serial.print("Auto calibration set to ");
+  if (airSensor.getAutoSelfCalibration() == true)
+      Serial.println("true");
+  else
+      Serial.println("false");
+
+  //The SCD30 has data ready every two seconds
+
+    //Read altitude compensation value
+  unsigned int altitude = airSensor.getAltitudeCompensation();
+  Serial.print("Current altitude: ");
+  Serial.print(altitude);
+  Serial.println("m");
+
+  //My desk is ~116m above sealevel
+  airSensor.setAltitudeCompensation(116); //Set altitude of the sensor in m, stored in non-volatile memory of SCD30
+
+  //Pressure in Boulder, CO is 24.65inHg or 834.74mBar
+  // airSensor.setAmbientPressure(835); //Current ambient pressure in mBar: 700 to 1200, will overwrite altitude compensation
+
+  //Read temperature offset
+  float offset = airSensor.getTemperatureOffset();
+  Serial.print("Current temp offset: ");
+  Serial.print(offset, 2);
+  Serial.println("C");
+
+  //airSensor.setTemperatureOffset(5); //Optionally we can set temperature offset to 5°C, stored in non-volatile memory of SCD30
+
+}
+
+void initGPS(void){
+  Serial.print(F("TinyGPS++ library v. ")); Serial.println(TinyGPSPlus::libraryVersion());
+  Serial.println();
+
+  ss.begin(GPSBaud);
+}
 
 void setup() {
   Serial.begin(115200);
@@ -600,6 +665,12 @@ void setup() {
   #ifdef ENABLE_SERIAL_DEBUG
     Serial.setDebugOutput(true);
   #endif
+
+
+  // SCD30 and GPS setup:
+  initGPS();
+  initSCD30();
+
 
   reconnect();
 
@@ -679,6 +750,51 @@ void loop() {
   }
 
 
+  // Check GPS location:
+  while (ss.available() > 0)
+    gps.encode(ss.read());
+
+  if (airSensor.dataAvailable()) {
+  Serial.print("co2(ppm):");
+  Serial.print(airSensor.getCO2());
+
+  Serial.print(" temp(C):");
+  Serial.print(airSensor.getTemperature(), 1);
+
+  Serial.print(" humidity(%):");
+  Serial.print(airSensor.getHumidity(), 1);
+
+  Serial.println();
+  
+  Serial.printf("Lat: %f - Long: %f - Date: %d - Time: %d - Spped: %f km/h\n", gps.location.lat(), gps.location.lng(), gps.date.value(), gps.time.value(), gps.speed.kmph());
+
+  // if(mqttClient.connected() && (config.device.publish_time_ms != 0) &&
+  //   (currentLoopMillis - previousMQTTPublishMillis > (unsigned)config.device.publish_time_ms)) {
+  //   previousMQTTPublishMillis = currentLoopMillis;
+  if(mqttClient.connected()) {
+    // Here starts the MQTT publish loop configured:
+
+    String base_topic_pub = "/" + config.mqtt.id_name + "/";
+    String topic_pub = base_topic_pub + "data";
+    
+    String msg_pub;
+    StaticJsonDocument<256> doc;
+
+    doc["CO2"] = airSensor.getCO2();
+    doc["temp"] = airSensor.getTemperature();
+    doc["humidity"] = airSensor.getHumidity();
+    doc["lat"] = gps.location.lat();
+    doc["lng"] = gps.location.lng();
+    doc["date"] = gps.date.value();
+    doc["time"] = gps.time.value();
+    doc["speed"] = gps.speed.kmph();
+
+    serializeJson(doc, msg_pub);    
+    mqttClient.publish(topic_pub.c_str(), msg_pub.c_str());
+
+  }
+
+}
 
 
   // Main Loop:
@@ -718,13 +834,14 @@ void loop() {
       (currentLoopMillis - previousMQTTPublishMillis > (unsigned)config.device.publish_time_ms)) {
     previousMQTTPublishMillis = currentLoopMillis;
     // Here starts the MQTT publish loop configured:
-
+    /*
     String base_topic_pub = "/" + config.mqtt.id_name + "/";
     String topic_pub = base_topic_pub + "data";
     // String msg_pub ="{\"angle\":35, \"distance\": 124}";
     String msg_pub ="{\"connected\":true}";
     mqttClient.publish(topic_pub.c_str(), msg_pub.c_str());
     Serial.println("MQTT published: " + msg_pub + " -- loop: " + config.device.publish_time_ms);
+    */
   }
 
 
