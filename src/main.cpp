@@ -788,6 +788,7 @@ void loop() {
     doc["date"] = gps.date.value();
     doc["time"] = gps.time.value();
     doc["speed"] = gps.speed.kmph();
+    doc["wifiSta_rssi"] = WiFi.RSSI();
 
     serializeJson(doc, msg_pub);    
     mqttClient.publish(topic_pub.c_str(), msg_pub.c_str());
