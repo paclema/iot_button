@@ -667,11 +667,6 @@ void setup() {
   #endif
 
 
-  // SCD30 and GPS setup:
-  initGPS();
-  initSCD30();
-
-
   reconnect();
 
   // Print some info:
@@ -698,6 +693,15 @@ void setup() {
     ws.addObjectToPublish("loop", getLoopTime);
     ws.addObjectToPublish("RSSI", getRSSI);
   }
+
+
+
+  // SCD30 and GPS setup:
+  initGPS();
+  initSCD30();
+
+
+
 
   Serial.println("###  Looping time\n");
 
