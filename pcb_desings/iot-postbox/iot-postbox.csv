@@ -1,30 +1,30 @@
-"Source:","K:\REPOS\iot_button\pcb_desings\iot-postbox\iot-postbox.sch",,,,,,
-"Date:","06/07/2021 19:57:52",,,,,,
-"Tool:","Eeschema (5.1.9)-1",,,,,,
-"Generator:","C:\Program Files\KiCad\bin\scripting\plugins/bom_csv_grouped_by_value_with_fp.py",,,,,,
-"Component Count:","38",,,,,,
-"Ref","Qnty",Value,Cmp name,Footprint,Description,Vendor," ""Pursached"""
-"C1, C3, C4, ","3",10uF,C,Capacitor_SMD:C_0805_2012Metric,,,100
-"C2, ","1",100nF,C,Capacitor_SMD:C_0805_2012Metric,Unpolarized capacitor,,100
-"C5, ","1",0.1uF,C,Capacitor_SMD:C_0805_2012Metric,,,100
-"C6, C7, ","2",1uf,C,Capacitor_SMD:C_0805_2012Metric,,,100
-"D1, D2, D3, ","3",1N4007,D,Diode_SMD:D_SOD-123,Diode,,100
-"D4, D5, ","2",LED,LED,LED_SMD:LED_0805_2012Metric,,,1000
-"J1, ","1",Switch_1,Conn_01x02,Connector_PinHeader_2.54mm:PinHeader_1x02_P2.54mm_Vertical,"Generic connector, single row, 01x02, script generated (kicad-library-utils/schlib/autogen/connector/)",,yes
-"J2, ","1",Switch_2,Conn_01x02,Connector_PinHeader_2.54mm:PinHeader_1x02_P2.54mm_Vertical,"Generic connector, single row, 01x02, script generated (kicad-library-utils/schlib/autogen/connector/)",,yes
-"J3, ","1",PowerIn,Conn_01x02,Connector_PinHeader_2.54mm:PinHeader_1x02_P2.54mm_Horizontal,"Generic connector, single row, 01x02, script generated (kicad-library-utils/schlib/autogen/connector/)",,yes
-"J4, ","1",USB_B_Micro,USB_B_Micro,Connector_USB:USB_Micro-B_Amphenol_10118194_Horizontal,USB Micro Type B connector,,50
-"J5, ","1",Battery,Conn_01x02,Connector_JST:JST_PH_S2B-PH-SM4-TB_1x02-1MP_P2.00mm_Horizontal,"Generic connector, single row, 01x02, script generated (kicad-library-utils/schlib/autogen/connector/)",,
-"J6, ","1",Battery,Conn_01x02,Connector_PinHeader_2.54mm:PinHeader_1x02_P2.54mm_Horizontal,"Generic connector, single row, 01x02, script generated (kicad-library-utils/schlib/autogen/connector/)",,yes
-"R1, R2, R3, R4, R5, R6, R7, ","7",10k,R,Resistor_SMD:R_0805_2012Metric,Resistor,,100
-"R8, R9, R10, ","3",1K,R,Resistor_SMD:R_0805_2012Metric,,,100
-"R11, ","1",100,R,Resistor_SMD:R_0805_2012Metric,,,100
-"R12, ","1",27K,R,Resistor_SMD:R_0805_2012Metric,,,100
-"R13, ","1",100K,R,Resistor_SMD:R_0805_2012Metric,,,100
-"R_PROG1, ","1",2K,R,Resistor_SMD:R_0805_2012Metric,,,100
-"U1, ","1",ESP-12F,ESP-12F,RF_Module:ESP-12E,802.11 b/g/n Wi-Fi Module,,10
-"U2, ","1",TTL_to_USB_adapter_iot_postbox,TTL_to_USB_adapter_iot_postbox,ttl_to_usb_adapter:TTL_to_USB_PinHeader,,,yes
-"U3, ","1",TP4056,TP4056,lib:TP4056_SOP-8-PP,,,50
-"U4, ","1",DW01,DW01,Package_TO_SOT_SMD:SOT-23-6_Handsoldering,,,60
-"U5, ","1",FS8205A,FS8205A,Package_SO:TSSOP-8_4.4x3mm_P0.65mm,,,60
-"U6, ","1",MCP1700-3302E_SOT23,MCP1700-3302E_SOT23,Package_TO_SOT_SMD:SOT-23,"250mA Low Quiscent Current LDO, 3.3V output, SOT-23",,50
+"Ref","Qnty",Value,Cmp name,Footprint,Description,Vendor," ""Pursached""",Arrived
+"Source:","K:\REPOS\iot_button\pcb_desings\iot-postbox\iot-postbox.sch",,,,,,,
+"Date:","06/07/2021 19:57:52",,,,,,,
+"Tool:","Eeschema (5.1.9)-1",,,,,,,
+"Generator:","C:\Program Files\KiCad\bin\scripting\plugins/bom_csv_grouped_by_value_with_fp.py",,,,,,,
+"Component Count:","38",,,,,,,
+"C1, C3, C4, ","3",10uF,C,Capacitor_SMD:C_0805_2012Metric,,,100,yes
+"C2, ","1",100nF,C,Capacitor_SMD:C_0805_2012Metric,Unpolarized capacitor,,100,yes
+"C5, ","1",0.1uF,C,Capacitor_SMD:C_0805_2012Metric,,,100,yes
+"C6, C7, ","2",1uf,C,Capacitor_SMD:C_0805_2012Metric,,,100,yes
+"D1, D2, D3, ","3",1N4007,D,Diode_SMD:D_SOD-123,Diode,,100,yes
+"D4, D5, ","2",LED,LED,LED_SMD:LED_0805_2012Metric,,,1000,
+"J1, ","1",Switch_1,Conn_01x02,Connector_PinHeader_2.54mm:PinHeader_1x02_P2.54mm_Vertical,"Generic connector, single row, 01x02, script generated (kicad-library-utils/schlib/autogen/connector/)",,yes,yes
+"J2, ","1",Switch_2,Conn_01x02,Connector_PinHeader_2.54mm:PinHeader_1x02_P2.54mm_Vertical,"Generic connector, single row, 01x02, script generated (kicad-library-utils/schlib/autogen/connector/)",,yes,yes
+"J3, ","1",PowerIn,Conn_01x02,Connector_PinHeader_2.54mm:PinHeader_1x02_P2.54mm_Horizontal,"Generic connector, single row, 01x02, script generated (kicad-library-utils/schlib/autogen/connector/)",,yes,yes
+"J4, ","1",USB_B_Micro,USB_B_Micro,Connector_USB:USB_Micro-B_Amphenol_10118194_Horizontal,USB Micro Type B connector,,50,yes
+"J5, ","1",Battery,Conn_01x02,Connector_JST:JST_PH_S2B-PH-SM4-TB_1x02-1MP_P2.00mm_Horizontal,"Generic connector, single row, 01x02, script generated (kicad-library-utils/schlib/autogen/connector/)",,,
+"J6, ","1",Battery,Conn_01x02,Connector_PinHeader_2.54mm:PinHeader_1x02_P2.54mm_Horizontal,"Generic connector, single row, 01x02, script generated (kicad-library-utils/schlib/autogen/connector/)",,yes,yes
+"R1, R2, R3, R4, R5, R6, R7, ","7",10k,R,Resistor_SMD:R_0805_2012Metric,Resistor,,100,yes
+"R8, R9, R10, ","3",1K,R,Resistor_SMD:R_0805_2012Metric,,,100,yes
+"R11, ","1",100,R,Resistor_SMD:R_0805_2012Metric,,,100,yes
+"R12, ","1",27K,R,Resistor_SMD:R_0805_2012Metric,,,100,yes
+"R13, ","1",100K,R,Resistor_SMD:R_0805_2012Metric,,,100,yes
+"R_PROG1, ","1",2K,R,Resistor_SMD:R_0805_2012Metric,,,100,yes
+"U1, ","1",ESP-12F,ESP-12F,RF_Module:ESP-12E,802.11 b/g/n Wi-Fi Module,,10,yes
+"U2, ","1",TTL_to_USB_adapter_iot_postbox,TTL_to_USB_adapter_iot_postbox,ttl_to_usb_adapter:TTL_to_USB_PinHeader,,,yes,yes
+"U3, ","1",TP4056,TP4056,lib:TP4056_SOP-8-PP,,,50,yes
+"U4, ","1",DW01,DW01,Package_TO_SOT_SMD:SOT-23-6_Handsoldering,,,60,yes
+"U5, ","1",FS8205A,FS8205A,Package_SO:TSSOP-8_4.4x3mm_P0.65mm,,,60,yes
+"U6, ","1",MCP1700-3302E_SOT23,MCP1700-3302E_SOT23,Package_TO_SOT_SMD:SOT-23,"250mA Low Quiscent Current LDO, 3.3V output, SOT-23",,50,yes
