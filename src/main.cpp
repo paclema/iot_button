@@ -125,15 +125,6 @@ unsigned long previousWSMillis = 0;
 unsigned long previousHandleAPMillis = 0;
 unsigned long previousMainLoopMillis = 0;
 
-// Websocket server:
-#include <WrapperWebSockets.h>
-WrapperWebSockets ws;
-
-// Websocket functions to publish:
-String getLoopTime(){ return String(currentLoopMillis - previousMainLoopMillis);}
-String getRSSI(){ return String(WiFi.RSSI());}
-String getHeapFree(){ return String((float)GET_FREE_HEAP/1000);}
-
 
 
 // PostBox:
@@ -177,7 +168,7 @@ void publishWakeUp(String topic){
   String msg_pub ="{\"wake_up_pin\": ";
   msg_pub += String(button);
   msg_pub = msg_pub + " ,\"vcc\": " + String(readVoltage());
-  msg_pub = msg_pub + " ,\"rssi\": " + getRSSI();
+  msg_pub = msg_pub + " ,\"rssi\": " + String(WiFi.RSSI());
 
   
 
@@ -257,6 +248,17 @@ void turnESPOff (void){
     digitalWrite(wake, LOW); //Turns the ESP OFF
 }
 
+
+
+// Websocket server:
+#include <WrapperWebSockets.h>
+WrapperWebSockets ws;
+
+// Websocket functions to publish:
+String getLoopTime(){ return String(currentLoopMillis - previousMainLoopMillis);}
+String getRSSI(){ return String(WiFi.RSSI());}
+String getHeapFree(){ return String((float)GET_FREE_HEAP/1000);}
+String getVCC(){ return String((float)readVoltage());}
 
 
 
@@ -768,6 +770,7 @@ void setup() {
     ws.addObjectToPublish("heap_free", getHeapFree);
     ws.addObjectToPublish("loop", getLoopTime);
     ws.addObjectToPublish("RSSI", getRSSI);
+    ws.addObjectToPublish("VCC", getVCC);
   }
 
   Serial.println("###  Looping time\n");
