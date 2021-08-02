@@ -146,17 +146,34 @@ volatile unsigned long lastTime =0;
 bool wakeUpPublished = false;
 
 int debounceMs = 200;         // To ignore button signals changes faster than this debounce ms
-ADC_MODE(ADC_VCC);            // Allows to monitor the internal VCC level; it varies with WiFi load
 
-uint16_t readVoltage() {
-  float volts = ESP.getVcc();
-  Serial.printf("The internal VCC reads %1.2f volts\n", volts / 1000);
+//Using tp4056 charger with battery fedback to ADC0 (max 1v!) and tp4056 chrg and stdby pins feedback:
+#define USE_TP4056
+#define NO_SLEEP_WHILE_CHARGING    // While charging the ESP won't go to sleep. Comment out this line if you want to avoid that
+
+
+#ifdef USE_TP4056
+  int chrg = 4;               // Pin for charge battery. LOW when usb is connected and baterry is being charged.
+  int stdby = 5;              // Pin for stdby battery charge. LOW for battery charge termination.
+#else
+  ADC_MODE(ADC_VCC);          // Allows to monitor the internal VCC level; it varies with WiFi load
+#endif
+
+float readVoltage() {
+  #ifdef USE_TP4056
+    int sensorValue = analogRead(A0);
+    float volts = sensorValue * (4.333 / 1023.0);
+    Serial.printf("The internal VCC reads %1.3f volts. CHRG: %d - STDBY: %d\n", volts , !digitalRead(chrg), !digitalRead(stdby));
+  #else
+    float volts = ESP.getVcc();
+    Serial.printf("The internal VCC reads %1.3f volts\n", volts / 1000);
+  #endif
   return volts;
 }
 
-void publishWakeUp(void){
+void publishWakeUp(String topic){
   String base_topic_pub = "/" + config.mqtt.id_name + "/";
-  String topic_pub = base_topic_pub + "wakeup";
+  String topic_pub = base_topic_pub + topic;
   String msg_pub ="{\"wake_up_pin\": ";
   msg_pub += String(button);
   msg_pub = msg_pub + " ,\"vcc\": " + String(readVoltage());
@@ -169,6 +186,11 @@ void publishWakeUp(void){
     msg_pub = msg_pub + " ,\"GPIO_" + buttons[i] + "_counter\": " + String(counter[i]);
     msg_pub = msg_pub + " ,\"GPIO_" + buttons[i] + "_state\": " + (digitalRead(buttons[i]) == HIGH ? "true" : "false");
   }
+
+  #ifdef USE_TP4056
+  msg_pub = msg_pub + " ,\"chrg\": " + !digitalRead(chrg);
+  msg_pub = msg_pub + " ,\"stdby\": " + !digitalRead(stdby);
+  #endif
   msg_pub +=" }";
   wakeUpPublished = mqttClient.publish(topic_pub.c_str(), msg_pub.c_str());
 }
@@ -185,7 +207,7 @@ ICACHE_RAM_ATTR void detectsChange(int pin) {
         counter[i]++;
       }
       Serial.printf(" -- GPIO %d count: %d\n", buttons[i], counter[i]);
-      publishWakeUp();
+      publishWakeUp("wakeup");
     return;
     }
   }
@@ -201,6 +223,11 @@ void setupPostBox(void){
   // ESP Awake Pin, the pin which keeps CH_PD HIGH, a requirement for normal functioning of ESP8266
   pinMode(wake, OUTPUT);
   digitalWrite(wake, HIGH);
+
+  #ifdef USE_TP4056
+  pinMode(chrg, INPUT);
+  pinMode(stdby, INPUT);
+  #endif
 
   //Check which button was pressed
   int sizeArray = sizeof buttons / sizeof *buttons;
@@ -541,8 +568,8 @@ void initMQTT(void){
     if (!cert) Serial.println("Failed to open cert file ");
     else Serial.println("Success to open cert file");
 
-    if (wifiClientSecure.loadCertificate(cert, cert.size())) Serial.println("cert loaded");
-    else Serial.println("cert not loaded");
+    // if (wifiClientSecure.loadCertificate(cert, cert.size())) Serial.println("cert loaded");
+    // else Serial.println("cert not loaded");
     cert.close();
 
     // Load private key:
@@ -552,8 +579,8 @@ void initMQTT(void){
     if (!private_key) Serial.println("Failed to open key file ");
     else Serial.println("Success to open key file");
 
-    if (wifiClientSecure.loadPrivateKey(private_key, private_key.size())) Serial.println("key loaded");
-    else Serial.println("key not loaded");
+    // if (wifiClientSecure.loadPrivateKey(private_key, private_key.size())) Serial.println("key loaded");
+    // else Serial.println("key not loaded");
     private_key.close();
 
     // Load CA file:
@@ -561,8 +588,8 @@ void initMQTT(void){
     if (!ca) Serial.println("Failed to open CA file ");
     else Serial.println("Success to open CA file");
 
-    if (wifiClientSecure.loadCACert(ca, ca.size())) Serial.println("CA loaded");
-    else Serial.println("CA not loaded");
+    // if (wifiClientSecure.loadCACert(ca, ca.size())) Serial.println("CA loaded");
+    // else Serial.println("CA not loaded");
     ca.close();
   }
 
@@ -610,7 +637,7 @@ void reconnectMQTT() {
         Serial.print((float)time_now/1000);
         Serial.println("s");
 
-        publishWakeUp();
+        publishWakeUp("wakeup");
 
       } else {
         Serial.print("failed, rc=");
@@ -661,7 +688,11 @@ void reconnect(void) {
 
 
 void deepSleepHandler() {
-  if (currentLoopMillis - previousLoopMillis > (unsigned)config.device.loop_time_ms){
+  #if defined(USE_TP4056) && defined(NO_SLEEP_WHILE_CHARGING)
+    if ((currentLoopMillis - previousLoopMillis > (unsigned)config.device.loop_time_ms) && !digitalRead(chrg) == false ){
+  #else
+    if ((currentLoopMillis - previousLoopMillis > (unsigned)config.device.loop_time_ms)){
+  #endif
     Serial.print("sleep_delay: "); Serial.print((config.services.deep_sleep.sleep_delay));
     Serial.print(" setupDeviceTime: "); Serial.print( (float)setupDeviceTime/1000);
     Serial.print(" currentLoopMillis: "); Serial.println((float)currentLoopMillis/1000);
@@ -672,7 +703,11 @@ void deepSleepHandler() {
 
   #elif defined(ESP8266)
     if ((currentLoopMillis > setupDeviceTime + (config.services.deep_sleep.sleep_delay*1000)) &&
+      #if defined(USE_TP4056) && defined(NO_SLEEP_WHILE_CHARGING)
+        (wakeUpPublished || mqttRetries >= mqttMaxRetries) && !digitalRead(chrg) == false){
+      #else
         (wakeUpPublished || mqttRetries >= mqttMaxRetries)){
+      #endif
       
       turnESPOff();
       delay(100);
@@ -826,14 +861,18 @@ void loop() {
     previousMQTTPublishMillis = currentLoopMillis;
     // Here starts the MQTT publish loop configured:
 
+    #if !defined(NO_SLEEP_WHILE_CHARGING) || !defined(USE_TP4056)
     String base_topic_pub = "/" + config.mqtt.id_name + "/";
-    String topic_pub = base_topic_pub + "data";
-    // String msg_pub ="{\"angle\":35, \"distance\": 124}";
+    String topic_pub = base_topic_pub + "sleepCountdown";
     String msg_pub ="{\"time_to_sleep\": ";
     msg_pub += String((config.services.deep_sleep.sleep_delay*1000 + setupDeviceTime - (currentLoopMillis))/1000);
     msg_pub +=" }";
     mqttClient.publish(topic_pub.c_str(), msg_pub.c_str());
-    Serial.println("MQTT published: " + msg_pub + " -- loop: " + config.device.publish_time_ms);
+    // Serial.println("MQTT published: " + msg_pub + " -- loop: " + config.device.publish_time_ms);
+    #endif
+    
+    publishWakeUp("data");
+    
   }
 
 
