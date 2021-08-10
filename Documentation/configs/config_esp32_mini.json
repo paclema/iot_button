@@ -37,9 +37,7 @@
     ]
   },
   "services": {
-    "OTA": {
-      "enabled": true
-    },
+    "OTA": true,
     "FTP": {
       "enabled": true,
       "user": "paclema",
@@ -71,7 +69,7 @@
       ]
     },
     "ntp": {
-      "enabled": true,
+      "enabled": false,
       "ntpServer": "pool.ntp.org",
       "gmt_offset_sec": 0,
       "daylight_offset_sec": 3600
@@ -86,8 +84,8 @@
     "motor_1":{
       "enabled": true,
       "debug": true,
-      "control_pin": 0,
-      "feedback_pin": 12,
+      "control_pin": 17,
+      "feedback_pin": 19,
       "angle_accuracy": 1,
       "motor_speed_pulse": 5,
       "servo_speed_ms/60": 600,
@@ -96,8 +94,8 @@
     "motor_2":{
       "enabled": true,
       "debug": true,
-      "control_pin": 2,
-      "feedback_pin": 13,
+      "control_pin": 16,
+      "feedback_pin": 23,
       "angle_accuracy": 1,
       "motor_speed_pulse": 5,
       "servo_speed_ms/60": 600,
@@ -105,10 +103,11 @@
     },
     "vl53l1x_1": {
       "enabled": true,
-      "debug": true,
+      "debug": false,
       "time_budget_ms": 20,
-      "XSHUT_pin": 16,
-      "I2c_address": 42,
+      "XSHUT_pin": 26,
+      "I2c_address": 53,
+      "distance_mode": "Short",
       "distance_mode_options": [
         "Short",
         "Medium",
@@ -118,10 +117,11 @@
     },
     "vl53l1x_2": {
       "enabled": true,
-      "debug": true,
+      "debug": false,
       "time_budget_ms": 20,
-      "XSHUT_pin": 14,
-      "I2c_address": 43,
+      "XSHUT_pin": 18,
+      "I2c_address": 54,
+      "distance_mode": "Short",
       "distance_mode_options": [
         "Short",
         "Medium",
@@ -136,10 +136,12 @@
     },
     "ROI": {
       "enabled": false,
-      "zones" : 4
+      "zones": 2,
+      "zone_1": [ 12, 15, 15, 0],
+      "zone_2": [ 0, 15, 3, 0]
     },
-    "angle_min": 20,
-    "angle_max": 150,
+    "angle_min": 80,
+    "angle_max": 280,
     "debug": true
   },
   "info": {

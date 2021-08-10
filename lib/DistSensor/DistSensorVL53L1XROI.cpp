@@ -23,10 +23,7 @@ void DistSensorVL53L1XROI::disableSensor(void) {
 
 void DistSensorVL53L1XROI::setup(void){
 
-  if (Wire.setPins(SDA, SCL)) Serial.println("Pins configured for I2C");
-  else Serial.println("Pins NOT configured for I2C");
-
-  Wire.begin();
+  Wire.begin(SDA, SCL);
 	Wire.setClock(400000); // use 400 kHz I2C
 
   // Serial.printf("\nI2C CLOCK: %zu", Wire.getClock());  

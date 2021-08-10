@@ -50,6 +50,8 @@ class ParallaxServo {
     int errorAngle = 0;                     // How off we are from the target angle
     int turns = 0;                          // How many times we've gone around the circle
 
+    int lastTargetOver = 0;
+
     bool debug = false;
     bool servoAttached = false;
 

@@ -19,6 +19,8 @@ Firmware:
 * MQTT client as QoS2 to detect disconnection and enabled connection using user&pass and/or certificates.
 * Added configurable DeepSleep modes for ESP8266.
 * Webserver or AsyncWebserver support.
+* Enabled lwip NAT features for ESP8266 and ESP32.
+* Added configurable NTP server.
 
 ## Requirements:
 
@@ -43,6 +45,7 @@ Using platformio run the next command: `pio run -t uploadfs`
 If you can not run angular-cli from platformio PowerShell using windows, activate it with:
 Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
 
+Under _webserver/_ folder:
 ```console
 ng build --prod --optimization=true --outputHashing=none; npm run postbuild
 ```

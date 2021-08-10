@@ -281,6 +281,8 @@ void Radar::loop(void){
     if (this->motor2.isDebug()) Serial.println("Motor 2 not powered on or feedback not available!");
   }
 
+  // Serial.printf("\tMotor1: %g  %d  ---  Motor2: %g  %d \n", motor1.getAngle(), motor1.getTurns(), motor2.getAngle(), motor2.getTurns());
+
 
 };
 
@@ -379,7 +381,7 @@ bool Radar::readPoints(void){
       }
     } else {
       if (this->debug){
-        Serial.printf("Error reading the sensor: %s\n", nameSensor.c_str());
+        // Serial.printf("Error reading the sensor: %s\n", nameSensor.c_str());
       }
     }
 
