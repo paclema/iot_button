@@ -36,7 +36,9 @@
     ]
   },
   "services": {
-    "OTA": true,
+    "OTA": {
+      "enabled": true
+    },
     "FTP": {
       "enabled": true,
       "user": "paclema",
