@@ -437,12 +437,12 @@ void PeopleCounter::notifyGesture(PeopleCounterGesture gesture){
 
   
   // Notify via MQTT:
-  String topic_pub = this->mqttBaseTopic + "/data/PeopleCounterGesture";
+  String topic_pub = this->mqttBaseTopic + "data/PeopleCounterGesture";
   String msg_pub = String(gesture);
   mqttClient->setBufferSize((uint16_t)(msg_pub.length() + 100));
   mqttClient->publish(topic_pub.c_str(), msg_pub.c_str(), msg_pub.length());
 
-  topic_pub = this->mqttBaseTopic + "/data/PeopleCounterGesture/decoded";
+  topic_pub = this->mqttBaseTopic + "data/PeopleCounterGesture/decoded";
   msg_pub = msgGesture;
   mqttClient->setBufferSize((uint16_t)(msg_pub.length() + 100));
   mqttClient->publish(topic_pub.c_str(), msg_pub.c_str(), msg_pub.length());
@@ -458,7 +458,7 @@ void PeopleCounter::notifyZoneDistancesPreGesture(){
   gettimeofday(&tv, nullptr);
 
   // Notify via MQTT:
-  String topic_pub = this->mqttBaseTopic + "/data/zoneDistances";
+  String topic_pub = this->mqttBaseTopic + "data/zoneDistances";
   String msg_pub = "{ \"zoneDistPreGesture\": " + getLastZoneDistancesPreGesture();
   if (sendTimestamp) {
     msg_pub += ", \"timestamp_s\": ";
@@ -479,7 +479,7 @@ void PeopleCounter::notifyZoneDistancesGesture(){
   gettimeofday(&tv, nullptr);
 
   // Notify via MQTT:
-  String topic_pub = this->mqttBaseTopic + "/data/zoneDistances";
+  String topic_pub = this->mqttBaseTopic + "data/zoneDistances";
   String msg_pub = "{ \"zoneDistGesture\": " + getLastZoneDistancesGesture();
   if (sendTimestamp) {
     msg_pub += ", \"timestamp_s\": ";
@@ -500,7 +500,7 @@ void PeopleCounter::notifyZoneDistancesPostGesture(){
   gettimeofday(&tv, nullptr);
 
   // Notify via MQTT:
-  String topic_pub = this->mqttBaseTopic + "/data/zoneDistances";
+  String topic_pub = this->mqttBaseTopic + "data/zoneDistances";
   String msg_pub = "{ \"zoneDistPostGesture\": " + getLastZoneDistancesPostGesture();
   if (sendTimestamp) {
     msg_pub += ", \"timestamp_s\": ";
@@ -529,7 +529,7 @@ void PeopleCounter::notifyStatusPerson(){
   if (this->debug) Serial.println(" - statusPerson[5]: " + msgStatusPerson);
 
   // Notify via MQTT:
-  String topic_pub = this->mqttBaseTopic + "/data/statusPerson";
+  String topic_pub = this->mqttBaseTopic + "data/statusPerson";
   String msg_pub = "{ \"statusPerson\": " + msgStatusPerson + " }";
   mqttClient->setBufferSize((uint16_t)(msg_pub.length() + 100));
   mqttClient->publish(topic_pub.c_str(), msg_pub.c_str(), msg_pub.length());
@@ -539,7 +539,7 @@ void PeopleCounter::notifyStatusPerson(){
 
 void PeopleCounter::notifyData(){
 
-  String topic_pub = this->mqttBaseTopic + "/data";
+  String topic_pub = this->mqttBaseTopic + "data";
   String msg_pub = "{";
   msg_pub += "\"peopleCount\": " + String(this->cnt);
   // msg_pub += "\"statusPerson\": " + msgStatusPerson + ", ";
@@ -554,7 +554,7 @@ void PeopleCounter::notifyData(){
 
 
 void PeopleCounter::notifyReedSwitch(){
-  String topic_pub = this->mqttBaseTopic + "/data/reedSwitch";
+  String topic_pub = this->mqttBaseTopic + "data/reedSwitch";
   String msg_pub = "{ \"reedSwitch\": " + String(this->reedSwitchState) + " }";
   if (this->debug) Serial.printf("\t-> reedSwitch: %d\n", this->reedSwitchState);
   mqttClient->publish(topic_pub.c_str(), msg_pub.c_str(), msg_pub.length());
