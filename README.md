@@ -1,5 +1,10 @@
 # iot_button
 
+## WARNING: _Repository Discontinued_
+This repository is now archived and further development is not expected. The repository was initially created as a proof of concept to develop a firmware for ESP8266 and ESP32 devices capable of running a web server stored into the flash memory next to Arduino based firmware code to handle easily internal configurations such as WiFI credentials and connection settings, MQTT, OTA and more services configurations or user custom class configurations. 
+
+This repository has been archived as a result of the creation of the Platformio [WebConfigServer](https://github.com/paclema/WebConfigServer) library.
+
 ## Features:
 
 Web application:
